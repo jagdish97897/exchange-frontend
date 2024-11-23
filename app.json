@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "KGVHybridSol",
-    "slug": "KGVHybridSol",
-    "version": "2.0.0",
+    "name": "Exchange",
+    "slug": "Exchange",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/kgv.png",
     "userInterfaceStyle": "light",
@@ -25,15 +25,19 @@
         "foregroundImage": "./assets/images/kgv.png",
         "backgroundColor": "#ffffff"
       },
-      "versionCode": 15,
-      "package": "com.jagdish89.KGVHybridSol"
-    },
-    "web": {
-      "favicon": "./assets/images/kgv.png"
+      "versionCode": 1,
+      "web": {
+        "favicon": "./assets/images/kgv.png"
+      },
+      "jsEngine": "jsc",
+      "plugins": [
+        "expo-secure-store"
+      ],
+      "package": "com.tsilteam.Exchange"
     },
     "extra": {
       "eas": {
-        "projectId": "bc80059c-edb0-4fd2-9875-9abe48be8c54"
+        "projectId": "de3fe3a0-f038-40e2-a3c2-60dfe6a9a9c7"
       }
     }
   }

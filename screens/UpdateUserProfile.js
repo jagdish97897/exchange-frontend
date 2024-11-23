@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Image, StyleSheet } from 'react-native';
 
-const UpdateUserProfile = ({route}) => {
-    const { phoneNumber } = route.params; 
+const UpdateUserProfile = ({ route }) => {
+    const { phoneNumber } = route.params;
     console.log(phoneNumber);
 
     const [userData, setUserData] = useState({
@@ -22,10 +22,10 @@ const UpdateUserProfile = ({route}) => {
 
     const fetchUserData = async () => {
         try {
-            const response = await fetch(`http://192.168.1.6:8000/api/v1/users/user/${phoneNumber}`);
+            const response = await fetch(`http://192.168.1.4:8000/api/v1/users/user/${phoneNumber}`);
             const result = await response.json();
             console.log('API Response:', result);
-    
+
             if (result.data) {
                 setUserData(result.data);
             } else {
@@ -35,7 +35,7 @@ const UpdateUserProfile = ({route}) => {
             console.error('Error fetching user data:', error);
         }
     };
-    
+
     const handleInputChange = (field, value) => {
         setUserData(prevData => ({
             ...prevData,
@@ -45,7 +45,7 @@ const UpdateUserProfile = ({route}) => {
 
     const handleSubmit = async () => {
         try {
-            const response = await fetch('http://192.168.1.6:8000/api/v1/users/updateuser', {
+            const response = await fetch('http://192.168.1.4:8000/api/v1/users/updateuser', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ const UpdateUserProfile = ({route}) => {
                 placeholder="Phone Number"
                 keyboardType="numeric"
             />
-            
+
             <TextInput
                 style={styles.input}
                 value={userData.profileImage}
@@ -154,7 +154,7 @@ export default UpdateUserProfile;
 // import { View, Text, TextInput, Button, Image, StyleSheet } from 'react-native';
 
 // const UpdateUserProfile = ({route}) => {
-//     const { phoneNumber } = route.params; 
+//     const { phoneNumber } = route.params;
 //     console.log(phoneNumber)
 
 //   const [userData, setUserData] = useState({
@@ -175,7 +175,7 @@ export default UpdateUserProfile;
 
 //   const fetchUserData = async () => {
 //     try {
-//       const response = await fetch('http://192.168.1.6:8000/api/v1/users/updateuser');
+//       const response = await fetch('http://192.168.1.4:8000/api/v1/users/updateuser');
 //       const result = await response.json();
 //       setUserData(result.data);
 //     } catch (error) {
@@ -192,7 +192,7 @@ export default UpdateUserProfile;
 
 //   const handleSubmit = async () => {
 //     try {
-//       const response = await fetch('http://192.168.1.6:8000/api/v1/users/updateuser', {
+//       const response = await fetch('http://192.168.1.4:8000/api/v1/users/updateuser', {
 //         method: 'PUT',
 //         headers: {
 //           'Content-Type': 'application/json',
