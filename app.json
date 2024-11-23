@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "KGVHybridSol",
+    "slug": "KGVHybridSol",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/kgv.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/kgv.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "permissions": [
+        "INTERNET"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/kgv.png",
+        "backgroundColor": "#ffffff"
+      },
+      "versionCode": 15,
+      "package": "com.jagdish89.KGVHybridSol"
+    },
+    "web": {
+      "favicon": "./assets/images/kgv.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "bc80059c-edb0-4fd2-9875-9abe48be8c54"
+      }
+    }
+  }
+}
