@@ -58,39 +58,6 @@ export default ({ navigation }) => {
         }
     };
     
-    // const handleLogin = async () => {
-    //     if (!phoneNumber) {
-    //         Alert.alert('Error', 'Please enter a valid phone number.');
-    //         return;
-    //     }
-    
-    //     if (!isOtpSent) {
-    //         // Send OTP
-    //         try {
-    //             const response = await axios.post('http://192.168.1.6:8000/api/v1/users/sendOtp', { phoneNumber });
-    //             if (response.status === 200) {
-    //                 setIsOtpSent(true);
-    //                 const otpFromServer = response.data.data.otp; 
-    //                 setServerOtp(otpFromServer);
-    //                 console.log('OTP sent:', otpFromServer); 
-    //                 Alert.alert('Success', 'OTP sent successfully.');
-    //             } else {
-    //                 throw new Error('Failed to send OTP.');
-    //             }
-    //         } catch (error) {
-    //             Alert.alert('Error', error.response?.data?.message || 'An error occurred while sending OTP.');
-    //         }
-    //     } else {
-    //         // Verify OTP
-    //         if (otp === serverOtp) {
-    //             Alert.alert('Success', 'Login successful.');
-    //             navigation.navigate('HomePreKyc');
-    //         } else {
-    //             Alert.alert('Error', 'Invalid OTP.');
-    //         }
-    //     }
-    // };
-
     return (
         <LinearGradient colors={['#06264D', '#FFF']} style={{ flex: 1 }}>
             <SafeAreaView style={{ flex: 1, paddingHorizontal: 20, paddingVertical: 40 }}>

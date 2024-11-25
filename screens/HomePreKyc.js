@@ -5,6 +5,7 @@ import { AntDesign, Feather, Entypo } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import Ind from '../assets/images/image 10.png';
 
 export default ({ route }) => {
   const { phoneNumber } = route.params; 
@@ -145,14 +146,13 @@ export default ({ route }) => {
         </View>
         <SafeAreaView style={styles.container}>
             <View className="flex-row bg-blue-100" style={styles.topBox}>
-            <Image source={{ uri: "https://via.placeholder.com/150" }} style={{width: 80,
+            <Image source={Ind} style={{width: 80,
     height: 50,
     width:50,
     borderRadius: 40,
     }} />
                 <Text className="pl-8" style={{fontSize: 30, fontWeight: '700'}}>TWCPL</Text>
             </View>
-
             <View style={styles.selectionContainer}>
                 <Text style={{fontSize: 28, color: '#FFF', marginBottom: 1}}>Where to ship?</Text>
             <View className="flex-row h-[99%] w-[110%]">
@@ -198,10 +198,6 @@ export default ({ route }) => {
           <TouchableOpacity onPress={() => navigation.navigate('Profile', { phoneNumber })}>
   <AntDesign name="user" size={24} color="white" />
 </TouchableOpacity>
-
-          {/* <TouchableOpacity >
-            <AntDesign name="user" size={24} color="white" />
-          </TouchableOpacity> */}
         </View>
         </View>
         </TouchableWithoutFeedback>
