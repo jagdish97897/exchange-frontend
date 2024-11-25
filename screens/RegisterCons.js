@@ -29,7 +29,7 @@ export default ({ navigation }) => {
     const handleRegister = async () => {
         console.log('Form Data:', formData);
         try {
-            const response = await fetch('http://192.168.1.6:8000/api/v1/users/signup', {
+            const response = await fetch('http://192.168.1.4:8000/api/v1/users/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
 //     const handleRegister = async () => {
 //         console.log('Form Data:', formData);
 //         try {
-//             const response = await fetch('http://192.168.1.6:8000/api/v1/users/signup', {
+//             const response = await fetch('http://192.168.1.4:8000/api/v1/users/signup', {
 //                 method: 'POST',
 //                 headers: {
 //                     'Content-Type': 'application/json'

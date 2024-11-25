@@ -15,12 +15,13 @@ export default ({ navigation }) => {
     return (
         <StyledSafeAreaView className="flex-1 justify-evenly items-center bg-white">
             <StyledView className="items-center">
-                <StyledImage 
-                    source={require("../assets/images/loginuper.png")} 
-                    style={{ width: 100, height: 100 }} 
+                <StyledImage
+                    source={require("../assets/images/loginuper.png")}
+                    style={{ width: 100, height: 100 }}
                     className="mb-4"
                 />
-                 <StyledText style={{ textAlign: 'center', fontWeight: 'bold' }}>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.</StyledText>
+                <StyledText style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                    Ready to proceed? Press Consumer!</StyledText>
                 <Button
                     title="Consumer"
                     buttonStyle={{
@@ -36,25 +37,31 @@ export default ({ navigation }) => {
             </StyledView>
 
             <SwipeButton
-                title={`Swipe to complete for ${check === 0 ? "Consumer" : 'VSP'}`}
+                title={`Swipe right to start your journey as a ${check === 0 ? "Consumer" : 'VSP'}`}
                 borderRadius={180}
                 onComplete={() => navigation.navigate(check === 0 ? 'RegisterCons' : 'RegisterVsp')}
                 containerStyle={{ backgroundColor: '#A9CBF4' }}
                 underlayTitle="Release to complete"
                 underlayTitleStyle={{ color: 'black' }}
                 disabled={check === -1}
+                titleStyle={{
+                    fontSize: 15, // Smaller font size to fit
+                    // color: "white", // Ensure good contrast
+                    textAlign: "center",
+                }}
             />
 
             <StyledView className="items-center">
-                <StyledImage 
-                    source={require("../assets/images/loginbottom.png")} 
-                    style={{ width: 100, height: 100 }} 
+                <StyledImage
+                    source={require("../assets/images/loginbottom.png")}
+                    style={{ width: 100, height: 100 }}
                     className="mb-4"
                 />
-              
-                <Text style={{ textAlign: 'center', fontWeight: 'bold' }}>
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.
-  </Text>
+
+                <StyledText style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                    Ready to proceed? Press VSP!
+                </StyledText>
+
                 <Button
                     title="VSP"
                     buttonStyle={{

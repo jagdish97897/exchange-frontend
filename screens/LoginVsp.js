@@ -3,6 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacity, Keyboard, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
+import { saveToken } from './Token.js';
 
 export default ({ navigation }) => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -26,38 +27,94 @@ export default ({ navigation }) => {
     }, []);
 
 
+    // const handleLogin = async () => {
+    //     if (!phoneNumber) {
+    //         Alert.alert('Error', 'Please enter a valid phone number.');
+    //         return;
+    //     }
+    
+    //     if (!isOtpSent) {
+    //         // Send OTP
+    //         try {
+    //             const response = await axios.post('http://192.168.1.4:8000/api/v1/users/sendOtp',
+    //                  { 
+    //                     phoneNumber,
+    //                     type:["owner", "broker", "driver"] 
+    //                   }
+    //         );
+    //             if (response.status === 200) {
+    //                 setIsOtpSent(true);
+    //                 const otpFromServer = response.data.data.otp; 
+    //                 setServerOtp(otpFromServer);
+    //                 console.log('OTP sent:', otpFromServer); 
+    //                 Alert.alert('Success', 'OTP sent successfully.');
+    //             } else {
+    //                 throw new Error('Failed to send OTP.');
+    //             }
+    //         } catch (error) {
+    //             Alert.alert('Error', error.response?.data?.message || 'An error occurred while sending OTP.');
+    //         }
+    //     } else {
+    //         // Verify OTP
+    //         const response = await axios.post('http://192.168.1.4:8000/api/v1/users/verifyOtp', { otp, phoneNumber });
+    //          console.log('response data : ',response.data);
+    //         if (response.status === 200) {
+               
+    //             Alert.alert('Success', 'Login successful.');
+    //             navigation.navigate('HomePreKyc',{phoneNumber});
+    //         } else {
+    //             Alert.alert('Error', 'Invalid OTP.');
+    //         }
+    //     }
+    // };
+
     const handleLogin = async () => {
         if (!phoneNumber) {
             Alert.alert('Error', 'Please enter a valid phone number.');
             return;
         }
     
-        if (!isOtpSent) {
-            // Send OTP
-            try {
-                const response = await axios.post('http://192.168.1.6:8000/api/v1/users/sendOtp', { phoneNumber });
+        try {
+            if (!isOtpSent) {
+                // Send OTP
+                const response = await axios.post('http://192.168.1.4:8000/api/v1/users/sendOtp', {
+                    phoneNumber,
+                    type: ['owner', 'broker', 'driver']
+                });
+    
                 if (response.status === 200) {
                     setIsOtpSent(true);
-                    const otpFromServer = response.data.data.otp; 
-                    setServerOtp(otpFromServer);
-                    console.log('OTP sent:', otpFromServer); 
+                    const otpFromServer = response.data.data.otp;
+                    setServerOtp(otpFromServer); // Save OTP if needed
+                    console.log('OTP sent:', otpFromServer);
                     Alert.alert('Success', 'OTP sent successfully.');
                 } else {
-                    throw new Error('Failed to send OTP.');
+                    throw new Error('Failed to send OTP.'); // This block might never be reached due to the 200 check above
                 }
-            } catch (error) {
-                Alert.alert('Error', error.response?.data?.message || 'An error occurred while sending OTP.');
-            }
-        } else {
-            // Verify OTP
-            if (otp === serverOtp) {
-                Alert.alert('Success', 'Login successful.');
-                navigation.navigate('HomePreKyc');
             } else {
-                Alert.alert('Error', 'Invalid OTP.');
+                // Verify OTP
+                const response = await axios.post('http://192.168.1.4:8000/api/v1/users/verifyOtp', {
+                    otp,
+                    phoneNumber,
+                });
+    
+                if (response.status === 200) {
+                    saveToken('token',response.data.data.token);
+                    // console.log('response data : ', response.data);
+                    Alert.alert('Success', 'Login successful.');
+                    navigation.navigate('HomePreKyc', { phoneNumber });
+                } else {
+                    throw new Error('Invalid OTP.');
+                }
             }
+        } catch (error) {
+            // Improved error handling
+            const errorMessage = error.response?.data?.message || error.message || 'An error occurred.';
+            // console.log('Error:', errorMessage); // Log error for debugging
+            Alert.alert('Error', errorMessage);
         }
     };
+    
 
     return (
         <LinearGradient colors={['#06264D', '#FFF']} style={{ flex: 1 }}>

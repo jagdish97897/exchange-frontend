@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Image, StyleSheet, Alert, ScrollView } from 'react-native';
 
-const UpdateUserProfile = ({ route, navigation }) => {
+const UpdateUserProfile = ({ route }) => {
     const { phoneNumber } = route.params;
+    console.log(phoneNumber);
 
     const [userData, setUserData] = useState({
         phoneNumber: phoneNumber || '',
@@ -31,7 +32,7 @@ const UpdateUserProfile = ({ route, navigation }) => {
 
     const fetchUserData = async () => {
         try {
-            const response = await fetch(`http://192.168.1.6:8000/api/v1/users/user/${phoneNumber}`);
+            const response = await fetch(`http://192.168.1.4:8000/api/v1/users/user/${phoneNumber}`);
             const result = await response.json();
 
             if (response.ok) {

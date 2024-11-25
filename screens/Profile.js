@@ -10,7 +10,7 @@ const Profile = ({ navigation, route }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = `http://192.168.1.6:8000/api/v1/users/user/${phoneNumber}`;
+  const API_URL = `http://192.168.1.4:8000/api/v1/users/user/${phoneNumber}`;
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -271,11 +271,11 @@ export default Profile;
 // import tailwind from 'tailwind-react-native-classnames';
 
 // const Profile = ({ navigation, route }) => {
-//   const { phoneNumber } = route.params; 
+//   const { phoneNumber } = route.params;
 //   const [user, setUser] = useState(null);
 //   const [loading, setLoading] = useState(true);
 
-//   const API_URL = `http://192.168.1.6:8000/api/v1/users/user/${phoneNumber}`;
+//   const API_URL = `http://192.168.1.4:8000/api/v1/users/user/${phoneNumber}`;
 
 //   useEffect(() => {
 //     const fetchUserData = async () => {
