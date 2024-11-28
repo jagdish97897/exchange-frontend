@@ -45,29 +45,27 @@ import Kyc2 from './screens/Kyc2';
 import Trips from './screens/Trips';
 import Profile from './screens/Profile';
 import UpdateUserProfile from './screens/UpdateUserProfile';
+import GoogleMap from './screens/GoogleMap';
 
 const Stack = createNativeStackNavigator();
 
 export default () => {
    return (
       <>
-         <Stack.Navigator initialRouteName='Landing' screenOptions={{ headerShown: false }}>
+         <Stack.Navigator initialRouteName='GoogleMap' screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Landing" component={Landing} />
             <Stack.Screen name="FlowSelect" component={FlowSelect} />
             <Stack.Screen name="FlowSelectregistation" component={FlowSelectregistation} />
             <Stack.Screen name="Marketplace" component={Marketplace} />
             <Stack.Screen name="LoginCons" component={LoginCons} />
             <Stack.Screen name="LoginVsp" component={LoginVsp} />
-            <Stack.Screen name="RegisterCons" component={RegisterCons} /> 
-            <Stack.Screen name="RegisterVsp" component={RegisterVsp} /> 
-            <Stack.Screen name="HomePreKyc" component={HomePreKyc} /> 
-            <Stack.Screen name="Kyc2" component={Kyc2} /> 
-            <Stack.Screen name="Trips" component={Trips} /> 
-            <Stack.Screen name="Profile" component={Profile} /> 
-            <Stack.Screen name="UpdateUserProfile" component={UpdateUserProfile} /> 
-           
-            
-
+            <Stack.Screen name="RegisterCons" component={RegisterCons} />
+            <Stack.Screen name="RegisterVsp" component={RegisterVsp} />
+            <Stack.Screen name="HomePreKyc" component={HomePreKyc} />
+            <Stack.Screen name="Kyc2" component={Kyc2} />
+            <Stack.Screen name="Trips" component={Trips} />
+            <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="UpdateUserProfile" component={UpdateUserProfile} />
             <Stack.Screen name="ForgotPin" component={ForgotPin} />
             <Stack.Screen name="Register" component={Register} />
             <Stack.Screen name="Register1" component={Register1} />
@@ -101,6 +99,7 @@ export default () => {
             <Stack.Screen name="MainNavigator1" component={MainNavigator1} />
             <Stack.Screen name="ContestpaymentImageUpload" component={ContestpaymentImageUpload} />
             <Stack.Screen name="PrimumpaymentImageUpload" component={PrimumpaymentImageUpload} />
+            <Stack.Screen name="GoogleMap" component={GoogleMap} />
          </Stack.Navigator>
       </>
    );
