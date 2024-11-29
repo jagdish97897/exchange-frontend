@@ -32,7 +32,7 @@ const UpdateUserProfile = ({ route }) => {
 
     const fetchUserData = async () => {
         try {
-            const response = await fetch(`http://192.168.1.3:8000/api/v1/users/user/${phoneNumber}`);
+            const response = await fetch(`http://192.168.1.8:8000/api/v1/users/user/${phoneNumber}`);
             const result = await response.json();
 
             if (response.ok) {

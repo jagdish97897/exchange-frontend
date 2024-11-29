@@ -24,8 +24,6 @@ import PaymentSuccessnew from './screens/PaymentSuccessnew';
 import MultipleImageUpload from './screens/MediaImageUpload';
 import PremiumUser from './screens/PremiumUser';
 import KgvPaymentSuccess from './screens/KgvPaymantSuccess';
-import UserNavigator from './UserNavigator';
-import MainNavigator1 from './MainNavigator1';
 import Register1 from './screens/Register1';
 import SpinFeature from './screens/SpinFeature';
 import TermsAndConditions from './screens/TermsAndConditions';
@@ -52,7 +50,7 @@ const Stack = createNativeStackNavigator();
 export default () => {
    return (
       <>
-         <Stack.Navigator initialRouteName='GoogleMap' screenOptions={{ headerShown: false }}>
+         <Stack.Navigator initialRouteName='Landing' screenOptions={{ headerShown: false }}>
             <Stack.Screen name="Landing" component={Landing} />
             <Stack.Screen name="FlowSelect" component={FlowSelect} />
             <Stack.Screen name="FlowSelectregistation" component={FlowSelectregistation} />
@@ -91,12 +89,10 @@ export default () => {
             <Stack.Screen name="MultipleImageUpload" component={MultipleImageUpload} />
             <Stack.Screen name="PremiumUser" component={PremiumUser} />
             <Stack.Screen name="KgvPaymentSuccess" component={KgvPaymentSuccess} />
-            <Stack.Screen name="UserNavigator" component={UserNavigator} />
             <Stack.Screen name="SpinFeature" component={SpinFeature} />
             <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
             <Stack.Screen name="PremiumPayment" component={PremiumPayment} />
             <Stack.Screen name="PaymentImageUpload" component={PaymentImageUpload} />
-            <Stack.Screen name="MainNavigator1" component={MainNavigator1} />
             <Stack.Screen name="ContestpaymentImageUpload" component={ContestpaymentImageUpload} />
             <Stack.Screen name="PrimumpaymentImageUpload" component={PrimumpaymentImageUpload} />
             <Stack.Screen name="GoogleMap" component={GoogleMap} />

@@ -4,6 +4,18 @@ import MapView, { Marker, Polyline } from "react-native-maps";
 import * as Location from "expo-location";
 import axios from "axios";
 
+export const getCurrentLocationCoordinates = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+        Alert.alert("Permission Denied", "Location permission is required.");
+        return;
+    }
+
+    const location = await Location.getCurrentPositionAsync({});
+
+    return location.coords;
+}
+
 const GoogleMap = () => {
     const [fromPin, setFromPin] = useState("");
     const [toPin, setToPin] = useState("");
@@ -13,10 +25,10 @@ const GoogleMap = () => {
     useEffect(() => {
         const fetchApiKey = async () => {
             try {
-                const response = await axios.get(`http://192.168.1.3:8000/api/googleApiKey`);
+                const response = await axios.get(`http://192.168.1.8:8000/api/googleApiKey`);
                 const apiKey = response.data; // Assuming the API key is in the response body
-                console.log(apiKey);
-                console.log(process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY);
+                // console.log(apiKey);
+                // console.log(process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY);
 
                 if (apiKey) {
                     setGOOGLE_MAPS_API_KEY(apiKey);
@@ -32,16 +44,9 @@ const GoogleMap = () => {
     // Fetch current location
     const getCurrentLocation = async (setPinCallback) => {
         try {
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== "granted") {
-                Alert.alert("Permission Denied", "Location permission is required.");
-                return;
-            }
+            const { latitude, longitude } = await getCurrentLocationCoordinates();
 
-            const location = await Location.getCurrentPositionAsync({});
-
-            if (location) {
-                const { latitude, longitude } = location.coords;
+            if (latitude && longitude) {
 
                 // Reverse geocoding to get PIN code
                 const response = await fetch(
@@ -61,8 +66,6 @@ const GoogleMap = () => {
                         Alert.alert("Error", "Unable to fetch PIN code from location.");
                     }
                 }
-
-
             }
 
         } catch (error) {
@@ -78,7 +81,7 @@ const GoogleMap = () => {
         }
 
         try {
-            const response = await fetch("http://192.168.1.3:8000/api/location", {
+            const response = await fetch("http://192.168.1.8:8000/api/location", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ fromPin, toPin }),
