@@ -45,6 +45,10 @@ import Kyc2 from './screens/Kyc2';
 import Trips from './screens/Trips';
 import Profile from './screens/Profile';
 import UpdateUserProfile from './screens/UpdateUserProfile';
+import HomePreKycConsumer from './screens/HomePreKycConsumer';
+import AddVehicleScreen from './screens/AddVehicleScreen';
+import GetVehicleScreen from './screens/GetVehicleScreen';
+import UpdateVehicleScreen from './screens/UpdateVehicleScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -61,10 +65,14 @@ export default () => {
             <Stack.Screen name="RegisterCons" component={RegisterCons} /> 
             <Stack.Screen name="RegisterVsp" component={RegisterVsp} /> 
             <Stack.Screen name="HomePreKyc" component={HomePreKyc} /> 
+            <Stack.Screen name="HomePreKycConsumer" component={HomePreKycConsumer} /> 
             <Stack.Screen name="Kyc2" component={Kyc2} /> 
             <Stack.Screen name="Trips" component={Trips} /> 
             <Stack.Screen name="Profile" component={Profile} /> 
             <Stack.Screen name="UpdateUserProfile" component={UpdateUserProfile} /> 
+            <Stack.Screen name="AddVehicleScreen" component={AddVehicleScreen} /> 
+            <Stack.Screen name="GetVehicleScreen" component={GetVehicleScreen} /> 
+            <Stack.Screen name="UpdateVehicleScreen" component={UpdateVehicleScreen} /> 
            
             
 
