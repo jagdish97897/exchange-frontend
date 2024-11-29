@@ -72,7 +72,7 @@ export default ({ navigation }) => {
             Alert.alert('Error', errorMessage);
         }
     };
-    
+
     return (
         <LinearGradient colors={['#06264D', '#FFF']} style={{ flex: 1 }}>
             <SafeAreaView style={{ flex: 1, paddingHorizontal: 20, paddingVertical: 40 }}>

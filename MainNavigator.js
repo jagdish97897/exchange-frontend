@@ -24,8 +24,6 @@ import PaymentSuccessnew from './screens/PaymentSuccessnew';
 import MultipleImageUpload from './screens/MediaImageUpload';
 import PremiumUser from './screens/PremiumUser';
 import KgvPaymentSuccess from './screens/KgvPaymantSuccess';
-import UserNavigator from './UserNavigator';
-import MainNavigator1 from './MainNavigator1';
 import Register1 from './screens/Register1';
 import SpinFeature from './screens/SpinFeature';
 import TermsAndConditions from './screens/TermsAndConditions';
@@ -49,6 +47,7 @@ import HomePreKycConsumer from './screens/HomePreKycConsumer';
 import AddVehicleScreen from './screens/AddVehicleScreen';
 import GetVehicleScreen from './screens/GetVehicleScreen';
 import UpdateVehicleScreen from './screens/UpdateVehicleScreen';
+import GoogleMap from './screens/GoogleMap';
 
 const Stack = createNativeStackNavigator();
 
@@ -71,11 +70,19 @@ export default () => {
             <Stack.Screen name="Profile" component={Profile} /> 
             <Stack.Screen name="UpdateUserProfile" component={UpdateUserProfile} /> 
             <Stack.Screen name="AddVehicleScreen" component={AddVehicleScreen} /> 
-            <Stack.Screen name="GetVehicleScreen" component={GetVehicleScreen} /> 
+          <Stack.Screen name="GoogleMap" component={GoogleMap} />
+          <Stack.Screen name="GetVehicleScreen" component={GetVehicleScreen} /> 
             <Stack.Screen name="UpdateVehicleScreen" component={UpdateVehicleScreen} /> 
            
             
 
+            <Stack.Screen name="RegisterCons" component={RegisterCons} />
+            <Stack.Screen name="RegisterVsp" component={RegisterVsp} />
+            <Stack.Screen name="HomePreKyc" component={HomePreKyc} />
+            <Stack.Screen name="Kyc2" component={Kyc2} />
+            <Stack.Screen name="Trips" component={Trips} />
+            <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="UpdateUserProfile" component={UpdateUserProfile} />
             <Stack.Screen name="ForgotPin" component={ForgotPin} />
             <Stack.Screen name="Register" component={Register} />
             <Stack.Screen name="Register1" component={Register1} />
@@ -101,12 +108,10 @@ export default () => {
             <Stack.Screen name="MultipleImageUpload" component={MultipleImageUpload} />
             <Stack.Screen name="PremiumUser" component={PremiumUser} />
             <Stack.Screen name="KgvPaymentSuccess" component={KgvPaymentSuccess} />
-            <Stack.Screen name="UserNavigator" component={UserNavigator} />
             <Stack.Screen name="SpinFeature" component={SpinFeature} />
             <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
             <Stack.Screen name="PremiumPayment" component={PremiumPayment} />
             <Stack.Screen name="PaymentImageUpload" component={PaymentImageUpload} />
-            <Stack.Screen name="MainNavigator1" component={MainNavigator1} />
             <Stack.Screen name="ContestpaymentImageUpload" component={ContestpaymentImageUpload} />
             <Stack.Screen name="PrimumpaymentImageUpload" component={PrimumpaymentImageUpload} />
          </Stack.Navigator>
