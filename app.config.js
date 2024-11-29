@@ -5,10 +5,10 @@ export default ({ config
   slug: "Exchange",
   version: "1.0.0",
   orientation: "portrait",
-  icon: "./assets/images/kgv.png",
+  icon: "./assets/images/logo-removebg-preview 1.png",
   userInterfaceStyle: "light",
   splash: {
-    image: "./assets/images/kgv.png",
+    image: "./assets/images/logo-removebg-preview 1.png",
     resizeMode: "contain",
     backgroundColor: "#ffffff",
   },
