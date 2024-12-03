@@ -69,6 +69,7 @@
     "react-native-web": "~0.19.6",
     "react-native-wheel-of-fortune": "^1.5.4",
     "react-redux": "^9.1.2",
+    "socket.io-client": "^4.8.1",
     "tailwind-react-native-classnames": "^1.5.1",
     "yoga-layout": "^3.1.0"
   },
