@@ -17,6 +17,7 @@ import AddVehicleScreen from './screens/AddVehicleScreen';
 import GetVehicleScreen from './screens/GetVehicleScreen';
 import UpdateVehicleScreen from './screens/UpdateVehicleScreen';
 import GoogleMap from './screens/GoogleMap';
+import WebSocketScreen from './screens/WebSocketScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,20 +31,20 @@ export default () => {
             <Stack.Screen name="Marketplace" component={Marketplace} />
             <Stack.Screen name="LoginCons" component={LoginCons} />
             <Stack.Screen name="LoginVsp" component={LoginVsp} />
-            <Stack.Screen name="RegisterCons" component={RegisterCons} /> 
-            <Stack.Screen name="RegisterVsp" component={RegisterVsp} /> 
-            <Stack.Screen name="HomePreKyc" component={HomePreKyc} /> 
-            <Stack.Screen name="HomePreKycConsumer" component={HomePreKycConsumer} /> 
-            <Stack.Screen name="Kyc2" component={Kyc2} /> 
-            <Stack.Screen name="Trips" component={Trips} /> 
-            <Stack.Screen name="Profile" component={Profile} /> 
-            <Stack.Screen name="UpdateUserProfile" component={UpdateUserProfile} /> 
-            <Stack.Screen name="AddVehicleScreen" component={AddVehicleScreen} /> 
+            <Stack.Screen name="RegisterCons" component={RegisterCons} />
+            <Stack.Screen name="RegisterVsp" component={RegisterVsp} />
+            <Stack.Screen name="HomePreKyc" component={HomePreKyc} />
+            <Stack.Screen name="HomePreKycConsumer" component={HomePreKycConsumer} />
+            <Stack.Screen name="Kyc2" component={Kyc2} />
+            <Stack.Screen name="Trips" component={Trips} />
+            <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="UpdateUserProfile" component={UpdateUserProfile} />
+            <Stack.Screen name="AddVehicleScreen" component={AddVehicleScreen} />
             <Stack.Screen name="GoogleMap" component={GoogleMap} />
-            <Stack.Screen name="GetVehicleScreen" component={GetVehicleScreen} /> 
-            <Stack.Screen name="UpdateVehicleScreen" component={UpdateVehicleScreen} /> 
+            <Stack.Screen name="GetVehicleScreen" component={GetVehicleScreen} />
+            <Stack.Screen name="UpdateVehicleScreen" component={UpdateVehicleScreen} />
+            <Stack.Screen name="WebSocketScreen" component={WebSocketScreen} />
          </Stack.Navigator>
       </>
    );
-
 }
