@@ -35,7 +35,7 @@ export default ({ navigation }) => {
         try {
             if (!isOtpSent) {
                 // Send OTP
-                const response = await axios.post('http://192.168.1.2:8000/api/v1/users/sendOtp', {
+                const response = await axios.post('http://192.168.1.6:8000/api/v1/users/sendOtp', {
                     phoneNumber,
                     type: ['consumer', 'transporter']
                 });
@@ -51,7 +51,7 @@ export default ({ navigation }) => {
                 }
             } else {
                 // Verify OTP
-                const response = await axios.post('http://192.168.1.2:8000/api/v1/users/verifyOtp', {
+                const response = await axios.post('http://192.168.1.6:8000/api/v1/users/verifyOtp', {
                     otp,
                     phoneNumber,
                 });
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
 //         if (!isOtpSent) {
 //             // Send OTP
 //             try {
-//                 const response = await axios.post('http://192.168.1.2:8000/api/v1/users/sendOtp', { phoneNumber });
+//                 const response = await axios.post('http://192.168.1.6:8000/api/v1/users/sendOtp', { phoneNumber });
 //                 if (response.status === 200) {
 //                     setIsOtpSent(true);
 //                     setServerOtp(response.data.data.otp); // Update to match the response structure

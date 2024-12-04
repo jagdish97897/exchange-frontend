@@ -57,7 +57,7 @@ const AddVehicleScreen = () => {
       },
     };
     try {
-      const response = await fetch("http://192.168.1.2:8000/api/vehicles", {
+      const response = await fetch("http://192.168.1.6:8000/api/vehicles", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -31,7 +31,7 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
   useEffect(() => {
     const fetchVehicleDetails = async () => {
       try {
-        const response = await fetch(`http://192.168.1.2:8000/api/vehicles/${vehicleNumber}`);
+        const response = await fetch(`http://192.168.1.6:8000/api/vehicles/${vehicleNumber}`);
         const result = await response.json();
         console.log("result",result)
 
@@ -78,7 +78,7 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
     }
   
     try {
-      const response = await fetch(`http://192.168.1.2:8000/api/vehicles/update/${vehicleNumber}`, {
+      const response = await fetch(`http://192.168.1.6:8000/api/vehicles/update/${vehicleNumber}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

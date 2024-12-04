@@ -10,7 +10,7 @@ const Profile = ({ navigation, route }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = `http://192.168.1.2:8000/api/v1/users/user/${phoneNumber}`;
+  const API_URL = `http://192.168.1.6:8000/api/v1/users/user/${phoneNumber}`;
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -74,7 +74,8 @@ const Profile = ({ navigation, route }) => {
       {/* Profile Image and Name */}
       <View style={tailwind`items-center mt-6`}>
         <Image
-          source={{ uri: user.profileImage || 'https://via.placeholder.com/150' }}
+         source={{ uri: encodeURI(user.profileImage) || 'https://via.placeholder.com/150' }}
+
           style={[tailwind`rounded-full border-4 border-blue-500`, { width: width * 0.35, height: width * 0.35 }]}
         />
         <Text style={[tailwind`text-2xl font-bold mt-4`, { fontSize: width * 0.08 }]}>{user.fullName}</Text>
@@ -139,7 +140,7 @@ export default Profile;
 //   const [user, setUser] = useState(null);
 //   const [loading, setLoading] = useState(true);
 
-//   const API_URL = `http://192.168.1.2:8000/api/v1/users/user/${phoneNumber}`;
+//   const API_URL = `http://192.168.1.6:8000/api/v1/users/user/${phoneNumber}`;
 
 //   useEffect(() => {
 //     const fetchUserData = async () => {

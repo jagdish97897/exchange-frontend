@@ -3,6 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacity, Keyboard, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Picker } from '@react-native-picker/picker';
+import * as ImagePicker from 'expo-image-picker'; 
 
 export default ({ navigation }) => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -15,26 +16,60 @@ export default ({ navigation }) => {
         type: '',
         companyName: '',
         website: '',
-        profileImage: '',
         aadharNumber: '',
         panNumber: '',
         dob: '',
         gender: '',
+        profileImage: null,
     });
 
     const handleChange = (name, value) => {
         setFormData({ ...formData, [name]: value });
     };
 
+    const pickImage = async () => {
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            Alert.alert('Permission Denied', 'Permission to access media library is required!');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            handleChange('profileImage', result.assets[0].uri);
+        }
+    };
+
     const handleRegister = async () => {
-        console.log('Form Data:', formData);
+        const form = new FormData();
+        for (const key in formData) {
+            if (key === 'profileImage' && formData[key]) {
+                const filename = formData.profileImage.split('/').pop();
+                const fileType = filename.split('.').pop();
+                form.append('profileImage', {
+                    uri: formData.profileImage,
+                    name: filename,
+                    type: `image/${fileType}`,
+                });
+            } else {
+                form.append(key, formData[key]);
+            }
+        }
+
         try {
-            const response = await fetch('http://192.168.1.2:8000/api/v1/users/signup', {
+            const response = await fetch('http://192.168.1.6:8000/api/v1/users/signup', {
                 method: 'POST',
+                body: form,
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'multipart/form-data',
                 },
-                body: JSON.stringify(formData)
             });
 
             const result = await response.json();
@@ -46,7 +81,7 @@ export default ({ navigation }) => {
                 Alert.alert('Error', result.message || 'Registration failed');
             }
         } catch (error) {
-            Alert.alert('Error', `Error: ${error}`);
+            Alert.alert('Error', `Error: ${error.message}`);
         }
     };
 
@@ -142,13 +177,15 @@ export default ({ navigation }) => {
                                 onChangeText={(text) => handleChange('website', text)}
                                 value={formData.website}
                             />
-                            <TextInput
-                                placeholder='profileImage'
-                                style={styles.input}
-                                placeholderTextColor="#000"
-                                onChangeText={(text) => handleChange('profileImage', text)}
-                                value={formData.profileImage}
-                            />
+ <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+                                <Text style={styles.uploadButtonText}>Pick Profile Image</Text>
+                            </TouchableOpacity>
+                            {formData.profileImage && (
+                                <Image
+                                    source={{ uri: formData.profileImage }}
+                                    style={styles.previewImage}
+                                />
+                            )}
                         </>
                     )}
 
@@ -167,13 +204,6 @@ export default ({ navigation }) => {
                                 placeholderTextColor="#000"
                                 onChangeText={(text) => handleChange('website', text)}
                                 value={formData.website}
-                            />
-                            <TextInput
-                                placeholder='Profile Image'
-                                style={styles.input}
-                                placeholderTextColor="#000"
-                                onChangeText={(text) => handleChange('profileImage', text)}
-                                value={formData.profileImage}
                             />
                             <TextInput
                                 placeholder='Aadhar Number'
@@ -203,6 +233,16 @@ export default ({ navigation }) => {
                                 onChangeText={(text) => handleChange('gender', text)}
                                 value={formData.gender}
                             />
+                             <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+                                <Text style={styles.uploadButtonText}>Pick Profile Image</Text>
+                            </TouchableOpacity>
+                            {formData.profileImage && (
+                                <Image
+                                    source={{ uri: formData.profileImage }}
+                                    style={styles.previewImage}
+                                />
+                            )}
+                            
                         </>
                     )}
 
@@ -310,6 +350,24 @@ const styles = StyleSheet.create({
         color: '#000',
         paddingLeft: 2
     },
+    uploadButton: {
+        backgroundColor: '#06264D',
+        padding: 10,
+        borderRadius: 5,
+        marginVertical: 10,
+    },
+    uploadButtonText: {
+        color: '#FFF',
+        textAlign: 'center',
+        fontWeight: 'bold',
+    },
+    previewImage: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        marginVertical: 10,
+        alignSelf: 'center',
+    },
 
 });
 
@@ -342,7 +400,7 @@ const styles = StyleSheet.create({
 //     const handleRegister = async () => {
 //         console.log('Form Data:', formData);
 //         try {
-//             const response = await fetch('http://192.168.1.2:8000/api/v1/users/signup', {
+//             const response = await fetch('http://192.168.1.6:8000/api/v1/users/signup', {
 //                 method: 'POST',
 //                 headers: {
 //                     'Content-Type': 'application/json'
