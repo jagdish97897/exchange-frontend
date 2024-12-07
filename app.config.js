@@ -36,11 +36,11 @@ export default ({ config
     plugins: [
       "expo-secure-store"
     ],
-    package: "com.jagdish89.Exchange"
+    package: "com.tsilteam.Exchange"
   },
   extra: {
     eas: {
-      projectId: "604adac1-b4cb-4fa0-ba1e-ff6433debe69"
+      projectId: "de3fe3a0-f038-40e2-a3c2-60dfe6a9a9c7"
     }
   }
 });

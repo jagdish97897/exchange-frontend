@@ -28,7 +28,7 @@ const PremiumPayment = ({ route }) => {
     useEffect(() => {
         const userInfo = async () => {
             try {
-                const response = await axios.get(`http://192.168.1.5:8005/api/v1/visitor/details/${formData.userId}`);
+                const response = await axios.get(`http://192.168.1.13:8000/api/v1/visitor/details/${formData.userId}`);
                 // console.log('response.data.data[0].spinTheWheel', response.data.data[0].spinTheWheel)
                 setSpinTheWheel(response.data.data[0].spinTheWheel);
             } catch (error) {

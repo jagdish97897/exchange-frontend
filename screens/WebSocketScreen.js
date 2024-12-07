@@ -9,17 +9,17 @@ const WebSocketScreen = () => {
 
     useEffect(() => {
         // Connect to the Socket.IO server
-        const socketInstance = io("http://192.168.1.3:8000"); // Replace with your server URL
+        const socketInstance = io("http://192.168.1.13:8000"); // Replace with your server URL
         setSocket(socketInstance);
 
         socketInstance.on("connect", () => {
             console.log("Connected to the server!", socketInstance.id);
         });
 
-        // socketInstance.on("newMessage", (message) => {
-        //     console.log("New message received:", message);
-        //     setMessages((prevMessages) => [...prevMessages, message.text]);
-        // });
+        socketInstance.on("newMessage", (message) => {
+            console.log("New message received:", message);
+            setMessages((prevMessages) => [...prevMessages, message.text]);
+        });
 
         socketInstance.on("hny", (message1) => {
             console.log("New message received2:", message1);

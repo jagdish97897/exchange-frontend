@@ -31,9 +31,9 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
   useEffect(() => {
     const fetchVehicleDetails = async () => {
       try {
-        const response = await fetch(`http://192.168.1.6:8000/api/vehicles/${vehicleNumber}`);
+        const response = await fetch(`http://192.168.1.13:8000/api/vehicles/${vehicleNumber}`);
         const result = await response.json();
-        console.log("result",result)
+        console.log("result", result)
 
         if (response.ok) {
           setVehicleData({
@@ -62,7 +62,7 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
     newRcCopy[index] = value;
     setVehicleData((prevData) => ({ ...prevData, rcCopy: newRcCopy }));
   };
-  
+
 
   // Update input fields dynamically
   const handleChange = (field, value) => {
@@ -71,21 +71,21 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
 
   const handleSubmit = async () => {
     const { rcCopy, height, width, length, ownerId, tdsDeclaration, ownerConsent } = vehicleData;
-  
+
     if (!rcCopy || !height || !width || !length || !ownerId) {
       Alert.alert("Error", "Please fill in all required fields.");
       return;
     }
-  
+
     try {
-      const response = await fetch(`http://192.168.1.6:8000/api/vehicles/update/${vehicleNumber}`, {
+      const response = await fetch(`http://192.168.1.13:8000/api/vehicles/update/${vehicleNumber}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(vehicleData),
       });
-  
+
       const result = await response.json();
       if (response.ok) {
         Alert.alert("Success", "Vehicle updated successfully!");
@@ -143,7 +143,7 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
             placeholderTextColor="#000"
             value={vehicleData.rcCopy[0] || ""} // Display the first RC copy by default
             onChangeText={(value) => handleRcCopyChange(0, value)}
-          
+
           />
           <TextInput
             style={styles.input}
@@ -201,82 +201,82 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
 
 
 const styles = StyleSheet.create({
-    container: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    logo: {
-        width: 150,
-        height: 150,
-        resizeMode: 'contain',
-        marginBottom: 20,
-    },
-    registerText: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#000',
-        marginBottom: 20,
-    },
-    input: {
-        width: '100%',
-        height: 50,
-        backgroundColor: '#FFF',
-        borderRadius: 8,
-        marginBottom: 15,
-        paddingHorizontal: 15,
-        borderColor: '#ccc',
-        borderWidth: 1,
-    },
-    label: {
-        fontSize: 16,
-        marginBottom: 8,
-      },
-    pickerContainer: {
-        width: '100%',
-        height: 50,
-        backgroundColor: '#FFF',
-        borderRadius: 8,
-        marginBottom: 15,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        justifyContent: 'center',
-    },
-    picker: {
-        width: '100%',
-        height: '100%',
-    },
-    button: {
-        width: '100%',
-        height: 50,
-        backgroundColor: '#06264D',
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: '#FFF',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    footer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        marginTop: 20
-    },
-    smallImage: {
-        width: 40,
-        height: 40
-    },
-    footerTextContainer: {
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    footerText: {
-        color: '#000',
-        paddingLeft: 2
-    },
+  container: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logo: {
+    width: 150,
+    height: 150,
+    resizeMode: 'contain',
+    marginBottom: 20,
+  },
+  registerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 20,
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#FFF',
+    borderRadius: 8,
+    marginBottom: 15,
+    paddingHorizontal: 15,
+    borderColor: '#ccc',
+    borderWidth: 1,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  pickerContainer: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#FFF',
+    borderRadius: 8,
+    marginBottom: 15,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    justifyContent: 'center',
+  },
+  picker: {
+    width: '100%',
+    height: '100%',
+  },
+  button: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#06264D',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginTop: 20
+  },
+  smallImage: {
+    width: 40,
+    height: 40
+  },
+  footerTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  footerText: {
+    color: '#000',
+    paddingLeft: 2
+  },
 
 });
 

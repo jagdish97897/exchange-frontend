@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, ScrollView, Image, StyleSheet ,SafeAreaView,TouchableOpacity} from 'react-native';
+import { View, Text, TextInput, Button, Alert, ScrollView, Image, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import axios from 'axios';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const PaymentImageUpload = ({ route }) => {
   // Destructure parameters from the route
-  const {formData, amount, visitorId, cartId } = route.params;
+  const { formData, amount, visitorId, cartId } = route.params;
 
   const [images, setImages] = useState([]);
   const [visitorIdState, setVisitorId] = useState(visitorId || '');
@@ -22,7 +22,7 @@ const PaymentImageUpload = ({ route }) => {
         } else if (response.error) {
           console.log('ImagePicker Error: ', response.error);
         } else if (response.assets) {
-          setImages(response.assets); 
+          setImages(response.assets);
         }
       }
     );
@@ -48,7 +48,7 @@ const PaymentImageUpload = ({ route }) => {
     formData.append('amount', amountState);
 
     try {
-      const response = await axios.post('http://192.168.1.5:8005/api/upload', formData, {
+      const response = await axios.post('http://192.168.1.13:8000/api/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -63,74 +63,74 @@ const PaymentImageUpload = ({ route }) => {
       console.error('Upload error:', error.response ? error.response.data : error.message);
       Alert.alert('Error', error.response?.data?.message || 'An error occurred during the upload');
     }
-};
+  };
 
 
   return (
     <LinearGradient colors={['#06264D', "#FFF"]} style={{ flex: 1 }}>
-    <SafeAreaView style={{ flex: 1, padding: 40 }}>
-    <View style={styles.headingContainer}>
+      <SafeAreaView style={{ flex: 1, padding: 40 }}>
+        <View style={styles.headingContainer}>
           <Text style={styles.headingText}>Payment Information</Text>
         </View>
 
-      <View style={styles.imageContainer}>
-      <Text style={styles.text}> pay using the following details:</Text>
-      <Text style={styles.text}>Scan the QR code to make a payment:</Text>
-        <Image
-          source={require("../assets/images/scanner.png")} 
-          style={styles.image}
-        />
-    
-        <Text style={styles.text}>UPI Transfer Details:</Text>
-        <View style={styles.card}>
-      <Text style={styles.text1}>UPI ID : KGVL@sbi</Text>
-    </View>
-        <Text style={styles.text}>Bank Transfer Details:</Text>
-        <View style={styles.card}>
-      <Text style={styles.text1}>Bank Account No : 872347578662</Text>
-      <Text style={styles.text1}>IFSC Code : BABR0AIRPOR</Text>
-      
-    </View>
-    <Text style={styles.text2}>Your payable amount is {amount} for booking:</Text>
-      </View>
-
-   
-
-
-
-
-
-      {/* <Button title="Select Images" onPress={handleImagePicker} />
-      <Button title="Upload" onPress={handleSubmit} /> */}
-
-      <View style={styles.container}>
-        
-      <TouchableOpacity style={styles.button} onPress={handleImagePicker}>
-        <Text style={styles.buttonText}>Select Images</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Submit</Text>
-      </TouchableOpacity>
-    </View>
-      {/* Display selected images */}
-      <View style={styles.imageContainer}>
-        {images.map((image, index) => (
+        <View style={styles.imageContainer}>
+          <Text style={styles.text}> pay using the following details:</Text>
+          <Text style={styles.text}>Scan the QR code to make a payment:</Text>
           <Image
-            key={index}
-            source={{ uri: image.uri }}
+            source={require("../assets/images/scanner.png")}
             style={styles.image}
           />
-        ))}
-      </View>
+
+          <Text style={styles.text}>UPI Transfer Details:</Text>
+          <View style={styles.card}>
+            <Text style={styles.text1}>UPI ID : KGVL@sbi</Text>
+          </View>
+          <Text style={styles.text}>Bank Transfer Details:</Text>
+          <View style={styles.card}>
+            <Text style={styles.text1}>Bank Account No : 872347578662</Text>
+            <Text style={styles.text1}>IFSC Code : BABR0AIRPOR</Text>
+
+          </View>
+          <Text style={styles.text2}>Your payable amount is {amount} for booking:</Text>
+        </View>
+
+
+
+
+
+
+
+        {/* <Button title="Select Images" onPress={handleImagePicker} />
+      <Button title="Upload" onPress={handleSubmit} /> */}
+
+        <View style={styles.container}>
+
+          <TouchableOpacity style={styles.button} onPress={handleImagePicker}>
+            <Text style={styles.buttonText}>Select Images</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>Submit</Text>
+          </TouchableOpacity>
+        </View>
+        {/* Display selected images */}
+        <View style={styles.imageContainer}>
+          {images.map((image, index) => (
+            <Image
+              key={index}
+              source={{ uri: image.uri }}
+              style={styles.image}
+            />
+          ))}
+        </View>
       </SafeAreaView>
-      </LinearGradient>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-    gradientBackground: {
-        flex: 1,
-    },
+  gradientBackground: {
+    flex: 1,
+  },
   input: {
     borderWidth: 1,
     marginBottom: 10,
@@ -257,7 +257,7 @@ export default PaymentImageUpload;
 //     formData.append('amount', amountState);
 
 //     try {
-//       const response = await axios.post('http://192.168.1.5:8005/api/upload', formData, {
+//       const response = await axios.post('http://192.168.1.13:8000/api/upload', formData, {
 //         headers: {
 //           'Content-Type': 'multipart/form-data',
 //         },
@@ -389,7 +389,7 @@ export default PaymentImageUpload;
 //     formData.append('amount', amount);
 
 //     try {
-//       const response = await axios.post('http://192.168.1.5:8005/api/upload', formData, {
+//       const response = await axios.post('http://192.168.1.13:8000/api/upload', formData, {
 //         headers: {
 //           'Content-Type': 'multipart/form-data',
 //         },

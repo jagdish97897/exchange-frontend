@@ -40,7 +40,7 @@ const UpdateUserProfile = ({ route }) => {
   
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`http://192.168.1.6:8000/api/v1/users/user/${phoneNumber}`);
+        const response = await fetch(`http://192.168.1.13:8000/api/v1/users/user/${phoneNumber}`);
         const result = await response.json();
   
         if (response.ok) {
@@ -150,7 +150,7 @@ const UpdateUserProfile = ({ route }) => {
           console.log('condition formadata',formData.profileImage);
         }
   
-        const response = await fetch(`http://192.168.1.6:8000/api/v1/users/updateuser/${phoneNumber}`, {
+        const response = await fetch(`http://192.168.1.13:8000/api/v1/users/updateuser/${phoneNumber}`, {
           method: 'PUT',
           body: formData,
         });
@@ -323,10 +323,10 @@ export default UpdateUserProfile;
 //     fetchUserData();
 //   }, [phoneNumber]);
 
-//   const fetchUserData = async () => {
-//     try {
-//       const response = await fetch(`http://192.168.1.6:8000/api/v1/users/user/${phoneNumber}`);
-//       const result = await response.json();
+//     const fetchUserData = async () => {
+//         try {
+//             const response = await fetch(`http://192.168.1.13:8000/api/v1/users/user/${phoneNumber}`);
+//             const result = await response.json();
 
 //       if (response.ok) {
 //         setUserData((prevData) => ({
@@ -432,7 +432,7 @@ export default UpdateUserProfile;
 //         });
 //       }
   
-//       const response = await fetch(`http://192.168.1.6:8000/api/v1/users/updateuser/${phoneNumber}`, {
+//       const response = await fetch(`http://192.168.1.13:8000/api/v1/users/updateuser/${phoneNumber}`, {
 //         method: 'PUT',
 //         headers: {
 //           'Content-Type': 'multipart/form-data', // Set this header explicitly
@@ -468,7 +468,40 @@ export default UpdateUserProfile;
 //       broker: ['aadharNumber', 'panNumber'],
 //     };
 
-//     const fieldsToRender = additionalFields[userData.type] || [];
+//     const handleSubmit = async () => {
+//         if (!validateFields()) {
+//             return;
+//         }
+    
+//         try {
+//             const response = await fetch(`http://192.168.1.13:8000/api/v1/users/updateuser/${phoneNumber}`, {
+//                 method: 'PUT',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                 },
+//                 body: JSON.stringify(userData),
+//             });
+//             const result = await response.json();
+    
+//             if (response.ok) {
+//                 setUpdatedData(result.data);
+//                 Alert.alert('Success', 'User data updated successfully.', [
+//                     {
+//                         text: 'OK',
+//                         onPress: () => {
+//                             // Navigate to Profile screen after successful update
+//                             navigation.navigate('Profile', { phoneNumber }); // Pass any necessary params
+//                         },
+//                     },
+//                 ]);
+//             } else {
+//                 Alert.alert('Error', result.message || 'Failed to update user data.');
+//             }
+//         } catch (error) {
+//             console.error('Error updating user data:', error);
+//             Alert.alert('Error', 'An error occurred while updating user data.');
+//         }
+//     };
 
 //     return fieldsToRender.map((field) => (
 //       <View key={field}>

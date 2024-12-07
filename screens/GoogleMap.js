@@ -25,7 +25,7 @@ const GoogleMap = () => {
     useEffect(() => {
         const fetchApiKey = async () => {
             try {
-                const response = await axios.get(`http://192.168.1.6:8000/api/googleApiKey`);
+                const response = await axios.get(`http://192.168.1.13:8000/api/googleApiKey`);
                 const apiKey = response.data; // Assuming the API key is in the response body
                 // console.log(apiKey);
                 // console.log(process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY);
@@ -45,6 +45,8 @@ const GoogleMap = () => {
     const getCurrentLocation = async (setPinCallback) => {
         try {
             const { latitude, longitude } = await getCurrentLocationCoordinates();
+
+            console.log('latitude : ', latitude, ' longitude: ', longitude);
 
             if (latitude && longitude) {
 
@@ -81,7 +83,7 @@ const GoogleMap = () => {
         }
 
         try {
-            const response = await fetch("http://192.168.1.6:8000/api/location", {
+            const response = await fetch("http://192.168.1.13:8000/api/location", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ fromPin, toPin }),
@@ -150,6 +152,26 @@ const GoogleMap = () => {
                             longitude: routeData.startLocation.lng,
                         }}
                         title="From"
+                        description="I are here"
+                        pinColor="green" // Change marker color (if no image is used)
+                    />
+
+                    <Marker
+                        coordinate={{
+                            latitude: 26.8946744,
+                            longitude: 78.71084325,
+                        }}
+                        title="From"
+                        description="I are here"
+                    />
+
+                    <Marker
+                        coordinate={{
+                            latitude: 24.8946744,
+                            longitude: 78.71084325,
+                        }}
+                        title="From"
+                        description="I are here"
                     />
 
                     {/* End Marker */}
@@ -159,6 +181,7 @@ const GoogleMap = () => {
                             longitude: routeData.endLocation.lng,
                         }}
                         title="To"
+                        description="Driver are here"
                     />
 
                     {/* Route Polyline */}
@@ -167,8 +190,8 @@ const GoogleMap = () => {
                             latitude: point.latitude,
                             longitude: point.longitude,
                         }))}
-                        strokeWidth={4}
-                        strokeColor="blue"
+                        strokeWidth={2}
+                        strokeColor="black"
                     />
                 </MapView>
             )}

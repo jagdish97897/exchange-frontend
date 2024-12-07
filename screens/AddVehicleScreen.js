@@ -18,16 +18,16 @@ const AddVehicleScreen = () => {
   const [ownerConsent, setOwnerConsent] = useState("");
   const [brokerConsent, setBrokerConsent] = useState("");
 
-    // Driver details state variables
-    const [driverFullName, setDriverFullName] = useState("");
-    const [driverProfileImage, setDriverProfileImage] = useState("");
-    const [driverEmail, setDriverEmail] = useState("");
-    const [driverPhoneNumber, setDriverPhoneNumber] = useState("");
-    const [driverAadharNumber, setDriverAadharNumber] = useState("");
-    const [driverPanNumber, setDriverPanNumber] = useState("");
-    const [driverDlNumber, setDriverDlNumber] = useState("");
-    const [driverDob, setDriverDob] = useState("");
-    const [driverGender, setDriverGender] = useState("");
+  // Driver details state variables
+  const [driverFullName, setDriverFullName] = useState("");
+  const [driverProfileImage, setDriverProfileImage] = useState("");
+  const [driverEmail, setDriverEmail] = useState("");
+  const [driverPhoneNumber, setDriverPhoneNumber] = useState("");
+  const [driverAadharNumber, setDriverAadharNumber] = useState("");
+  const [driverPanNumber, setDriverPanNumber] = useState("");
+  const [driverDlNumber, setDriverDlNumber] = useState("");
+  const [driverDob, setDriverDob] = useState("");
+  const [driverGender, setDriverGender] = useState("");
 
   const handleSubmit = async () => {
     if (!vehicleNumber || !rcCopy || !height || !width || !length || !ownerId) {
@@ -57,13 +57,13 @@ const AddVehicleScreen = () => {
       },
     };
     try {
-      const response = await fetch("http://192.168.1.6:8000/api/vehicles", {
+      const response = await fetch("http://192.168.1.13:8000/api/vehicles", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(vehicleData),
-        
+
       });
       const result = await response.json();
       if (response.ok) {
@@ -188,63 +188,63 @@ const AddVehicleScreen = () => {
             onChangeText={setOwnerConsent}
           />
 
-           <TextInput
+          <TextInput
             style={styles.input}
             placeholder="Driver Full Name"
             placeholderTextColor="#000"
             value={driverFullName}
             onChangeText={setDriverFullName}
           />
-           <TextInput
+          <TextInput
             style={styles.input}
             placeholder="Profile Image"
             placeholderTextColor="#000"
             value={driverProfileImage}
             onChangeText={setDriverProfileImage}
           />
-           <TextInput
+          <TextInput
             style={styles.input}
             placeholder="Driver Email"
             placeholderTextColor="#000"
             value={driverEmail}
             onChangeText={setDriverEmail}
           />
-           <TextInput
+          <TextInput
             style={styles.input}
             placeholder="Driver Phone Number"
             placeholderTextColor="#000"
             value={driverPhoneNumber}
             onChangeText={setDriverPhoneNumber}
           />
-           <TextInput
+          <TextInput
             style={styles.input}
             placeholder="Driver Aadhar Number"
             placeholderTextColor="#000"
             value={driverAadharNumber}
             onChangeText={setDriverAadharNumber}
           />
-           <TextInput
+          <TextInput
             style={styles.input}
             placeholder="Driver Pan Number"
             placeholderTextColor="#000"
             value={driverPanNumber}
             onChangeText={setDriverPanNumber}
           />
-           <TextInput
+          <TextInput
             style={styles.input}
             placeholder="Driver Dl Number"
             placeholderTextColor="#000"
             value={driverDlNumber}
             onChangeText={setDriverDlNumber}
           />
-           <TextInput
+          <TextInput
             style={styles.input}
             placeholder="Driver Dob"
             placeholderTextColor="#000"
             value={driverDob}
             onChangeText={setDriverDob}
           />
-           <TextInput
+          <TextInput
             style={styles.input}
             placeholder="Driver Gender"
             placeholderTextColor="#000"
@@ -285,82 +285,82 @@ const AddVehicleScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    logo: {
-        width: 150,
-        height: 150,
-        resizeMode: 'contain',
-        marginBottom: 20,
-    },
-    registerText: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#000',
-        marginBottom: 20,
-    },
-    input: {
-        width: '100%',
-        height: 50,
-        backgroundColor: '#FFF',
-        borderRadius: 8,
-        marginBottom: 15,
-        paddingHorizontal: 15,
-        borderColor: '#ccc',
-        borderWidth: 1,
-    },
-    label: {
-        fontSize: 16,
-        marginBottom: 8,
-      },
-    pickerContainer: {
-        width: '100%',
-        height: 50,
-        backgroundColor: '#FFF',
-        borderRadius: 8,
-        marginBottom: 15,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        justifyContent: 'center',
-    },
-    picker: {
-        width: '100%',
-        height: '100%',
-    },
-    button: {
-        width: '100%',
-        height: 50,
-        backgroundColor: '#06264D',
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: '#FFF',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    footer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        marginTop: 20
-    },
-    smallImage: {
-        width: 40,
-        height: 40
-    },
-    footerTextContainer: {
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    footerText: {
-        color: '#000',
-        paddingLeft: 2
-    },
+  container: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logo: {
+    width: 150,
+    height: 150,
+    resizeMode: 'contain',
+    marginBottom: 20,
+  },
+  registerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 20,
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#FFF',
+    borderRadius: 8,
+    marginBottom: 15,
+    paddingHorizontal: 15,
+    borderColor: '#ccc',
+    borderWidth: 1,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  pickerContainer: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#FFF',
+    borderRadius: 8,
+    marginBottom: 15,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    justifyContent: 'center',
+  },
+  picker: {
+    width: '100%',
+    height: '100%',
+  },
+  button: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#06264D',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginTop: 20
+  },
+  smallImage: {
+    width: 40,
+    height: 40
+  },
+  footerTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  footerText: {
+    color: '#000',
+    paddingLeft: 2
+  },
 
 });
 

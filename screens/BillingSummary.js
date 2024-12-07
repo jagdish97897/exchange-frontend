@@ -19,7 +19,7 @@ const BillingSummary = ({ route, navigation }) => {
         // Fetch cart data
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://192.168.1.5:8005/api/cart/item/${cartId}`);
+                const response = await axios.get(`http://192.168.1.13:8000/api/cart/item/${cartId}`);
                 setData(response.data);
             } catch (error) {
                 console.log('Error fetching cart data:', error);
@@ -32,7 +32,7 @@ const BillingSummary = ({ route, navigation }) => {
         // Fetch buyer details using visitorId
         const fetchBuyerDetails = async () => {
             try {
-                const response = await axios.get(`http://192.168.1.5:8005/api/v1/visitor/details/${visitorId}`);
+                const response = await axios.get(`http://192.168.1.13:8000/api/v1/visitor/details/${visitorId}`);
                 setBuyerDetails(response.data.data[0]);
             } catch (error) {
                 console.log('Error fetching buyer details:', error);

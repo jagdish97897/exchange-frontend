@@ -4,8 +4,8 @@ import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacit
 import { Picker } from '@react-native-picker/picker';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { MaterialIcons } from '@expo/vector-icons';
-import Icon from 'react-native-vector-icons/Ionicons'; 
-import DatePicker from 'react-native-date-picker'; 
+import Icon from 'react-native-vector-icons/Ionicons';
+import DatePicker from 'react-native-date-picker';
 import CheckBox from '@react-native-community/checkbox';
 
 // Get device screen width and height
@@ -87,7 +87,7 @@ export default ({ navigation }) => {
 
         try {
             console.log('formData.referralCode', formData.referralCode)
-            const response = await fetch('http://192.168.1.5:8005/api/v1/auth/signup', {
+            const response = await fetch('http://192.168.1.13:8000/api/v1/auth/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -139,7 +139,7 @@ export default ({ navigation }) => {
             return;
         }
         try {
-            const response = await fetch('http://192.168.1.5:8005/api/v1/auth/sendOtp', {
+            const response = await fetch('http://192.168.1.13:8000/api/v1/auth/sendOtp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

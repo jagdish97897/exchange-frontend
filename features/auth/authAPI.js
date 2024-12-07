@@ -16,7 +16,7 @@ export function createUser(userData) {
 // export function loginUser(loginInfo) {
 //   return new Promise(async (resolve, reject) => {
 //     try {
-//       const response = await fetch("http://192.168.1.5:8005/api/v1/users/login", {
+//       const response = await fetch("http://192.168.1.13:8000/api/v1/users/login", {
 //         method: "POST",
 //         body: JSON.stringify(loginInfo),
 //         headers: { "content-type": "application/json" },
@@ -42,7 +42,7 @@ export function createUser(userData) {
 export function loginUser(loginInfo) {
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await fetch("http://192.168.1.5:8005/api/v1/users/login", {
+      const response = await fetch("http://192.168.1.13:8000/api/v1/users/login", {
         method: "POST",
         body: JSON.stringify(loginInfo),
         headers: { "content-type": "application/json" },
@@ -72,7 +72,7 @@ export function checkUser() {
     try {
       const tokenC = await AsyncStorage.getItem('token');
       console.log(`Bearer ${tokenC}`);
-      const response = await fetch("http://192.168.1.5:8005/api/v1/users/current-user", {
+      const response = await fetch("http://192.168.1.13:8000/api/v1/users/current-user", {
         method: "GET",
         headers: {
           authorization: `Bearer ${tokenC}`
@@ -131,7 +131,7 @@ export function fetchUser(loginInfo) {
 //   return new Promise(async (resolve, reject) => {
 //     try {
 //       console.log(`Bearer ${JSON.parse(AsyncStorage.getItem('token'))}`);
-//       const response = await fetch("http://192.168.1.5:8005/api/v1/users/current-user", {
+//       const response = await fetch("http://192.168.1.13:8000/api/v1/users/current-user", {
 //         method: "GET",
 //         headers: {
 //           authorization: `Bearer ${JSON.parse(AsyncStorage.getItem('token'))}`

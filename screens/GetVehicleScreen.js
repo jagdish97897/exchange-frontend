@@ -20,7 +20,7 @@ const GetVehicleScreen = ({ route, navigation }) => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  console.log("ownerId",ownerId)
+  console.log("ownerId", ownerId)
 
   useEffect(() => {
     fetchVehiclesByOwnerId();
@@ -30,7 +30,7 @@ const GetVehicleScreen = ({ route, navigation }) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://192.168.1.6:8000/api/vehicles/owner/${ownerId}`
+        `http://192.168.1.13:8000/api/vehicles/owner/${ownerId}`
       );
       const result = await response.json();
 
@@ -49,17 +49,17 @@ const GetVehicleScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-        setKeyboardVisible(true);
+      setKeyboardVisible(true);
     });
     const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-        setKeyboardVisible(false);
+      setKeyboardVisible(false);
     });
 
     return () => {
-        keyboardDidShowListener.remove();
-        keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
     };
-}, []);
+  }, []);
   const renderVehicleItem = ({ item }) => (
 
 
@@ -70,7 +70,7 @@ const GetVehicleScreen = ({ route, navigation }) => {
       <Text style={styles.vehicleText}>Length: {item.length} m</Text>
       <Text style={styles.vehicleText}>Tds Declaration: {item.tdsDeclaration}</Text>
       <Text style={styles.vehicleText}>Owner Consent: {item.ownerConsent}</Text>
-      
+
       {item.broker && <Text style={styles.vehicleText}>Broker ID: {item.broker}</Text>}
       <TouchableOpacity
         style={styles.detailsButton}
@@ -93,53 +93,53 @@ const GetVehicleScreen = ({ route, navigation }) => {
   return (
 
     <LinearGradient colors={['#06264D', "#FFF"]} style={{ flex: 1 }}>
-    <SafeAreaView style={{ flex: 1, padding: 20 }}>
+      <SafeAreaView style={{ flex: 1, padding: 20 }}>
         <KeyboardAwareScrollView
-            resetScrollToCoords={{ x: 0, y: 0 }}
-            contentContainerStyle={styles.container}
-            scrollEnabled={true}
-            enableAutomaticScroll={true}
-            enableOnAndroid={true}
-            extraScrollHeight={100}
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
+          resetScrollToCoords={{ x: 0, y: 0 }}
+          contentContainerStyle={styles.container}
+          scrollEnabled={true}
+          enableAutomaticScroll={true}
+          enableOnAndroid={true}
+          extraScrollHeight={100}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
         >
+          <Image
+            source={require("../assets/images/logo-removebg-preview 1.png")}
+            style={styles.logo}
+          />
+          <Text style={styles.title}>Vehicle List</Text>
+          <FlatList
+            data={vehicles}
+            keyExtractor={(item) => item._id}
+            renderItem={renderVehicleItem}
+            contentContainerStyle={styles.listContent}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>No vehicles found for this owner.</Text>
+            }
+          />
+        </KeyboardAwareScrollView>
+        {!keyboardVisible && (
+          <View style={styles.footer}>
             <Image
-                source={require("../assets/images/logo-removebg-preview 1.png")}
-                style={styles.logo}
+              source={require("../assets/images/mantra.jpg")}
+              style={styles.smallImage}
             />
-      <Text style={styles.title}>Vehicle List</Text>
-      <FlatList
-        data={vehicles}
-        keyExtractor={(item) => item._id}
-        renderItem={renderVehicleItem}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>No vehicles found for this owner.</Text>
-        }
-      />
-    </KeyboardAwareScrollView>
-                {!keyboardVisible && (
-                    <View style={styles.footer}>
-                        <Image
-                            source={require("../assets/images/mantra.jpg")}
-                            style={styles.smallImage}
-                        />
-                        <View style={styles.footerTextContainer}>
-                            <Text style={styles.footerText}>Made in</Text>
-                            <Image
-                                source={require("../assets/images/image 10.png")}
-                                style={styles.smallImage}
-                            />
-                        </View>
-                        <Image
-                            source={require("../assets/images/make-in-India-logo.jpg")}
-                            style={styles.smallImage}
-                        />
-                    </View>
-                )}
-            </SafeAreaView>
-        </LinearGradient>
+            <View style={styles.footerTextContainer}>
+              <Text style={styles.footerText}>Made in</Text>
+              <Image
+                source={require("../assets/images/image 10.png")}
+                style={styles.smallImage}
+              />
+            </View>
+            <Image
+              source={require("../assets/images/make-in-India-logo.jpg")}
+              style={styles.smallImage}
+            />
+          </View>
+        )}
+      </SafeAreaView>
+    </LinearGradient>
   );
 };
 
@@ -148,13 +148,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-},
-logo: {
+  },
+  logo: {
     width: 150,
     height: 150,
     resizeMode: 'contain',
     marginBottom: 20,
-},
+  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -208,19 +208,19 @@ logo: {
     alignItems: 'center',
     justifyContent: 'space-around',
     marginTop: 20
-},
-smallImage: {
+  },
+  smallImage: {
     width: 40,
     height: 40
-},
-footerTextContainer: {
+  },
+  footerTextContainer: {
     flexDirection: 'row',
     alignItems: 'center'
-},
-footerText: {
+  },
+  footerText: {
     color: '#000',
     paddingLeft: 2
-},
+  },
 });
 
 export default GetVehicleScreen;

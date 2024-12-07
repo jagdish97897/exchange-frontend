@@ -64,7 +64,7 @@ export default ({ navigation }) => {
         }
 
         try {
-            const response = await fetch('http://192.168.1.6:8000/api/v1/users/signup', {
+            const response = await fetch('http://192.168.1.13:8000/api/v1/users/signup', {
                 method: 'POST',
                 body: form,
                 headers: {
@@ -161,7 +161,8 @@ export default ({ navigation }) => {
                                 style={styles.input}
                                 placeholderTextColor="#000"
                                 onChangeText={(text) => handleChange('gstin', text)}
-                                value={formData.gstin}
+                                value={formData.gstin.toUpperCase()}
+                                maxLength={15}
                             />
                             <TextInput
                                 placeholder='Company Name'
@@ -211,13 +212,15 @@ export default ({ navigation }) => {
                                 placeholderTextColor="#000"
                                 onChangeText={(text) => handleChange('aadharNumber', text)}
                                 value={formData.aadharNumber}
+                                maxLength={16}
                             />
                             <TextInput
                                 placeholder='PAN Number'
                                 style={styles.input}
                                 placeholderTextColor="#000"
                                 onChangeText={(text) => handleChange('panNumber', text)}
-                                value={formData.panNumber}
+                                value={formData.panNumber.toUpperCase()}
+                                maxLength={10}
                             />
                             <TextInput
                                 placeholder='Date of Birth'
@@ -400,7 +403,7 @@ const styles = StyleSheet.create({
 //     const handleRegister = async () => {
 //         console.log('Form Data:', formData);
 //         try {
-//             const response = await fetch('http://192.168.1.6:8000/api/v1/users/signup', {
+//             const response = await fetch('http://192.168.1.13:8000/api/v1/users/signup', {
 //                 method: 'POST',
 //                 headers: {
 //                     'Content-Type': 'application/json'

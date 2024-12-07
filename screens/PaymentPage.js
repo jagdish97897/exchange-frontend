@@ -11,9 +11,9 @@ const { width, height } = Dimensions.get('window');
 
 const PaymentPage = ({ route, navigation }) => {
   const { formData, user, amount, visitorId, cartId, totalPrice } = route.params;
-  
 
-console.log(formData, user, amount, visitorId, cartId, totalPrice)
+
+  console.log(formData, user, amount, visitorId, cartId, totalPrice)
   const [data, setData] = useState(null);
   const [buyerDetails, setBuyerDetails] = useState(null);
   const bookingAmountPerItem = 5000;
@@ -22,7 +22,7 @@ console.log(formData, user, amount, visitorId, cartId, totalPrice)
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.5:8005/api/cart/item/${cartId}`);
+        const response = await axios.get(`http://192.168.1.13:8000/api/cart/item/${cartId}`);
         setData(response.data);
       } catch (error) {
         console.log('Error fetching cart data:', error);
@@ -35,7 +35,7 @@ console.log(formData, user, amount, visitorId, cartId, totalPrice)
 
     const fetchBuyerDetails = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.5:8005/api/v1/visitor/details/${visitorId}`);
+        const response = await axios.get(`http://192.168.1.13:8000/api/v1/visitor/details/${visitorId}`);
         setBuyerDetails(response.data.data[0]);
       } catch (error) {
         console.log('Error fetching buyer details:', error);
@@ -77,12 +77,12 @@ console.log(formData, user, amount, visitorId, cartId, totalPrice)
   const handlePayment = () => {
     if (formData && user && visitorId && cartId && totalPrice) {
       navigation.navigate('PaymentImageUpload', {
-        formData,        
-        user,            
-        amount: formData.amount,  
-        visitorId,      
-        cartId,          
-        totalPrice       
+        formData,
+        user,
+        amount: formData.amount,
+        visitorId,
+        cartId,
+        totalPrice
       });
     } else {
       // Handle case where required data is missing

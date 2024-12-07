@@ -3,7 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacity, Keyboard, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Picker } from '@react-native-picker/picker';
-import * as ImagePicker from 'expo-image-picker'; 
+import * as ImagePicker from 'expo-image-picker';
 
 export default ({ navigation }) => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -48,7 +48,7 @@ export default ({ navigation }) => {
         form.append('type', formData.type);
         form.append('aadharNumber', formData.aadharNumber);
         form.append('panNumber', formData.panNumber);
-        
+
         if (formData.profileImage) {
             const filename = formData.profileImage.split('/').pop();
             const fileType = filename.split('.').pop();
@@ -60,7 +60,7 @@ export default ({ navigation }) => {
         }
 
         try {
-            const response = await fetch('http://192.168.1.6:8000/api/v1/users/signup', {
+            const response = await fetch('http://192.168.1.13:8000/api/v1/users/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -156,7 +156,7 @@ export default ({ navigation }) => {
                                 style={styles.input}
                                 placeholderTextColor="#000"
                                 onChangeText={(text) => handleChange('panNumber', text)}
-                                value={formData.panNumber}
+                                value={formData.panNumber.toUpperCase()}
                             />
                             <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
                                 <Text style={styles.uploadButtonText}>Pick Profile Image</Text>
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
 //     const handleRegister = async () => {
 //         console.log('Form Data:', formData);
 //         try {
-//             const response = await fetch('http://192.168.1.6:8000/api/v1/users/signup', {
+//             const response = await fetch('http://192.168.1.13:8000/api/v1/users/signup', {
 //                 method: 'POST',
 //                 headers: {
 //                     'Content-Type': 'application/json'
