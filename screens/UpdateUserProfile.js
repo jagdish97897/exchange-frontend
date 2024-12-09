@@ -40,7 +40,7 @@ const UpdateUserProfile = ({ route }) => {
   
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`http://192.168.1.13:8000/api/v1/users/user/${phoneNumber}`);
+        const response = await fetch(`http://localhost:8000/api/v1/users/user/${phoneNumber}`);
         const result = await response.json();
   
         if (response.ok) {
@@ -150,7 +150,7 @@ const UpdateUserProfile = ({ route }) => {
           console.log('condition formadata',formData.profileImage);
         }
   
-        const response = await fetch(`http://192.168.1.13:8000/api/v1/users/updateuser/${phoneNumber}`, {
+        const response = await fetch(`http://localhost:8000/api/v1/users/updateuser/${phoneNumber}`, {
           method: 'PUT',
           body: formData,
         });
@@ -325,7 +325,7 @@ export default UpdateUserProfile;
 
 //     const fetchUserData = async () => {
 //         try {
-//             const response = await fetch(`http://192.168.1.13:8000/api/v1/users/user/${phoneNumber}`);
+//             const response = await fetch(`http://localhost:8000/api/v1/users/user/${phoneNumber}`);
 //             const result = await response.json();
 
 //       if (response.ok) {
@@ -432,7 +432,7 @@ export default UpdateUserProfile;
 //         });
 //       }
   
-//       const response = await fetch(`http://192.168.1.13:8000/api/v1/users/updateuser/${phoneNumber}`, {
+//       const response = await fetch(`http://localhost:8000/api/v1/users/updateuser/${phoneNumber}`, {
 //         method: 'PUT',
 //         headers: {
 //           'Content-Type': 'multipart/form-data', // Set this header explicitly
@@ -474,7 +474,7 @@ export default UpdateUserProfile;
 //         }
     
 //         try {
-//             const response = await fetch(`http://192.168.1.13:8000/api/v1/users/updateuser/${phoneNumber}`, {
+//             const response = await fetch(`http://localhost:8000/api/v1/users/updateuser/${phoneNumber}`, {
 //                 method: 'PUT',
 //                 headers: {
 //                     'Content-Type': 'application/json',

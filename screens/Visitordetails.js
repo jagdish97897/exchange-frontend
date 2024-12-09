@@ -61,7 +61,7 @@ export default ({ navigation, route }) => {
 
     const fetchBikeDetails = async () => {
         try {
-            const response = await fetch('http://192.168.1.13:8000/api/bikes');
+            const response = await fetch('http://localhost:8000/api/bikes');
             const result = await response.json();
 
             if (response.ok) {
@@ -99,7 +99,7 @@ export default ({ navigation, route }) => {
         };
 
         try {
-            const response = await fetch('http://192.168.1.13:8000/api/v1/visitorbikedetails/v1', {
+            const response = await fetch('http://localhost:8000/api/v1/visitorbikedetails/v1', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -123,7 +123,7 @@ export default ({ navigation, route }) => {
     useEffect(() => {
         const fetchVisitorDetails = async () => {
             try {
-                const response = await fetch(`http://192.168.1.13:8000/api/v1/visitor/details/${userId}`);
+                const response = await fetch(`http://localhost:8000/api/v1/visitor/details/${userId}`);
                 const result = await response.json();
 
                 if (response.ok && result.success) {

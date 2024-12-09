@@ -17,7 +17,7 @@ const PaymentSuccessnew = ({ route }) => {
     useEffect(() => {
         const userInfo = async () => {
             try {
-                const response = await axios.get(`http://192.168.1.13:8000/api/files/user/${formData.phone}`);
+                const response = await axios.get(`http://localhost:8000/api/files/user/${formData.phone}`);
                 console.log(response.data)
                 setIsParticipated(response.data.data.user.isParticipated);
             } catch (error) {

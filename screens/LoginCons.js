@@ -27,6 +27,13 @@ export default ({ navigation }) => {
         };
     }, []);
 
+    const handlePhoneNumberChange = (text) => {
+        // Regular expression to match country codes like +91, 91, or others.
+        const trimmedText = text.replace(/^(?:\+?91|91)?(\d{10})$/, '$1');
+        // console.log('text: ', trimmedText);
+        setPhoneNumber(trimmedText);
+    };
+
     const handleLogin = async () => {
         setLoading(true);
 
@@ -38,7 +45,7 @@ export default ({ navigation }) => {
         try {
             if (!isOtpSent) {
                 // Send OTP
-                const response = await axios.post('http://192.168.1.13:8000/api/v1/users/sendOtp', {
+                const response = await axios.post('http://localhost:8000/api/v1/users/sendOtp', {
                     phoneNumber,
                     type: ['consumer', 'transporter']
                 });
@@ -54,7 +61,7 @@ export default ({ navigation }) => {
                 }
             } else {
                 // Verify OTP
-                const response = await axios.post('http://192.168.1.13:8000/api/v1/users/verifyOtp', {
+                const response = await axios.post('http://localhost:8000/api/v1/users/verifyOtp', {
                     otp,
                     phoneNumber,
                 });
@@ -107,7 +114,7 @@ export default ({ navigation }) => {
                         placeholderTextColor="#000"
                         keyboardType="phone-pad"
                         value={phoneNumber}
-                        onChangeText={setPhoneNumber}
+                        onChangeText={handlePhoneNumberChange}
                     />
 
                     {isOtpSent && (

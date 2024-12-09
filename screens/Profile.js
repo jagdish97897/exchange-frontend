@@ -10,7 +10,7 @@ const Profile = ({ navigation, route }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = `http://192.168.1.13:8000/api/v1/users/user/${phoneNumber}`;
+  const API_URL = `http://localhost:8000/api/v1/users/user/${phoneNumber}`;
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -140,7 +140,7 @@ export default Profile;
 //   const [user, setUser] = useState(null);
 //   const [loading, setLoading] = useState(true);
 
-//   const API_URL = `http://192.168.1.13:8000/api/v1/users/user/${phoneNumber}`;
+//   const API_URL = `http://localhost:8000/api/v1/users/user/${phoneNumber}`;
 
 //   useEffect(() => {
 //     const fetchUserData = async () => {

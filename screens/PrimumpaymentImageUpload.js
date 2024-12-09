@@ -46,7 +46,7 @@ const PrimumpaymentImageUpload = ({ route }) => {
     formData.append('amount', amountState);
 
     try {
-      const response = await axios.post('http://192.168.1.13:8000/api/primumupload', formData, {
+      const response = await axios.post('http://localhost:8000/api/primumupload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

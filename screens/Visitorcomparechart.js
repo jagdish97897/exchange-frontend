@@ -107,7 +107,7 @@ export default function BikeDetails({ navigation, route }) {
     useEffect(() => {
         const fetchBikeDetails = async () => {
             try {
-                const response = await fetch(`http://192.168.1.13:8000/api/v1/visitorbikedetails/visitorbikedetails/${vehicleno}`);
+                const response = await fetch(`http://localhost:8000/api/v1/visitorbikedetails/visitorbikedetails/${vehicleno}`);
                 const result = await response.json();
 
                 if (response.ok) {

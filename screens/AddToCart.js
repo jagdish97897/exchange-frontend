@@ -27,7 +27,7 @@ const AddonitemToCart = ({ route }) => {
     const navigation = useNavigation();
 
     useEffect(() => {
-        axios.get(`http://192.168.1.13:8000/api/kits/search/${kitName}`)
+        axios.get(`http://localhost:8000/api/kits/search/${kitName}`)
             .then(response => {
                 if (response.data.success) {
                     setAddonItems(response.data.data.addonItems);
@@ -76,7 +76,7 @@ const AddonitemToCart = ({ route }) => {
             visitorId,
         };
 
-        axios.post('http://192.168.1.13:8000/api/cart/kit/addons', data)
+        axios.post('http://localhost:8000/api/cart/kit/addons', data)
             .then(response => {
                 if (response.data.updatedCartItem) {
                     Alert.alert('Success', 'Addons added to cart successfully!');
@@ -370,7 +370,7 @@ export default AddonitemToCart;
 //     const [termsAccepted, setTermsAccepted] = useState(false);
 
 //     useEffect(() => {
-//         axios.get(`http://192.168.1.13:8000/api/kits/search/${kitName}`)
+//         axios.get(`http://localhost:8000/api/kits/search/${kitName}`)
 //             .then(response => {
 //                 if (response.data.success) {
 //                     setAddonItems(response.data.data.addonItems);
@@ -419,7 +419,7 @@ export default AddonitemToCart;
 //             visitorId,
 //         };
 
-//         axios.post('http://192.168.1.13:8000/api/cart/kit/addons', data)
+//         axios.post('http://localhost:8000/api/cart/kit/addons', data)
 //             .then(response => {
 //                 if (response.data.updatedCartItem) {
 //                     Alert.alert('Success', 'Addons added to cart successfully!');

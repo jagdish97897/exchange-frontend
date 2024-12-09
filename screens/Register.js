@@ -87,7 +87,7 @@ export default ({ navigation }) => {
 
         try {
             console.log('formData.referralCode', formData.referralCode)
-            const response = await fetch('http://192.168.1.13:8000/api/v1/auth/signup', {
+            const response = await fetch('http://localhost:8000/api/v1/auth/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -139,7 +139,7 @@ export default ({ navigation }) => {
             return;
         }
         try {
-            const response = await fetch('http://192.168.1.13:8000/api/v1/auth/sendOtp', {
+            const response = await fetch('http://localhost:8000/api/v1/auth/sendOtp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -22,7 +22,7 @@ const PaymentPage = ({ route, navigation }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.13:8000/api/cart/item/${cartId}`);
+        const response = await axios.get(`http://localhost:8000/api/cart/item/${cartId}`);
         setData(response.data);
       } catch (error) {
         console.log('Error fetching cart data:', error);
@@ -35,7 +35,7 @@ const PaymentPage = ({ route, navigation }) => {
 
     const fetchBuyerDetails = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.13:8000/api/v1/visitor/details/${visitorId}`);
+        const response = await axios.get(`http://localhost:8000/api/v1/visitor/details/${visitorId}`);
         setBuyerDetails(response.data.data[0]);
       } catch (error) {
         console.log('Error fetching buyer details:', error);

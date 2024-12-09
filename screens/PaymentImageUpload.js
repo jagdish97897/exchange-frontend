@@ -48,7 +48,7 @@ const PaymentImageUpload = ({ route }) => {
     formData.append('amount', amountState);
 
     try {
-      const response = await axios.post('http://192.168.1.13:8000/api/upload', formData, {
+      const response = await axios.post('http://localhost:8000/api/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -257,7 +257,7 @@ export default PaymentImageUpload;
 //     formData.append('amount', amountState);
 
 //     try {
-//       const response = await axios.post('http://192.168.1.13:8000/api/upload', formData, {
+//       const response = await axios.post('http://localhost:8000/api/upload', formData, {
 //         headers: {
 //           'Content-Type': 'multipart/form-data',
 //         },
@@ -389,7 +389,7 @@ export default PaymentImageUpload;
 //     formData.append('amount', amount);
 
 //     try {
-//       const response = await axios.post('http://192.168.1.13:8000/api/upload', formData, {
+//       const response = await axios.post('http://localhost:8000/api/upload', formData, {
 //         headers: {
 //           'Content-Type': 'multipart/form-data',
 //         },

@@ -42,7 +42,7 @@ const SummaryCart = ({ route, navigation }) => {
     const { width, height } = useWindowDimensions();
 
     useEffect(() => {
-        axios.get(`http://192.168.1.13:8000/api/cart/${userId}`)
+        axios.get(`http://localhost:8000/api/cart/${userId}`)
             .then(response => {
                 setCartId(response.data._id);
             })
@@ -55,7 +55,7 @@ const SummaryCart = ({ route, navigation }) => {
 
     useEffect(() => {
         if (cartId) {
-            axios.get(`http://192.168.1.13:8000/api/cart/item/${cartId}`)
+            axios.get(`http://localhost:8000/api/cart/item/${cartId}`)
                 .then(response => {
                     const items = response.data.cartItems;
                     setCartItems(items);
@@ -77,7 +77,7 @@ const SummaryCart = ({ route, navigation }) => {
     }, [cartId]);
 
     useEffect(() => {
-        axios.get(`http://192.168.1.13:8000/api/v1/visitor/details/${userId}`)
+        axios.get(`http://localhost:8000/api/v1/visitor/details/${userId}`)
             .then(response => {
                 if (response.data.success) {
                     setUserDetails(response.data.data[0]);

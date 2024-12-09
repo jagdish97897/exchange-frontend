@@ -43,12 +43,13 @@ export const checkAndRequestLocationPermission = async () => {
               isLocationServicesEnabled = await enableLocationServices();
               if (isLocationServicesEnabled) {
                 await checkAndRequestLocationPermission();
-              } else {
-                showAlert(
-                  'Location Services Still Disabled',
-                  'Unable to enable location services. Please turn them on manually in settings.'
-                );
               }
+              //  else {
+              //   showAlert(
+              //     'Location Services Still Disabled',
+              //     'Unable to enable location services. Please turn them on manually in settings.'
+              //   );
+              // }
             },
           },
         ]
@@ -127,47 +128,57 @@ export default ({ route }) => {
   };
 
   useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardVisible(true);
-    });
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardVisible(false);
-    });
+    try {
+      const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+        setKeyboardVisible(true);
+      });
+      const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+        setKeyboardVisible(false);
+      });
 
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
+      return () => {
+        keyboardDidShowListener.remove();
+        keyboardDidHideListener.remove();
+      };
+    } catch (error) {
+      console.error('Error in keyboard event listeners:', error);
+    }
   }, []);
 
   useEffect(() => {
     (async () => {
-      // Call the location permission check only if permission is not granted
-      const { latitude, longitude } = await checkAndRequestLocationPermission();
+      try {
+        const { latitude, longitude } = await checkAndRequestLocationPermission();
 
-      if (latitude) {
-        setCurrentLocation((prevLocation) => ({
-          ...prevLocation,
-          latitude,
-        }));
-      }
+        if (latitude) {
+          setCurrentLocation((prevLocation) => ({
+            ...prevLocation,
+            latitude,
+          }));
+        }
 
-      if (longitude) {
-        setCurrentLocation((prevLocation) => ({
-          ...prevLocation,
-          longitude,
-        }));
+        if (longitude) {
+          setCurrentLocation((prevLocation) => ({
+            ...prevLocation,
+            longitude,
+          }));
+        }
+      } catch (error) {
+        console.log('Error in checking or requesting location permission:', error);
       }
     })();
-  }
-    , []);
+  }, []);
 
-  // Watch for changes in `from` and `to`
   useEffect(() => {
-    if (from.length === 6 && to.length === 6) {
-      navigation.navigate('CargoDetails', { from, to, phoneNumber, currentLocation }); // Replace 'NextScreen' with your target screen
+    try {
+      if (from.length === 6 && to.length === 6) {
+        navigation.navigate('CargoDetails', { from, to, phoneNumber, currentLocation });
+      }
+    } catch (error) {
+      console.error('Error in navigation logic:', error);
     }
   }, [from, to, navigation]);
+
 
   const navigation = useNavigation();
 

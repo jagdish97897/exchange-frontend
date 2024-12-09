@@ -21,7 +21,7 @@ const Orderdetails = ({ route, navigation }) => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.13:8000/api/order/orders/${orderId}`);
+        const response = await axios.get(`http://localhost:8000/api/order/orders/${orderId}`);
         setOrderDetails(response.data.order);
         console.log(response.data)
       } catch (err) {
@@ -37,7 +37,7 @@ const Orderdetails = ({ route, navigation }) => {
   useEffect(() => {
     const sendNotification = async () => {
       try {
-        const response = await axios.post("http://192.168.1.13:8000/api/v1/bookingkit/booking-verification", {
+        const response = await axios.post("http://localhost:8000/api/v1/bookingkit/booking-verification", {
           razorpay_order_id,
           razorpay_payment_id,
           razorpay_signature,

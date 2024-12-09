@@ -27,7 +27,7 @@ const PremiumUser = ({ route }) => {
   useEffect(() => {
     const fetchVisitorDetails = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.13:8000/api/v1/visitor/details/${visitorId}`);
+        const response = await axios.get(`http://localhost:8000/api/v1/visitor/details/${visitorId}`);
         if (response.data.success) {
           const visitorData = response.data.data[0];
           setFormData((prevData) => ({
@@ -81,8 +81,8 @@ const PremiumUser = ({ route }) => {
 
   //     const amountInPaise = Math.round(Number(amount) * 100);
 
-  //     const { data: { key } } = await axios.get("http://192.168.1.13:8000/api/getkey");
-  //     const { data: { order } } = await axios.post("http://192.168.1.13:8000/api/v1/kgvmitra/kgvcheckout", { amount: amountInPaise });
+  //     const { data: { key } } = await axios.get("http://localhost:8000/api/getkey");
+  //     const { data: { order } } = await axios.post("http://localhost:8000/api/v1/kgvmitra/kgvcheckout", { amount: amountInPaise });
 
   //     const options = {
   //       key,
@@ -120,7 +120,7 @@ const PremiumUser = ({ route }) => {
   //       console.log(data.razorpay_order_id)
   //       console.log(data.razorpay_signature)
 
-  //       const verificationResponse = await axios.post("http://192.168.1.13:8000/api/v1/payment/premium/payment-verification", {
+  //       const verificationResponse = await axios.post("http://localhost:8000/api/v1/payment/premium/payment-verification", {
   //         ...data
   //       });
 
