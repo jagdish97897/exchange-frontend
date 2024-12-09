@@ -9,7 +9,7 @@ const WebSocketScreen = () => {
 
     useEffect(() => {
         // Connect to the Socket.IO server
-        const socketInstance = io("http://localhost:8000"); // Replace with your server URL
+        const socketInstance = io("http://192.168.1.2:8000"); // Replace with your server URL
         setSocket(socketInstance);
 
         socketInstance.on("connect", () => {

@@ -106,7 +106,7 @@ export default ({ route }) => {
     // Fetch user data from API
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/v1/users/user/${phoneNumber}`);
+        const response = await axios.get(`http://192.168.1.2:8000/api/v1/users/user/${phoneNumber}`);
         const { _id } = response.data;
         console.log(_id)
         setOwnerId(_id); // Set the user ID

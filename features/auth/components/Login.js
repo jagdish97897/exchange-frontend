@@ -260,7 +260,7 @@ export default Login;
 //   const handleSubmit = async(e)=>{
 //     e.preventDefault()
 //     try {
-//       const response = await fetch('http://localhost:8005/api/v1/users/login',{
+//       const response = await fetch('http://192.168.1.2:8005/api/v1/users/login',{
 //       method: 'POST',
 //       body: JSON.stringify(form),
 //       headers:{'content-type': 'application/json'}
@@ -287,7 +287,7 @@ export default Login;
 //   //   formData.append("password", formdata.password);
 
 //   //   try {
-//   //     const response = await fetch("http://localhost:8005/api/v1/users/login", {
+//   //     const response = await fetch("http://192.168.1.2:8005/api/v1/users/login", {
 //   //       method: "POST",
 //   //       body: formData,
 //   //     });
