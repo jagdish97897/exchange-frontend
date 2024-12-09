@@ -11,7 +11,7 @@ import axios from 'axios';
 
 export default ({ route }) => {
   const { phoneNumber } = route.params;
-  console.log(phoneNumber)
+  // console.log(phoneNumber)
   const [menuVisible, setMenuVisible] = useState(false);
   const [ownerId, setOwnerId] = useState('');
 
@@ -86,7 +86,7 @@ export default ({ route }) => {
       quality: 1,
     });
 
-    console.log(result);
+    // console.log(result);
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
@@ -108,7 +108,7 @@ export default ({ route }) => {
       try {
         const response = await axios.get(`http://192.168.1.2:8000/api/v1/users/user/${phoneNumber}`);
         const { _id } = response.data;
-        console.log(_id)
+        // console.log(_id)
         setOwnerId(_id); // Set the user ID
       } catch (error) {
         console.error("Error fetching user data:", error);

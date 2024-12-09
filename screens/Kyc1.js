@@ -29,11 +29,11 @@ const Booking = () => {
     try {
       // Fetch the API key
       const { data: { key } } = await axios.get('http://192.168.1.2:8000/api/getkey');
-      console.log('API Key:', key);
+      // console.log('API Key:', key);
 
       // Place the order
       const { data: { order } } = await axios.post('http://192.168.1.2:8000/api/v1/visitor/placeOrder', { amount: selectedAmount });
-      console.log('Order:', order);
+      // console.log('Order:', order);
 
       // Payment options
       const options = {

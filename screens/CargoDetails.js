@@ -40,12 +40,6 @@ const CargoDetails = ({ route }) => {
                 tripDate,
             });
 
-            console.log(from,
-                to,
-                phoneNumber,
-                currentLocation,
-                cargoDetails,
-                tripDate,);
             Alert.alert('Cargo Details Submitted', 'Your cargo details have been successfully submitted!');
 
         } catch (error) {

@@ -30,14 +30,14 @@ export default ({ navigation }) => {
             const response = await axios.post('http://192.168.1.2:8000/api/v1/visitor/loginvisitor', requestData);
 
             if (response.status === 200) {
-                console.log('Login successful:', response.data);
+                // console.log('Login successful:', response.data);
                 Alert.alert('Success', 'Login successful');
                 navigation.navigate('Dashboard1', { user: response.data });
             } else {
                 throw new Error('Operation failed');
             }
         } catch (error) {
-            console.log('Login error:', error);
+            // console.log('Login error:', error);
             Alert.alert('Error', error.response?.data?.message || 'An error occurred');
         }
     };

@@ -10,12 +10,12 @@ const { width, height } = Dimensions.get('window');
 
 const Congratulation = ({ route }) => {
     const { formData } = route.params;
-    console.log(formData)
+    // console.log(formData)
     const navigation = useNavigation();
     const amount = 10;
 
-    console.log("hello", formData);
-    const UserId=formData.userId
+    // console.log("hello", formData);
+    const UserId=formData.userId;
 
     const handlePayment = () => {
         if (formData && UserId && amount) {

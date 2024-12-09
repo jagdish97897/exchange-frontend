@@ -81,7 +81,7 @@ export default function MyPage() {
      initialValues={{ VechileNumber: '' , OwnerName: '', WhatsappContactNumber:'' , EmailId:'' , AddressLine1:'', City:'', State:'',Pincode:''}}
      onSubmit={(values) => {
       // navigation.navigate('MarketplaceAfterRebid') 
-      console.log(values);
+      // console.log(values);
       // setFormValues(values);
     }}
    >

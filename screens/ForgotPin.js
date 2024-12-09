@@ -68,7 +68,7 @@ export default ({ navigation }) => {
             });
 
             const result = await response.json();
-            console.log(result);
+            // console.log(result);
 
             if (response.ok) {
                 setSentOtp(result.data.otp); // Assume the response contains the sent OTP
@@ -83,8 +83,8 @@ export default ({ navigation }) => {
     };
 
     const verifyOtp = () => {
-        console.log(enteredOtp);
-        console.log(sentOtp);
+        // console.log(enteredOtp);
+        // console.log(sentOtp);
         if (enteredOtp === sentOtp) {
             setIsPhoneVerified(true); // Set phone as verified
             setModalVisible(false);

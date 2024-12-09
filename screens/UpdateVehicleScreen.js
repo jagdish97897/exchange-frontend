@@ -26,14 +26,14 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
   });
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
-  console.log(vehicleData)
+  // console.log(vehicleData)
   // Fetch vehicle details
   useEffect(() => {
     const fetchVehicleDetails = async () => {
       try {
         const response = await fetch(`http://192.168.1.2:8000/api/vehicles/${vehicleNumber}`);
         const result = await response.json();
-        console.log("result", result)
+        // console.log("result", result)
 
         if (response.ok) {
           setVehicleData({

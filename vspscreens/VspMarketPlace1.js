@@ -67,10 +67,10 @@ export default function MyPage() {
 
   const handleSubmit = () => {
     // Handle form submission here
-    console.log('Address 1:', address1);
-    console.log('Address 2:', address2);
-    console.log('Pin Code:', pinCode);
-    console.log('Selected Item:', selectedItem);
+    // console.log('Address 1:', address1);
+    // console.log('Address 2:', address2);
+    // console.log('Pin Code:', pinCode);
+    // console.log('Selected Item:', selectedItem);
   };
 
   

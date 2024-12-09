@@ -20,7 +20,7 @@ const GetVehicleScreen = ({ route, navigation }) => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  console.log("ownerId", ownerId)
+  // console.log("ownerId", ownerId)
 
   useEffect(() => {
     fetchVehiclesByOwnerId();

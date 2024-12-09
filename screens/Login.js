@@ -36,7 +36,7 @@ export default ({ navigation }) => {
 
             if (response.status === 200) {
                 Alert.alert('Success', 'Login successful');
-                console.log('response.data', response.data);
+                // console.log('response.data', response.data);
 
                 if (response.data.data.isPremiumUser) {
                     navigation.dispatch(

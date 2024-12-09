@@ -147,7 +147,7 @@ const UpdateUserProfile = ({ route }) => {
             type: `image/${fileType}`,
           });
 
-          console.log('condition formadata',formData.profileImage);
+          // console.log('condition formadata',formData.profileImage);
         }
   
         const response = await fetch(`http://192.168.1.2:8000/api/v1/users/updateuser/${phoneNumber}`, {

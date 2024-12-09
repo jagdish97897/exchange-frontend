@@ -36,11 +36,11 @@ const CheckoutButton = ({ route }) => {
   const checkoutHandler = async () => {
     try {
       const { data: { key } } = await axios.get("http://192.168.1.2:8000/api/getkey");
-      console.log("Razorpay Key:", key);
+      // console.log("Razorpay Key:", key);
 
       const { data: { order } } = await axios.post("http://192.168.1.2:8000/api/v1/visitor/placeOrder", { amount: formData.amount });
-      console.log("Order ID:", order.id);
-      console.log("Order Amount:", order.amount);
+      // console.log("Order ID:", order.id);
+      // console.log("Order Amount:", order.amount);
 
       const options = {
         key,

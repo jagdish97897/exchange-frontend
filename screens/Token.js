@@ -4,7 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 const saveToken = async (key, value) => {
     try {
         await SecureStore.setItemAsync(key, value);
-        console.log('Token saved successfully');
+        // console.log('Token saved successfully');
     } catch (error) {
         console.error('Error saving token:', error);
     }
@@ -15,10 +15,10 @@ const getToken = async (key) => {
     try {
         const result = await SecureStore.getItemAsync(key);
         if (result) {
-            console.log('Token retrieved:', result);
+            // console.log('Token retrieved:', result);
             return result;
         } else {
-            console.log('No token found');
+            // console.log('No token found');
             return null;
         }
     } catch (error) {
@@ -30,7 +30,7 @@ const getToken = async (key) => {
 const deleteToken = async (key) => {
     try {
         await SecureStore.deleteItemAsync(key);
-        console.log('Token deleted');
+        // console.log('Token deleted');
     } catch (error) {
         console.error('Error deleting token:', error);
     }

@@ -46,7 +46,7 @@ const GoogleMap = () => {
         try {
             const { latitude, longitude } = await getCurrentLocationCoordinates();
 
-            console.log('latitude : ', latitude, ' longitude: ', longitude);
+            // console.log('latitude : ', latitude, ' longitude: ', longitude);
 
             if (latitude && longitude) {
 
@@ -90,7 +90,7 @@ const GoogleMap = () => {
             });
 
             const data = await response.json();
-            console.log(data.route);
+            // console.log(data.route);
             if (data.success) {
                 setRouteData(data.route);
             } else {

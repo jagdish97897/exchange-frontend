@@ -35,7 +35,7 @@ export default function Signup() {
       if (response.ok) {
         <Timesheet></Timesheet>
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
       } else {
         console.log("Error registering user");
       }

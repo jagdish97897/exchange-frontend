@@ -64,7 +64,7 @@ export function Timesheet() {
   }
   const handleSubmitManager = async (e) => {
     e.preventDefault();
-    console.log(managerForm)
+    // console.log(managerForm)
     //   try {
     //     const response = await fetch('http://192.168.1.2:8005/api/v1/manager/rate',{
     //     method: 'POST',

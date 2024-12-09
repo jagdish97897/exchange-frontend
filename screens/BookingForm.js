@@ -71,7 +71,7 @@ export default function MyPage() {
       quality: 1,
     });
 
-    console.log(result);
+    // console.log(result);
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
@@ -92,10 +92,10 @@ export default function MyPage() {
 
   const handleSubmit = () => {
     // Handle form submission here
-    console.log('Address 1:', address1);
-    console.log('Address 2:', address2);
-    console.log('Pin Code:', pinCode);
-    console.log('Selected Item:', selectedItem);
+    // console.log('Address 1:', address1);
+    // console.log('Address 2:', address2);
+    // console.log('Pin Code:', pinCode);
+    // console.log('Selected Item:', selectedItem);
   };
 
   

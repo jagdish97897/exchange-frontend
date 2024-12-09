@@ -28,7 +28,7 @@ const Login = ({navigation}) => {
      initialValues={{ email: '' , password: '' }}
      onSubmit={(values) => {
        dispatch(loginUserAsync(values))
-       console.log(values);
+      //  console.log(values);
       
       }}
    >

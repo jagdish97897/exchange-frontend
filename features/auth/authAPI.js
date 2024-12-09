@@ -50,11 +50,11 @@ export function loginUser(loginInfo) {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
 
         await AsyncStorage.setItem('token', data.data.accessToken);
         const token = await AsyncStorage.getItem('token');
-        console.log(token);
+        // console.log(token);
         resolve({ data });
       } else {
         const error = await response.text();
@@ -71,7 +71,7 @@ export function checkUser() {
   return new Promise(async (resolve, reject) => {
     try {
       const tokenC = await AsyncStorage.getItem('token');
-      console.log(`Bearer ${tokenC}`);
+      // console.log(`Bearer ${tokenC}`);
       const response = await fetch("http://192.168.1.2:8000/api/v1/users/current-user", {
         method: "GET",
         headers: {
@@ -112,7 +112,7 @@ export function fetchUser(loginInfo) {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
 
         // localStorage.setItem('token', JSON.stringify(data.data.refreshToken));
         resolve({ data });
