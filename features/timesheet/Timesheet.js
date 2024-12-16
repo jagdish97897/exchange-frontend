@@ -19,7 +19,7 @@ export function Timesheet() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const response = await fetch('http://192.168.1.2:8005/api/v1/timesheet/register', {
+      const response = await fetch('http://192.168.1.5:8005/api/v1/timesheet/register', {
         method: 'POST',
         body: JSON.stringify(form),
         headers: { 'content-type': 'application/json' }
@@ -34,11 +34,11 @@ export function Timesheet() {
       console.log("Error submitting form:", error);
     }
 
-    // const response = await fetch("http://192.168.1.2:8005/api/v1/timesheetregister", {
+    // const response = await fetch("http://192.168.1.5:8005/api/v1/timesheetregister", {
     //     method: "POST",
     //     body: form,
     // try {
-    //   const response = await fetch("http://192.168.1.2:8005/api/v1/timesheetregister", {
+    //   const response = await fetch("http://192.168.1.5:8005/api/v1/timesheetregister", {
     //     method: "POST",
     //     body: form,
     //   });
@@ -66,7 +66,7 @@ export function Timesheet() {
     e.preventDefault();
     // console.log(managerForm)
     //   try {
-    //     const response = await fetch('http://192.168.1.2:8005/api/v1/manager/rate',{
+    //     const response = await fetch('http://192.168.1.5:8005/api/v1/manager/rate',{
     //     method: 'POST',
     //     body: JSON.stringify(managerForm),
     //     headers:{'content-type': 'application/json'}

@@ -3,6 +3,15 @@ import { ScrollView, View, Text, TextInput, Button, StyleSheet, Alert, Touchable
 import axios from 'axios';
 import DatePicker from 'react-native-date-picker';
 
+export const getCurrentDate = (today) => {
+    // const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const year = today.getFullYear();
+
+    return `${day}-${month}-${year}`;
+};
+
 const CargoDetails = ({ route }) => {
     const { from, to, phoneNumber, currentLocation } = route.params;
     const [cargoType, setCargoType] = useState('');
@@ -14,6 +23,7 @@ const CargoDetails = ({ route }) => {
     const [tripDate, setTripDate] = useState(new Date());
     const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
     const [SpecialInstruction, setSpecialInstruction] = useState('');
+
 
     const handleSubmit = async () => {
         try {
@@ -31,7 +41,7 @@ const CargoDetails = ({ route }) => {
                 payloadWidth: payloadWidth ? parseFloat(payloadWidth) : null,
             };
 
-            const response = await axios.post(`http://192.168.1.2:8000/api/trips/create`, {
+            const response = await axios.post(`http://192.168.1.5:8000/api/trips/create`, {
                 from,
                 to,
                 phoneNumber,
@@ -117,7 +127,7 @@ const CargoDetails = ({ route }) => {
                         style={styles.dateInput}
                         onPress={() => { setIsDatePickerOpen(true) }}
                     >
-                        <Text>{tripDate.toLocaleDateString('en-GB')}</Text>
+                        <Text>{getCurrentDate(tripDate)}</Text>
                     </TouchableOpacity>
                     <DatePicker
                         modal

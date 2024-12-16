@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, TextInput, Image, Modal, Button } from "react-native";
+import { SafeAreaView, View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, Dimensions, Image, Modal, Button, Alert, TextInput } from "react-native";
 import Autocomplete from "react-google-autocomplete";
 import { AntDesign, Feather, Entypo } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,13 +7,102 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import Ind from '../assets/images/image 10.png';
 import axios from 'axios';
-
+const { width, height } = Dimensions.get('window');
 
 export default ({ route }) => {
-  const { phoneNumber } = route.params;
+  const { phoneNumber, token } = route.params;
   // console.log(phoneNumber)
   const [menuVisible, setMenuVisible] = useState(false);
   const [ownerId, setOwnerId] = useState('');
+  const [isBrokerModalVisible, setBrokerModalVisible] = useState(false);
+  const [brokerPhoneNumber, setBrokerPhoneNumber] = useState("");
+  const [otp, setOtp] = useState("");
+  const [isOtpSent, setOtpSent] = useState(false);
+  const [isOtpVerified, setOtpVerified] = useState(false);
+  const [serverOtp, setServerOtp] = useState("");
+  const [vehicleNumber, setVehicleNumber] = useState("");
+
+
+  const sendOtp = async () => {
+    try {
+      if (brokerPhoneNumber.trim() === "") {
+        Alert.alert("Error", "Please enter a valid phone number.");
+        return;
+      }
+      // Mock OTP send logic
+
+      const response = await axios.post('http://192.168.1.5:8000/api/v1/users/sendOtp', {
+        phoneNumber: brokerPhoneNumber,
+        type: ['broker']
+      });
+
+      if (response.status === 200) {
+        setOtpSent(true);
+        const otpFromServer = response.data.data.otp;
+        setServerOtp(otpFromServer);
+        console.log('OTP sent:', otpFromServer);
+        Alert.alert("OTP Sent", `OTP sent to phone number ending with ${brokerPhoneNumber.slice(0, -4)}`);
+      } else {
+        throw new Error('Failed to send OTP.'); // This block might never be reached due to the 200 check above
+      }
+    }
+    catch (error) {
+      console.log('error : ', error.message);
+      Alert.alert('Error', error.message);
+    }
+
+  };
+
+  const verifyOtp = async () => {
+    try {
+      // Use the rest operator to handle multiple arguments
+      const response = await axios.post('http://192.168.1.5:8000/api/v1/users/verifyOtp', {
+        otp, // Assuming first argument is the OTP
+        phoneNumber: brokerPhoneNumber, // Assuming second argument is the phone number
+      });
+
+      if (response.status === 200) {
+        setOtpVerified(true);
+        Alert.alert("Success", "OTP Verified!");
+      } else {
+        Alert.alert("Error", "Invalid OTP. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    }
+  };
+
+
+  const submitVehicleNumber = async () => {
+    try {
+      if (vehicleNumber.trim() === "") {
+        Alert.alert("Error", "Please enter a vehicle number.");
+        return;
+      }
+
+      const response = await axios.post('http://192.168.1.5:8000/api/v1/users/addBroker', {
+        ownerId, vehicleNumber, brokerPhoneNumber
+      });
+
+      if (response.status === 200) {
+        // Submit logic for vehicle number
+        Alert.alert("Success", `Broker added successfully !`);
+        setBrokerModalVisible(false);
+        setOtpSent(false);
+        setOtpVerified(false);
+        setBrokerPhoneNumber("");
+        setOtp("");
+        setVehicleNumber("");
+      } else {
+        Alert.alert("Error", "Invalid OTP. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    }
+  };
+
 
   const navigation = useNavigation();
 
@@ -106,9 +195,8 @@ export default ({ route }) => {
     // Fetch user data from API
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.2:8000/api/v1/users/user/${phoneNumber}`);
+        const response = await axios.get(`http://192.168.1.5:8000/api/v1/users/user/${phoneNumber}`);
         const { _id } = response.data;
-        // console.log(_id)
         setOwnerId(_id); // Set the user ID
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -118,7 +206,7 @@ export default ({ route }) => {
   }, [phoneNumber]);
 
   return (
-    <TouchableWithoutFeedback onPress={toggleMenu}>
+    <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
       <View style={{ flex: 1, marginTop: 40 }}>
         <View className="bg-blue-100" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 60, marginBottom: 20, paddingHorizontal: 30 }}>
           {/* Left Arrow */}
@@ -157,10 +245,14 @@ export default ({ route }) => {
             </TouchableOpacity>
           </View>
         )}
+
+
+
         <View className="flex-row gap-5 bg-blue-100">
           <Text className="text-lg pb-2 font-bold pl-[70px]">Dashboard</Text>
           <Text onPress={() => { navigation.navigate('Trips') }} className="text-lg font-bold pl-[80px]">Trips</Text>
         </View>
+
         <SafeAreaView style={styles.container}>
           <View className="flex-row bg-blue-100" style={styles.topBox}>
             <Image source={Ind} style={{
@@ -176,7 +268,7 @@ export default ({ route }) => {
             <View style={styles.cardContainer}>
               <TouchableOpacity
                 style={styles.card}
-                onPress={() => navigation.navigate("AddVehicleScreen")}
+                onPress={() => navigation.navigate("AddVehicleScreen", { ownerId, token })}
               >
                 <Text style={styles.cardText}>Add Vehicle</Text>
               </TouchableOpacity>
@@ -186,10 +278,13 @@ export default ({ route }) => {
               >
                 <Text style={styles.cardText}>View & Update Vehicle</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.card}
+                onPress={() => setBrokerModalVisible(true)}              >
+                <Text style={styles.cardText}>Add Broker</Text>
+              </TouchableOpacity>
             </View>
           </View>
-
-
 
           <View style={styles.ctaWrapper}>
             <TouchableOpacity style={styles.cta}>
@@ -206,9 +301,75 @@ export default ({ route }) => {
             </TouchableOpacity>
           </View>
         </SafeAreaView>
+
+        {/* Modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isBrokerModalVisible}
+          onRequestClose={() => setBrokerModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              {!isOtpSent ? (
+                <>
+                  <Text style={styles.modalTitle}>Enter Phone Number</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Phone Number"
+                    keyboardType="numeric"
+                    value={brokerPhoneNumber}
+                    onChangeText={setBrokerPhoneNumber}
+                  />
+                  <TouchableOpacity style={styles.button} onPress={sendOtp}>
+                    <Text style={styles.buttonText}>Send OTP</Text>
+                  </TouchableOpacity>
+                </>
+              ) : !isOtpVerified ? (
+                <>
+                  <Text style={styles.modalTitle}>Enter OTP</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter OTP"
+                    keyboardType="numeric"
+                    value={otp}
+                    onChangeText={setOtp}
+                  />
+                  <TouchableOpacity style={styles.button} onPress={verifyOtp}>
+                    <Text style={styles.buttonText}>Verify OTP</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <>
+                  <Text style={styles.modalTitle}>Enter Vehicle Number</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Vehicle Number"
+                    value={vehicleNumber}
+                    onChangeText={setVehicleNumber}
+                  />
+                  <TouchableOpacity
+                    style={styles.button}
+                    onPress={submitVehicleNumber}
+                  >
+                    <Text style={styles.buttonText}>Submit</Text>
+                  </TouchableOpacity>
+                </>
+              )}
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
         <View clasName="flex-1">
           <Text className="pl-[100px] bg-blue-300 h-[30px] text-xl">Company Newsletter</Text>
         </View>
+
         <View style={{ backgroundColor: 'black', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingBottom: 20 }}>
           <TouchableOpacity>
             <AntDesign name="home" size={24} color="white" />
@@ -231,7 +392,7 @@ const styles = new StyleSheet.create({
     justifyContent: 'space-between', // Adjust spacing between cards
     alignItems: 'center', // Align the cards vertically
     flexWrap: 'wrap', // Allows cards to wrap to the next row if needed
-    width: '100%',
+    gap: 10,
   },
   selectionContainer: {
     borderWidth: 2,
@@ -240,17 +401,19 @@ const styles = new StyleSheet.create({
     borderRadius: 30,
     width: '90%',
     position: 'absolute',
-    top: 120,
+    top: height * 0.15, // Adjusted based on screen height
     left: '5%',
-    height: 250,
+    height: height * 0.35, // Dynamic height adjustment
     padding: 20,
     flexDirection: 'row',
     gap: 16,
     justifyContent: 'center',
   },
   card: {
-    width: 140,
-    height: 100,
+    // width: 140,
+    // height: 100,
+    width: width * 0.37, // Responsive width
+    height: height * 0.12, // Responsive height
     backgroundColor: '#ffffff',
     borderRadius: 8,
     shadowColor: '#000',
@@ -272,10 +435,11 @@ const styles = new StyleSheet.create({
     backgroundColor: '#FFF'
   },
   topBox: {
-    // backgroundColor: '#e7feff',
+    backgroundColor: '#e7feff',
     // backgroundColor: 'linear-gradient(to right, #70ACC1, #6F9C9F)',
     height: 250,
-    padding: 50
+    padding: 50,
+    paddingTop: 25
   },
 
   ctaWrapper: {
@@ -297,6 +461,54 @@ const styles = new StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ADD8E6',
-
-  }
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  input: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 20,
+  },
+  button: {
+    backgroundColor: "#4CAF50",
+    borderRadius: 5,
+    padding: 10,
+    alignItems: "center",
+    width: "100%",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  closeButton: {
+    marginTop: 20,
+    backgroundColor: "#f44336",
+    borderRadius: 5,
+    padding: 10,
+    alignItems: "center",
+    width: "100%",
+  },
+  closeButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
 })

@@ -26,6 +26,13 @@ export default ({ navigation }) => {
         };
     }, []);
 
+    const handlePhoneNumberChange = (text) => {
+        // Regular expression to match country codes like +91, 91, or others.
+        const trimmedText = text.replace(/^(?:\+?91|91)?(\d{10})$/, '$1');
+        // console.log('text: ', trimmedText);
+        setPhoneNumber(trimmedText);
+    };
+
     const handleLogin = async () => {
         if (!phoneNumber) {
             Alert.alert('Error', 'Please enter a valid phone number.');
@@ -35,7 +42,7 @@ export default ({ navigation }) => {
         try {
             if (!isOtpSent) {
                 // Send OTP
-                const response = await axios.post('http://192.168.1.2:8000/api/v1/users/sendOtp', {
+                const response = await axios.post('http://192.168.1.5:8000/api/v1/users/sendOtp', {
                     phoneNumber,
                     type: ['owner', 'broker', 'driver']
                 });
@@ -51,16 +58,28 @@ export default ({ navigation }) => {
                 }
             } else {
                 // Verify OTP
-                const response = await axios.post('http://192.168.1.2:8000/api/v1/users/verifyOtp', {
+                const response = await axios.post('http://192.168.1.5:8000/api/v1/users/verifyOtp', {
                     otp,
                     phoneNumber,
                 });
     
                 if (response.status === 200) {
                     saveToken('token',response.data.data.token);
-                    // console.log('response data : ', response.data);
+                    // console.log('response data token  : ', response.data.data.token);
                     Alert.alert('Success', 'Login successful.');
-                    navigation.navigate('HomePreKycConsumer', { phoneNumber });
+                    const userType = response.data.data.type;
+                    
+                    switch(userType){
+                        case 'owner': 
+                                    navigation.navigate('OwnerDashboard', { phoneNumber,token:response.data.data.token });
+                                    break;
+                        case 'broker':
+                                    navigation.navigate('BrokerDashboard', { phoneNumber,token:response.data.data.token });
+                                    break;
+                        case 'driver':
+                                    navigation.navigate('DriverDashboard', { phoneNumber,token:response.data.data.token });
+                                    break;
+                    }
                 } else {
                     throw new Error('Invalid OTP.');
                 }
@@ -99,7 +118,7 @@ export default ({ navigation }) => {
                         placeholderTextColor="#000"
                         keyboardType="phone-pad"
                         value={phoneNumber}
-                        onChangeText={setPhoneNumber}
+                        onChangeText={handlePhoneNumberChange}
                     />
 
                     {isOtpSent && (
