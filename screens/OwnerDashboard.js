@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, Dimensions, Image, Modal, Button, Alert, TextInput } from "react-native";
+import { SafeAreaView, View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, Dimensions, Image, Modal, Button, Alert, TextInput, FlatList, ScrollView } from "react-native";
 import Autocomplete from "react-google-autocomplete";
 import { AntDesign, Feather, Entypo } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,6 +21,8 @@ export default ({ route }) => {
   const [isOtpVerified, setOtpVerified] = useState(false);
   const [serverOtp, setServerOtp] = useState("");
   const [vehicleNumber, setVehicleNumber] = useState("");
+  const [vehicles, setVehicles] = useState([]);
+  const [loading, setLoading] = useState(false);
 
 
   const sendOtp = async () => {
@@ -31,7 +33,7 @@ export default ({ route }) => {
       }
       // Mock OTP send logic
 
-      const response = await axios.post('http://192.168.1.5:8000/api/v1/users/sendOtp', {
+      const response = await axios.post('http://192.168.1.6:8000/api/v1/users/sendOtp', {
         phoneNumber: brokerPhoneNumber,
         type: ['broker']
       });
@@ -41,14 +43,26 @@ export default ({ route }) => {
         const otpFromServer = response.data.data.otp;
         setServerOtp(otpFromServer);
         console.log('OTP sent:', otpFromServer);
-        Alert.alert("OTP Sent", `OTP sent to phone number ending with ${brokerPhoneNumber.slice(0, -4)}`);
+        Alert.alert("OTP Sent", `OTP sent to phone number ending with ${brokerPhoneNumber.slice(-4)}`);
       } else {
         throw new Error('Failed to send OTP.'); // This block might never be reached due to the 200 check above
       }
     }
     catch (error) {
-      console.log('error : ', error.message);
-      Alert.alert('Error', error.message);
+      if (error.response) {
+        if (error.response.status === 400 || 404) {
+          Alert.alert('Error', error.response.data.message);
+        } else if (error.response.status === 500) {
+          Alert.alert('Error', 'Server is down. Please try again later.');
+        } else {
+          Alert.alert('Error', 'An unknown error occurred.');
+        }
+      } else if (error.request) {
+        console.log(error.request)
+        Alert.alert('Error', 'Unable to connect to the server. Please check your network.');
+      } else {
+        Alert.alert('Error', error.message);
+      }
     }
 
   };
@@ -56,7 +70,7 @@ export default ({ route }) => {
   const verifyOtp = async () => {
     try {
       // Use the rest operator to handle multiple arguments
-      const response = await axios.post('http://192.168.1.5:8000/api/v1/users/verifyOtp', {
+      const response = await axios.post('http://192.168.1.6:8000/api/v1/users/verifyOtp', {
         otp, // Assuming first argument is the OTP
         phoneNumber: brokerPhoneNumber, // Assuming second argument is the phone number
       });
@@ -81,7 +95,7 @@ export default ({ route }) => {
         return;
       }
 
-      const response = await axios.post('http://192.168.1.5:8000/api/v1/users/addBroker', {
+      const response = await axios.post('http://192.168.1.6:8000/api/v1/users/addBroker', {
         ownerId, vehicleNumber, brokerPhoneNumber
       });
 
@@ -94,6 +108,7 @@ export default ({ route }) => {
         setBrokerPhoneNumber("");
         setOtp("");
         setVehicleNumber("");
+        setVehicles([]);
       } else {
         Alert.alert("Error", "Invalid OTP. Please try again.");
       }
@@ -195,7 +210,7 @@ export default ({ route }) => {
     // Fetch user data from API
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.5:8000/api/v1/users/user/${phoneNumber}`);
+        const response = await axios.get(`http://192.168.1.6:8000/api/v1/users/user/${phoneNumber}`);
         const { _id } = response.data;
         setOwnerId(_id); // Set the user ID
       } catch (error) {
@@ -204,6 +219,54 @@ export default ({ route }) => {
     };
     fetchUserData();
   }, [phoneNumber]);
+
+  // Function to fetch vehicles from the server
+  const fetchVehicles = async (query) => {
+    try {
+      setLoading(true);
+
+      // Make API call with searchText as a query parameter
+      const response = await axios.get(
+        `http://192.168.1.6:8000/api/vehicles/owner/${ownerId}`,
+        {
+          params: { searchText: query }, // Send searchText as query parameter
+        }
+      );
+
+      // Update the vehicles state with the fetched data
+      const vehicles = response.data.vehicles.length ? response.data.vehicles.map(v => v.vehicleNumber) : [];
+      setVehicles(vehicles);
+    } catch (error) {
+      if (error.response) {
+        if (error.response.status === 400) {
+          Alert.alert('Error', error.response.data.message);
+        } else if (error.response.status === 500) {
+          Alert.alert('Error', 'Server is down. Please try again later.');
+        } else {
+          Alert.alert('Error', 'An unknown error occurred.');
+        }
+      } else if (error.request) {
+        console.log(error.request)
+        Alert.alert('Error', 'Unable to connect to the server. Please check your network.');
+      } else {
+        Alert.alert('Error', error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Call API when text input changes
+  const handleInputChange = (text) => {
+    setVehicleNumber(text);
+    fetchVehicles(text); // Fetch vehicles based on user input
+  };
+
+  // Handle vehicle selection from the list
+  const handleVehicleSelect = (selectedVehicle) => {
+    setVehicleNumber(selectedVehicle); // Set the selected vehicle number
+    setVehicles([]); // Optionally clear the list after selection
+  };
 
   return (
     <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
@@ -310,62 +373,99 @@ export default ({ route }) => {
           onRequestClose={() => setBrokerModalVisible(false)}
         >
           <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              {!isOtpSent ? (
+            <FlatList
+              data={[]}
+              keyExtractor={(item, index) => index.toString()}
+              contentContainerStyle={styles.modalContent}
+              ListHeaderComponent={
                 <>
-                  <Text style={styles.modalTitle}>Enter Phone Number</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Phone Number"
-                    keyboardType="numeric"
-                    value={brokerPhoneNumber}
-                    onChangeText={setBrokerPhoneNumber}
-                  />
-                  <TouchableOpacity style={styles.button} onPress={sendOtp}>
-                    <Text style={styles.buttonText}>Send OTP</Text>
-                  </TouchableOpacity>
-                </>
-              ) : !isOtpVerified ? (
-                <>
-                  <Text style={styles.modalTitle}>Enter OTP</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter OTP"
-                    keyboardType="numeric"
-                    value={otp}
-                    onChangeText={setOtp}
-                  />
-                  <TouchableOpacity style={styles.button} onPress={verifyOtp}>
-                    <Text style={styles.buttonText}>Verify OTP</Text>
-                  </TouchableOpacity>
-                </>
-              ) : (
-                <>
-                  <Text style={styles.modalTitle}>Enter Vehicle Number</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Vehicle Number"
-                    value={vehicleNumber}
-                    onChangeText={setVehicleNumber}
-                  />
                   <TouchableOpacity
-                    style={styles.button}
-                    onPress={submitVehicleNumber}
+                    style={styles.crossButton}
+                    onPress={() => {
+                      setBrokerModalVisible(false);
+                      setOtpSent(false);
+                      setOtpVerified(false);
+                      setBrokerPhoneNumber("");
+                      setOtp("");
+                      setVehicleNumber("");
+                      setVehicles([]);
+                    }}
                   >
-                    <Text style={styles.buttonText}>Submit</Text>
+                    {/* If using React Native Vector Icons */}
+                    {/* <Icon name="close" size={24} color="#000" /> */}
+
+                    {/* Alternatively, using Text */}
+                    <Text style={styles.crossButtonText}>✕</Text>
                   </TouchableOpacity>
+                  {!isOtpSent ? (
+                    <>
+                      <Text style={styles.modalTitle}>Enter Phone Number</Text>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Phone Number"
+                        keyboardType="numeric"
+                        value={brokerPhoneNumber}
+                        onChangeText={setBrokerPhoneNumber}
+                      />
+                      <TouchableOpacity style={styles.button} onPress={sendOtp}>
+                        <Text style={styles.buttonText}>Send OTP</Text>
+                      </TouchableOpacity>
+                    </>
+                  ) : !isOtpVerified ? (
+                    <>
+                      <Text style={styles.modalTitle}>Enter OTP</Text>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Enter OTP"
+                        keyboardType="numeric"
+                        value={otp}
+                        onChangeText={setOtp}
+                      />
+                      <TouchableOpacity style={styles.button} onPress={verifyOtp}>
+                        <Text style={styles.buttonText}>Verify OTP</Text>
+                      </TouchableOpacity>
+                    </>
+                  ) : (
+                    <>
+                      <Text style={styles.modalTitle}>Enter Vehicle Number</Text>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Vehicle Number"
+                        value={vehicleNumber}
+                        onChangeText={handleInputChange}
+                      />
+                      {loading && <Text>Loading...</Text>}
+                      <FlatList
+                        data={vehicles}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={({ item }) => (
+                          <TouchableOpacity
+                            style={styles.vehicleItem}
+                            onPress={() => handleVehicleSelect(item)}
+                          >
+                            <Text>{item}</Text>
+                          </TouchableOpacity>
+                        )}
+                      // ListEmptyComponent={!loading && <Text>No vehicles found</Text>}
+                      />
+                    </>
+                  )}
+
                 </>
-              )}
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setModalVisible(false)}
-              >
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-            </View>
+              }
+              ListFooterComponent={
+                <TouchableOpacity
+                  style={styles.submitButton}
+                  onPress={submitVehicleNumber}
+                >
+                  <Text style={styles.buttonText}>Submit</Text>
+                </TouchableOpacity>
+              }
+              ListEmptyComponent={null} // Disable the empty list component since the ListHeaderComponent is already used
+            />
+
           </View>
         </Modal>
-
         <View clasName="flex-1">
           <Text className="pl-[100px] bg-blue-300 h-[30px] text-xl">Company Newsletter</Text>
         </View>
@@ -464,16 +564,16 @@ const styles = new StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: "80%",
-    backgroundColor: "#fff",
-    borderRadius: 10,
+    backgroundColor: 'white',
     padding: 20,
-    alignItems: "center",
+    borderRadius: 20,
+    marginTop: 5,
+    marginHorizontal: 5,
+    paddingBottom: 60, // Ensure there’s space for the submit button
   },
   modalTitle: {
     fontSize: 18,
@@ -496,19 +596,58 @@ const styles = new StyleSheet.create({
     width: "100%",
   },
   buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: '#fff',
+    fontSize: 16,
   },
   closeButton: {
-    marginTop: 20,
-    backgroundColor: "#f44336",
-    borderRadius: 5,
-    padding: 10,
-    alignItems: "center",
-    width: "100%",
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
   },
   closeButtonText: {
     color: "#fff",
     fontWeight: "bold",
+  },
+  crossButton: {
+    position: "absolute",
+    top: 0,
+    right: 5,
+    zIndex: 10, // Ensure it appears on top of other elements
+  },
+  crossButtonText: {
+    fontSize: 18,
+    color: "#000",
+    backgroundColor: "gray", // Adds a red background
+    borderWidth: 2,         // Adds a border
+    borderColor: "#000",    // Ensures the border is visible (default is transparent)
+    // borderRadius: 50,       // Makes it a circular button for better appearance
+    textAlign: "center",    // Centers the cross mark horizontally
+    lineHeight: 30,         // Matches the height to make it vertically centered
+    width: 30,              // Sets the width of the button
+    height: 30,             // Sets the height of the button
+  },
+  scrollViewContent: {
+    flexGrow: 1, // Ensures the ScrollView takes up all available space
+    justifyContent: 'space-between',
+  },
+  vehicleItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderWidth: 2,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 5,
+    backgroundColor: '#f9f9f9',
+  },
+  submitButton: {
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10, // Add margin to separate from the vehicle list
   },
 })

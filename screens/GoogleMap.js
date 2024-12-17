@@ -25,7 +25,7 @@ const GoogleMap = () => {
     useEffect(() => {
         const fetchApiKey = async () => {
             try {
-                const response = await axios.get(`http://192.168.1.5:8000/api/googleApiKey`);
+                const response = await axios.get(`http://192.168.1.6:8000/api/googleApiKey`);
                 const apiKey = response.data; // Assuming the API key is in the response body
                 // console.log(apiKey);
                 // console.log(process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY);
@@ -83,7 +83,7 @@ const GoogleMap = () => {
         }
 
         try {
-            const response = await fetch("http://192.168.1.5:8000/api/location", {
+            const response = await fetch("http://192.168.1.6:8000/api/location", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ fromPin, toPin }),

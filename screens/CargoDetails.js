@@ -41,7 +41,7 @@ const CargoDetails = ({ route }) => {
                 payloadWidth: payloadWidth ? parseFloat(payloadWidth) : null,
             };
 
-            const response = await axios.post(`http://192.168.1.5:8000/api/trips/create`, {
+            const response = await axios.post(`http://192.168.1.6:8000/api/trips/create`, {
                 from,
                 to,
                 phoneNumber,

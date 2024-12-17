@@ -51,6 +51,35 @@ const eighteenYearsAgo = new Date(today.setFullYear(today.getFullYear() - 18));
 
 // console.log('getCurrentDateFormat', getCurrentDateFormat(today));
 
+const updateFileNameInUri = (file) => {
+  if (!file || !file.uri || !file.name) {
+    return file?.uri || ""; // Return the original URI if no valid file or name is provided
+  }
+
+  const uriParts = file.uri.split("/"); // Split the URI into parts
+  uriParts[uriParts.length - 1] = file.name; // Replace the last part with the file name
+  return uriParts.join("/"); // Join the parts back into a valid URI
+};
+
+export const handleFileUpload = async (name, handleInputChange) => {
+  try {
+    // Use Expo's Document Picker
+    const file = await DocumentPicker.getDocumentAsync({
+      type: 'application/*', // Accepts any file type; you can narrow it down to `application/pdf` or others
+      copyToCacheDirectory: true,
+    });
+
+    // console.log('file : ', file)
+    if (!file.canceled) {
+      handleInputChange(name, updateFileNameInUri(file.assets[0])); // Save the file URI in your userData
+    } else {
+      console.log('User cancelled the file picker');
+    }
+  } catch (err) {
+    console.error('Error picking file:', err);
+  }
+};
+
 const AddVehicleScreen = ({ route }) => {
   const { token, ownerId } = route.params;
   const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -142,7 +171,7 @@ const AddVehicleScreen = ({ route }) => {
 
 
       const response = await axios.post(
-        "http://192.168.1.5:8000/api/vehicles/create",
+        "http://192.168.1.6:8000/api/vehicles/create",
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -215,26 +244,7 @@ const AddVehicleScreen = ({ route }) => {
     }
   };
 
-  const handleFileUpload = async (name) => {
-    try {
-      // Use Expo's Document Picker
-      const file = await DocumentPicker.getDocumentAsync({
-        type: 'application/*', // Accepts any file type; you can narrow it down to `application/pdf` or others
-        copyToCacheDirectory: true,
-      });
 
-
-      // console.log('file : ',file)
-      if (!file.canceled) {
-        handleInputChange(name, file.assets[0].uri); // Save the file URI in your userData
-        // console.log('File selected:', file);
-      } else {
-        console.log('User cancelled the file picker');
-      }
-    } catch (err) {
-      console.error('Error picking file:', err);
-    }
-  };
 
   const handleImagePicker = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -299,7 +309,10 @@ const AddVehicleScreen = ({ route }) => {
             />
           </View>
 
-          <TouchableOpacity style={[styles.input, styles.uploadButton]} onPress={() => handleFileUpload("rcCopy")}>
+          <TouchableOpacity
+            style={[styles.input, styles.uploadButton]}
+            onPress={() => handleFileUpload("rcCopy", handleInputChange)}
+          >
             <Text style={styles.uploadButtonText}>
               {userData.rcCopy.length ? 'RC Copy Uploaded' : 'Upload RC Copy (PDF/DOC)'}
             </Text>
@@ -338,7 +351,10 @@ const AddVehicleScreen = ({ route }) => {
             keyboardType="numeric"
             maxLength={2}
           />
-          <TouchableOpacity style={[styles.input, styles.uploadButton]} onPress={() => handleFileUpload("tdsDeclaration")}>
+          <TouchableOpacity
+            style={[styles.input, styles.uploadButton]}
+            onPress={() => handleFileUpload("tdsDeclaration", handleInputChange)}
+          >
             <Text style={styles.uploadButtonText}>
               {userData.tdsDeclaration.length ? 'TDS declaration Uploaded' : 'Upload TDS declaration (PDF/DOC)'}
             </Text>
@@ -350,7 +366,10 @@ const AddVehicleScreen = ({ route }) => {
             />
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.input, styles.uploadButton]} onPress={() => handleFileUpload("ownerConsent")}>
+          <TouchableOpacity
+            style={[styles.input, styles.uploadButton]}
+            onPress={() => handleFileUpload("ownerConsent", handleInputChange)}
+          >
             <Text style={styles.uploadButtonText}>
               {userData.ownerConsent.length ? 'Owner Consent Uploaded' : 'Upload Owner Consent (PDF/DOC)'}
             </Text>

@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function createUser(userData) {
   return new Promise(async (resolve) => {
-    const response = await fetch("http://192.168.1.5:8005/api/v1/users/register", {
+    const response = await fetch("http://192.168.1.6:8005/api/v1/users/register", {
       method: "POST",
       body: JSON.stringify(userData),
       headers: { "content-type": "application/json" },
@@ -16,7 +16,7 @@ export function createUser(userData) {
 // export function loginUser(loginInfo) {
 //   return new Promise(async (resolve, reject) => {
 //     try {
-//       const response = await fetch("http://192.168.1.5:8000/api/v1/users/login", {
+//       const response = await fetch("http://192.168.1.6:8000/api/v1/users/login", {
 //         method: "POST",
 //         body: JSON.stringify(loginInfo),
 //         headers: { "content-type": "application/json" },
@@ -42,7 +42,7 @@ export function createUser(userData) {
 export function loginUser(loginInfo) {
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await fetch("http://192.168.1.5:8000/api/v1/users/login", {
+      const response = await fetch("http://192.168.1.6:8000/api/v1/users/login", {
         method: "POST",
         body: JSON.stringify(loginInfo),
         headers: { "content-type": "application/json" },
@@ -72,7 +72,7 @@ export function checkUser() {
     try {
       const tokenC = await AsyncStorage.getItem('token');
       // console.log(`Bearer ${tokenC}`);
-      const response = await fetch("http://192.168.1.5:8000/api/v1/users/current-user", {
+      const response = await fetch("http://192.168.1.6:8000/api/v1/users/current-user", {
         method: "GET",
         headers: {
           authorization: `Bearer ${tokenC}`
@@ -131,7 +131,7 @@ export function fetchUser(loginInfo) {
 //   return new Promise(async (resolve, reject) => {
 //     try {
 //       console.log(`Bearer ${JSON.parse(AsyncStorage.getItem('token'))}`);
-//       const response = await fetch("http://192.168.1.5:8000/api/v1/users/current-user", {
+//       const response = await fetch("http://192.168.1.6:8000/api/v1/users/current-user", {
 //         method: "GET",
 //         headers: {
 //           authorization: `Bearer ${JSON.parse(AsyncStorage.getItem('token'))}`
@@ -159,7 +159,7 @@ export function fetchUser(loginInfo) {
 export function signOut(userId) {
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await fetch("http://192.168.1.5:8005/api/v1/users/logout", {
+      const response = await fetch("http://192.168.1.6:8005/api/v1/users/logout", {
         method: "POST",
         headers: {
           authorization: `Bearer ${JSON.parse(localStorage.getItem('token'))}`
@@ -203,7 +203,7 @@ export function resetPasswordRequest(email) {
 export function resetPassword(data) {
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await fetch("http://192.168.1.5:8005/api/v1/users/change-password", {
+      const response = await fetch("http://192.168.1.6:8005/api/v1/users/change-password", {
         method: "POST",
         body: JSON.stringify(data),
         headers: { "content-type": "application/json" },

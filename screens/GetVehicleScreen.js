@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { Linking } from 'react-native';
+
 
 import {
   SafeAreaView,
@@ -30,7 +32,7 @@ const GetVehicleScreen = ({ route, navigation }) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://192.168.1.5:8000/api/vehicles/owner/${ownerId}`
+        `http://192.168.1.6:8000/api/vehicles/owner/${ownerId}`
       );
       const result = await response.json();
 
@@ -60,26 +62,45 @@ const GetVehicleScreen = ({ route, navigation }) => {
       keyboardDidHideListener.remove();
     };
   }, []);
+
   const renderVehicleItem = ({ item }) => (
-
-
     <View style={styles.vehicleCard}>
       <Text style={styles.vehicleText}>Vehicle Number: {item.vehicleNumber}</Text>
       <Text style={styles.vehicleText}>Height: {item.height} m</Text>
       <Text style={styles.vehicleText}>Width: {item.width} m</Text>
       <Text style={styles.vehicleText}>Length: {item.length} m</Text>
-      <Text style={styles.vehicleText}>Tds Declaration: {item.tdsDeclaration}</Text>
-      <Text style={styles.vehicleText}>Owner Consent: {item.ownerConsent}</Text>
 
-      {item.broker && <Text style={styles.vehicleText}>Broker ID: {item.broker}</Text>}
+      {/* TDS Declaration */}
+      <TouchableOpacity
+        style={[styles.input, styles.uploadButton]}
+        onPress={() => Linking.openURL(`${item.tdsDeclaration}`).catch((err) => console.error("Failed to open URL", err))}
+      >
+        <Text style={styles.uploadButtonText}>
+          {item.tdsDeclaration ? 'Download TDS Declaration' : 'Upload TDS Declaration (PDF/DOC)'}
+        </Text>
+      </TouchableOpacity>
+
+      {/* Owner Consent */}
+      <TouchableOpacity
+        style={[styles.input, styles.uploadButton]}
+        onPress={() => Linking.openURL(`${item.ownerConsent}`).catch((err) => console.error("Failed to open URL", err))}
+      >
+        <Text style={styles.uploadButtonText}>
+          {item.ownerConsent ? 'Download Owner Consent' : 'Upload Owner Consent (PDF/DOC)'}
+        </Text>
+      </TouchableOpacity>
+
       <TouchableOpacity
         style={styles.detailsButton}
-        onPress={() => navigation.navigate("UpdateVehicleScreen", { vehicleNumber: item.vehicleNumber })}
+        onPress={() =>
+          navigation.navigate("UpdateVehicleScreen", {
+            vehicleNumber: item.vehicleNumber,
+          })
+        }
       >
         <Text style={styles.detailsButtonText}>Update Vehicle Details</Text>
       </TouchableOpacity>
     </View>
-
   );
 
   if (loading) {
@@ -91,60 +112,102 @@ const GetVehicleScreen = ({ route, navigation }) => {
   }
 
   return (
-
     <LinearGradient colors={['#06264D', "#FFF"]} style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1, padding: 20 }}>
-        <KeyboardAwareScrollView
-          resetScrollToCoords={{ x: 0, y: 0 }}
-          contentContainerStyle={styles.container}
-          scrollEnabled={true}
-          enableAutomaticScroll={true}
-          enableOnAndroid={true}
-          extraScrollHeight={100}
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-        >
-          <Image
-            source={require("../assets/images/logo-removebg-preview 1.png")}
-            style={styles.logo}
-          />
-          <Text style={styles.title}>Vehicle List</Text>
-          <FlatList
-            data={vehicles}
-            keyExtractor={(item) => item._id}
-            renderItem={renderVehicleItem}
-            contentContainerStyle={styles.listContent}
-            ListEmptyComponent={
-              <Text style={styles.emptyText}>No vehicles found for this owner.</Text>
-            }
-          />
-        </KeyboardAwareScrollView>
-        {!keyboardVisible && (
-          <View style={styles.footer}>
-            <Image
-              source={require("../assets/images/mantra.jpg")}
-              style={styles.smallImage}
-            />
-            <View style={styles.footerTextContainer}>
-              <Text style={styles.footerText}>Made in</Text>
+      <SafeAreaView style={styles.container}>
+        <Image
+          source={require("../assets/images/logo-removebg-preview 1.png")}
+          style={styles.logo}
+        />
+        <Text style={styles.title}>Vehicle List</Text>
+        <FlatList
+          data={vehicles}
+          keyExtractor={(item) => item._id}
+          renderItem={renderVehicleItem}
+          contentContainerStyle={[
+            styles.listContent,
+            { flexGrow: 1, paddingBottom: 20 },
+          ]}
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>No vehicles found for this owner.</Text>
+          }
+          ListFooterComponent={
+            <View style={styles.footer}>
               <Image
-                source={require("../assets/images/image 10.png")}
+                source={require("../assets/images/mantra.jpg")}
+                style={styles.smallImage}
+              />
+              <View style={styles.footerTextContainer}>
+                <Text style={styles.footerText}>Made in</Text>
+                <Image
+                  source={require("../assets/images/image 10.png")}
+                  style={styles.smallImage}
+                />
+              </View>
+              <Image
+                source={require("../assets/images/make-in-India-logo.jpg")}
                 style={styles.smallImage}
               />
             </View>
-            <Image
-              source={require("../assets/images/make-in-India-logo.jpg")}
-              style={styles.smallImage}
-            />
-          </View>
-        )}
+          }
+          keyboardShouldPersistTaps="handled"
+        />
       </SafeAreaView>
     </LinearGradient>
   );
+
+
+  // return (
+  //   <LinearGradient colors={['#06264D', "#FFF"]} style={{ flex: 1 }}>
+  //     <SafeAreaView style={styles.container}>
+  //       <Image
+  //         source={require("../assets/images/logo-removebg-preview 1.png")}
+  //         style={styles.logo}
+  //       />
+  //       <Text style={styles.title}>Vehicle List</Text>
+  //       <FlatList
+  //         data={vehicles}
+  //         keyExtractor={(item) => item._id}
+  //         renderItem={renderVehicleItem}
+  //         contentContainerStyle={[
+  //           styles.listContent,
+  //           { flexGrow: 1, paddingBottom: 20 },
+  //         ]}
+  //         ListEmptyComponent={
+  //           <Text style={styles.emptyText}>No vehicles found for this owner.</Text>
+  //         }
+
+  //         ListFooterComponent={
+  //           !keyboardVisible && (
+  //             <View style={styles.footer}>
+  //               <Image
+  //                 source={require("../assets/images/mantra.jpg")}
+  //                 style={styles.smallImage}
+  //               />
+  //               <View style={styles.footerTextContainer}>
+  //                 <Text style={styles.footerText}>Made in</Text>
+  //                 <Image
+  //                   source={require("../assets/images/image 10.png")}
+  //                   style={styles.smallImage}
+  //                 />
+  //               </View>
+  //               <Image
+  //                 source={require("../assets/images/make-in-India-logo.jpg")}
+  //                 style={styles.smallImage}
+  //               />
+  //             </View>
+  //           )
+  //         }
+  //         keyboardShouldPersistTaps="handled" // Allows taps to dismiss the keyboard
+  //       />
+  //     </SafeAreaView>
+  //   </LinearGradient>
+  // );
+
 };
 
 const styles = StyleSheet.create({
   container: {
+    padding: 20,
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -153,13 +216,14 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     resizeMode: 'contain',
-    marginBottom: 20,
+    marginBottom: 0,
+
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#06264D",
-    marginBottom: 20,
+    marginBottom: 10,
   },
   listContent: {
     paddingBottom: 20,
@@ -176,7 +240,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   vehicleText: {
-    fontSize: 16,
+    fontSize: 13,
     color: "#333",
     marginBottom: 5,
   },
@@ -221,6 +285,33 @@ const styles = StyleSheet.create({
     color: '#000',
     paddingLeft: 2
   },
+  input: {
+    width: '100%',
+    height: 50,
+    backgroundColor: '#FFF',
+    borderRadius: 8,
+    marginBottom: 15,
+    paddingHorizontal: 15,
+    borderColor: '#ccc',
+    borderWidth: 1,
+  },
+  uploadButton: {
+    flexDirection: 'row', // Align items horizontally
+    alignItems: 'center', // Vertically center items
+    justifyContent: 'space-between', // Space out the text and the icon
+    width: '100%', // Ensure it spans the full width
+  },
+  uploadButtonText: {
+    color: '#06264D',
+    fontWeight: 'bold',
+  },
+  uploadedImage: {
+    width: 100, // Adjust as needed
+    height: 100,
+    marginVertical: 10,
+    borderRadius: 5,
+  },
+
 });
 
 export default GetVehicleScreen;

@@ -12,6 +12,17 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { handleFileUpload } from "./AddVehicleScreen";
+import { Ionicons } from '@expo/vector-icons';
+
+
+
+// Function to extract file name from the URL
+const getFileNameFromUrl = (url) => {
+  if (!url) return "";
+  const parts = url.split("/");
+  return `${parts[parts.length - 1]}`;
+};
 
 const UpdateVehicleScreen = ({ route, navigation }) => {
   const { vehicleNumber } = route.params; // Get vehicleNumber from route.params
@@ -31,7 +42,7 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
   useEffect(() => {
     const fetchVehicleDetails = async () => {
       try {
-        const response = await fetch(`http://192.168.1.5:8000/api/vehicles/${vehicleNumber}`);
+        const response = await fetch(`http://192.168.1.6:8000/api/vehicles/${vehicleNumber}`);
         const result = await response.json();
         // console.log("result", result)
 
@@ -78,7 +89,7 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
     }
 
     try {
-      const response = await fetch(`http://192.168.1.5:8000/api/vehicles/update/${vehicleNumber}`, {
+      const response = await fetch(`http://192.168.1.6:8000/api/vehicles/update/${vehicleNumber}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -137,14 +148,13 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
             editable={false} // Make the vehicleNumber read-only
             placeholderTextColor="#000"
           />
-          <TextInput
+          {/* <TextInput
             style={styles.input}
             placeholder="Enter owner ID"
             placeholderTextColor="#000"
             value={vehicleData.rcCopy[0] || ""} // Display the first RC copy by default
             onChangeText={(value) => handleRcCopyChange(0, value)}
-
-          />
+          /> */}
           <TextInput
             style={styles.input}
             placeholder="Enter height"
@@ -169,14 +179,18 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
             onChangeText={(value) => handleChange("length", value)}
             keyboardType="numeric"
           />
+
+          {/* 
           <TextInput
             style={styles.input}
             placeholder="Enter owner ID"
             placeholderTextColor="#000"
             value={vehicleData.ownerId}
             onChangeText={(value) => handleChange("ownerId", value)}
-          />
-          <TextInput
+          /> 
+          */}
+
+          {/* <TextInput
             style={styles.input}
             placeholder="Enter TDS declaration"
             placeholderTextColor="#000"
@@ -189,7 +203,41 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
             placeholderTextColor="#000"
             value={vehicleData.ownerConsent}
             onChangeText={(value) => handleChange("ownerConsent", value)}
-          />
+          /> */}
+
+          <TouchableOpacity
+            style={[styles.input, styles.uploadButton]}
+            onPress={() => handleFileUpload("tdsDeclaration", handleChange)}
+          >
+            <Text style={styles.uploadButtonText}>
+              {vehicleData.tdsDeclaration.length
+                ? getFileNameFromUrl(`${vehicleData.tdsDeclaration}`)
+                : 'Upload TDS declaration (PDF/DOC)'}
+            </Text>
+            <Ionicons
+              name={vehicleData.tdsDeclaration.length ? "checkmark-circle" : "cloud-upload-outline"}
+              size={20}
+              color="green"
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.input, styles.uploadButton]}
+            onPress={() => handleFileUpload("ownerConsent", handleChange)}
+          >
+            <Text style={styles.uploadButtonText}>
+              {vehicleData.ownerConsent.length ? getFileNameFromUrl(`${vehicleData.ownerConsent}`) : 'Upload Owner Consent (PDF/DOC)'}
+            </Text>
+            <Ionicons
+              name={vehicleData.ownerConsent.length ? "checkmark-circle" : "cloud-upload-outline"}
+              size={20}
+              color="green"
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+
+
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
             <Text style={styles.buttonText}>Submit</Text>
           </TouchableOpacity>
@@ -277,7 +325,19 @@ const styles = StyleSheet.create({
     color: '#000',
     paddingLeft: 2
   },
-
+  uploadButton: {
+    flexDirection: 'row', // Align items horizontally
+    alignItems: 'center', // Vertically center items
+    justifyContent: 'space-between', // Space out the text and the icon
+    width: '100%', // Ensure it spans the full width
+  },
+  uploadButtonText: {
+    color: '#06264D',
+    fontWeight: 'bold',
+  },
+  icon: {
+    marginLeft: 5, // Add spacing between the text and the icon
+  },
 });
 
 
