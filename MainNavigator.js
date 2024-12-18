@@ -7,7 +7,7 @@ import LoginVsp from './screens/LoginVsp';
 import FlowSelectregistation from './screens/FlowSelectregistation';
 import RegisterCons from './screens/RegisterCons';
 import RegisterVsp from './screens/RegisterVsp';
-import HomePreKyc from './screens/HomePreKyc';
+import ConsumerDashboard from './screens/ConsumerDashboard';
 import Kyc2 from './screens/Kyc2';
 import Trips from './screens/Trips';
 import Profile from './screens/Profile';
@@ -36,7 +36,7 @@ export default () => {
             <Stack.Screen name="LoginVsp" component={LoginVsp} />
             <Stack.Screen name="RegisterCons" component={RegisterCons} />
             <Stack.Screen name="RegisterVsp" component={RegisterVsp} />
-            <Stack.Screen name="HomePreKyc" component={HomePreKyc} />
+            <Stack.Screen name="ConsumerDashboard" component={ConsumerDashboard} />
             <Stack.Screen name="OwnerDashboard" component={OwnerDashboard} />
             <Stack.Screen name="BrokerDashboard" component={BrokerDashboard} />
             <Stack.Screen name="DriverDashboard" component={DriverDashboard} />

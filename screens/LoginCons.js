@@ -70,7 +70,7 @@ export default ({ navigation }) => {
                     saveToken('token', response.data.data.token);
                     // console.log('response data : ', response.data);
                     Alert.alert('Success', 'Login successful.');
-                    navigation.navigate('HomePreKyc', { phoneNumber });
+                    navigation.navigate('ConsumerDashboard', { phoneNumber, token });
                     setOtp('');
                     setPhoneNumber('');
                     setIsOtpSent(false);

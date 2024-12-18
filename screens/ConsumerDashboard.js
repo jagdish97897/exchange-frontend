@@ -108,7 +108,7 @@ export const getCurrentLocation = async () => {
 };
 
 export default ({ route }) => {
-  const { phoneNumber } = route.params;
+  const { phoneNumber, token } = route.params;
   const [menuVisible, setMenuVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [from, setFrom] = useState('');
