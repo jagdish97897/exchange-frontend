@@ -17,7 +17,6 @@ import AddVehicleScreen from './screens/AddVehicleScreen';
 import GetVehicleScreen from './screens/GetVehicleScreen';
 import UpdateVehicleScreen from './screens/UpdateVehicleScreen';
 import GoogleMap from './screens/GoogleMap';
-import WebSocketScreen from './screens/WebSocketScreen';
 import CargoDetails from './screens/CargoDetails';
 import BrokerDashboard from './screens/BrokerDashboard';
 import DriverDashboard from './screens/DriverDashboard';
@@ -48,7 +47,6 @@ export default () => {
             <Stack.Screen name="GoogleMap" component={GoogleMap} />
             <Stack.Screen name="GetVehicleScreen" component={GetVehicleScreen} />
             <Stack.Screen name="UpdateVehicleScreen" component={UpdateVehicleScreen} />
-            <Stack.Screen name="WebSocketScreen" component={WebSocketScreen} />
             <Stack.Screen name="CargoDetails" component={CargoDetails} />
          </Stack.Navigator>
       </>

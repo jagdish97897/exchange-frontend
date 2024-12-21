@@ -7,7 +7,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import Ind from '../assets/images/image 10.png';
 import axios from 'axios';
-
+import { getSocket, closeSocket } from './SocketIO.js';
 
 export default ({ route }) => {
     const { phoneNumber, token } = route.params;
@@ -17,6 +17,17 @@ export default ({ route }) => {
 
     const navigation = useNavigation();
 
+    useEffect(() => {
+        const socket = getSocket(token);
+
+        socket.on("newMessage", (message) => {
+            console.log("Message from server:", message);
+        });
+
+        return () => {
+            closeSocket(); // Disconnect socket on unmount
+        };
+    }, [token]);
     const handleDocumentsClick = () => {
         // Navigate to the Documents page
         navigation.navigate('Documents');
@@ -106,7 +117,7 @@ export default ({ route }) => {
         // Fetch user data from API
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`http://192.168.1.6:8000/api/v1/users/user/${phoneNumber}`);
+                const response = await axios.get(`http://192.168.1.9:8000/api/v1/users/user/${phoneNumber}`);
                 const { _id } = response.data;
                 setOwnerId(_id); // Set the user ID
             } catch (error) {

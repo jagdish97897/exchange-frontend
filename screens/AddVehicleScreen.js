@@ -11,8 +11,10 @@ import DatePicker from 'react-native-date-picker';
 import axios from "axios";
 import Loader from "../components/Buttons/Loader";
 import { Calendar } from 'react-native-calendars';
-import { format } from 'date-fns';
+import { format, formatDate } from 'date-fns';
 
+const today = new Date();
+const eighteenYearsAgo = new Date(today.setFullYear(today.getFullYear() - 18));
 
 const initialFormData = {
   vehicleNumberPart1: "",
@@ -34,7 +36,7 @@ const initialFormData = {
   driverAadharNumber: "",
   driverPanNumber: "",
   driverDlNumber: "",
-  driverDob: new Date(),
+  driverDob: eighteenYearsAgo,
   driverGender: "",
 };
 
@@ -44,8 +46,7 @@ const validateEmail = (email) => {
   return emailRegex.test(email);
 };
 
-const today = new Date();
-const eighteenYearsAgo = new Date(today.setFullYear(today.getFullYear() - 18));
+
 
 // const getCurrentDateFormat = (date) => format(new Date(date), 'yyyy-MM-dd');
 
@@ -71,7 +72,9 @@ export const handleFileUpload = async (name, handleInputChange) => {
 
     // console.log('file : ', file)
     if (!file.canceled) {
-      handleInputChange(name, updateFileNameInUri(file.assets[0])); // Save the file URI in your userData
+      handleInputChange(name, file.assets[0].uri); // Save the file URI in your userData
+
+      // handleInputChange(name, file.assets[0].uri); // Save the file URI in your userData
     } else {
       console.log('User cancelled the file picker');
     }
@@ -81,7 +84,7 @@ export const handleFileUpload = async (name, handleInputChange) => {
 };
 
 const AddVehicleScreen = ({ route }) => {
-  const { token, ownerId } = route.params;
+  const { token, ownerId, currentLocation } = route.params;
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [userData, setUserData] = useState(initialFormData);
   const vehicleDataRef1 = useRef("");
@@ -135,6 +138,7 @@ const AddVehicleScreen = ({ route }) => {
 
       formData.append('vehicleNumber', vehicleNumber);
       formData.append('ownerId', ownerId);
+      formData.append('currentLocation', JSON.stringify(currentLocation));
 
       // Add file and non-file fields
       for (const key in userData) {
@@ -169,9 +173,8 @@ const AddVehicleScreen = ({ route }) => {
         }
       }
 
-
       const response = await axios.post(
-        "http://192.168.1.6:8000/api/vehicles/create",
+        "http://192.168.1.9:8000/api/vehicles/create",
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );

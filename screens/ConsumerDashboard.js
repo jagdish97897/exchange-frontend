@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import Ind from '../assets/images/image 10.png';
 const { width, height } = Dimensions.get('window');
 import * as Location from 'expo-location';
-
+import { getSocket, closeSocket } from './SocketIO.js';
 export const showAlert = (title, message, actions = [{ text: 'OK' }]) => {
   Alert.alert(title, message, actions);
 };
@@ -19,7 +19,7 @@ export const enableLocationServices = async () => {
     await Location.enableNetworkProviderAsync();
     return await Location.hasServicesEnabledAsync();
   } catch (error) {
-    console.error('Error enabling location services:', error);
+    console.log('Error enabling location services:', error);
     showAlert('Error', 'Failed to enable location services.');
     return false;
   }
@@ -86,7 +86,7 @@ export const checkAndRequestLocationPermission = async () => {
       );
     }
   } catch (error) {
-    console.error('Error requesting location permission:', error);
+    console.log('Error requesting location permission:', error);
     showAlert('Error', 'An error occurred while requesting location permission.');
   }
 };
@@ -119,7 +119,17 @@ export default ({ route }) => {
     longitude: '',
   });
 
+  useEffect(() => {
+    const socket = getSocket(token);
 
+    socket.on("newMessage", (message) => {
+      console.log("Message from server:", message);
+    });
+
+    return () => {
+      closeSocket(); // Disconnect socket on unmount
+    };
+  }, [token]);
   const handleFromChange = (text) => {
     setFrom(text);
     if (text.length === 6) {
@@ -439,137 +449,6 @@ export default ({ route }) => {
       </View>
     </TouchableWithoutFeedback>
   );
-
-
-  // return (
-  //   <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
-  //     <View style={{ flex: 1, marginTop: 40 }}>
-
-  //       <View className="bg-blue-200" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 50, marginBottom: 15, paddingHorizontal: 30, }}>
-  //         {/* Left Arrow */}
-  //         <TouchableOpacity onPress={navigateBack}>
-  //           <AntDesign name="arrowleft" size={24} color="black" />
-  //         </TouchableOpacity>
-
-  //         <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
-  //           <View className="ml-[160px]">
-  //             <Feather name="headphones" size={24} color="black" /></View>
-  //           <View className="ml-[20px]">
-  //             <Ionicons name="notifications-outline" size={24} color="black" /></View>
-  //           {/* {image && <Image source={{ uri: image }} style={styles.image} onPress={pickImage}/>} */}
-  //         </View>
-
-  //         {/* Right Menu */}
-  //         <TouchableOpacity onPress={toggleMenu}>
-  //           <Feather name="menu" size={24} color="black" />
-  //         </TouchableOpacity>
-  //       </View>
-
-
-
-  //       {/* Menu Options */}
-  //       {menuVisible && (
-  //         <View style={{ position: 'absolute', top: 55, right: 20, backgroundColor: 'white', padding: 10, borderRadius: 5, elevation: 5, zIndex: 2 }}>
-  //           <TouchableOpacity onPress={navigateToSettings} style={{ marginBottom: 10 }}>
-  //             <Text>Settings</Text>
-  //           </TouchableOpacity>
-  //           <TouchableOpacity onPress={navigateToHelp} style={{ marginBottom: 10 }}>
-  //             <Text>Help</Text>
-  //           </TouchableOpacity>
-  //           <TouchableOpacity onPress={navigateToAbout} style={{ marginBottom: 10 }}>
-  //             <Text>About</Text>
-  //           </TouchableOpacity>
-  //           <TouchableOpacity onPress={navigateToLegal}>
-  //             <Text>Legal</Text>
-  //           </TouchableOpacity>
-  //         </View>
-  //       )}
-
-
-  //       <View className="flex-row gap-5 bg-blue-300 top-0">
-  //         <Text className="text-lg pb-2 font-bold pl-[70px]">Dashboard</Text>
-  //         <Text onPress={() => { navigation.navigate('Trips') }} className="text-lg font-bold pl-[80px]">Trips</Text>
-  //       </View>
-
-  //       <SafeAreaView style={styles.container}>
-
-  //         <View className="flex-row bg-blue-100" style={styles.topBox}>
-  //           <Image source={Ind} style={{
-  //             height: 50,
-  //             width: 50,
-  //             borderRadius: 40,
-  //           }} />
-  //           <Text className="pl-8" style={{ fontSize: 30, fontWeight: '700' }}>TWCPL</Text>
-  //         </View>
-
-  //         <View style={styles.selectionContainer}>
-  //           <Text style={styles.title}>Where to ship?</Text>
-  //           <View style={styles.flexRow}>
-  //             <View style={styles.arrowIcon}>
-  //               <Feather name="arrow-down" size={40} color="white" />
-  //             </View>
-  //             <View style={styles.formContainer}>
-  //               <Text style={styles.label}>From</Text>
-  //               <TextInput
-  //                 style={styles.input}
-  //                 placeholder="Enter 6-digit code"
-  //                 placeholderTextColor="#CCC"
-  //                 keyboardType="number-pad"
-  //                 maxLength={6}
-  //                 value={from}
-  //                 onChangeText={text => setFrom(text)}
-  //               />
-
-  //               <Text style={styles.label}>To</Text>
-  //               <TextInput
-  //                 style={styles.input}
-  //                 placeholder="Enter 6-digit code"
-  //                 placeholderTextColor="#CCC"
-  //                 keyboardType="number-pad"
-  //                 maxLength={6}
-  //                 value={to}
-  //                 onChangeText={text => setTo(text)}
-  //               />
-  //             </View>
-  //           </View>
-  //         </View>
-
-  //         <View style={styles.ctaWrapper}>
-  //           <TouchableOpacity style={styles.cta}>
-  //             <Entypo name="wallet" size={24} color="black" />
-  //             <Text>Wallet</Text>
-  //           </TouchableOpacity>
-  //           <TouchableOpacity style={styles.cta}>
-  //             <Feather name="shield" size={24} color="black" />
-  //             <Text>Insurance</Text>
-  //           </TouchableOpacity>
-  //           <TouchableOpacity style={styles.cta}>
-  //             <Feather name="headphones" size={24} color="black" />
-  //             <Text>Help & FAQ</Text>
-  //           </TouchableOpacity>
-  //         </View>
-
-  //       </SafeAreaView>
-
-  //       <View clasName="flex-1">
-  //         <Text className="pl-[100px] bg-blue-300 h-[30px] text-xl">Company Newsletter</Text>
-  //       </View>
-
-  //       <View style={{ backgroundColor: 'black', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingBottom: 20 }}>
-  //         <TouchableOpacity>
-  //           <AntDesign name="home" size={24} color="white" />
-  //         </TouchableOpacity>
-  //         <TouchableOpacity style={{ backgroundColor: 'blue', borderRadius: 24, padding: 10 }}>
-  //           <Entypo name="shop" size={24} color="white" />
-  //         </TouchableOpacity>
-  //         <TouchableOpacity onPress={() => navigation.navigate('Profile', { phoneNumber })}>
-  //           <AntDesign name="user" size={24} color="white" />
-  //         </TouchableOpacity>
-  //       </View>
-
-  //     </View>
-  //   </TouchableWithoutFeedback>
-  // );
 }
 
 const styles = StyleSheet.create({
