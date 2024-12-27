@@ -34,7 +34,7 @@ export default ({ route }) => {
     longitude: '',
   });
 
-  const socketInstance = io("http://192.168.1.9:8000", { query: { token } }); // Replace with your server URL
+  const socketInstance = io("http://192.168.1.6:8000", { query: { token } }); // Replace with your server URL
 
   useEffect(() => {
     const socket = getSocket(token);
@@ -81,7 +81,7 @@ export default ({ route }) => {
       }
       // Mock OTP send logic
 
-      const response = await axios.post('http://192.168.1.9:8000/api/v1/users/sendOtp', {
+      const response = await axios.post('http://192.168.1.6:8000/api/v1/users/sendOtp', {
         phoneNumber: brokerPhoneNumber,
         type: ['broker']
       });
@@ -118,7 +118,7 @@ export default ({ route }) => {
   const verifyOtp = async () => {
     try {
       // Use the rest operator to handle multiple arguments
-      const response = await axios.post('http://192.168.1.9:8000/api/v1/users/verifyOtp', {
+      const response = await axios.post('http://192.168.1.6:8000/api/v1/users/verifyOtp', {
         otp, // Assuming first argument is the OTP
         phoneNumber: brokerPhoneNumber, // Assuming second argument is the phone number
       });
@@ -143,7 +143,7 @@ export default ({ route }) => {
         return;
       }
 
-      const response = await axios.post('http://192.168.1.9:8000/api/v1/users/addBroker', {
+      const response = await axios.post('http://192.168.1.6:8000/api/v1/users/addBroker', {
         ownerId, vehicleNumber, brokerPhoneNumber
       });
 
@@ -258,7 +258,7 @@ export default ({ route }) => {
     // Fetch user data from API
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.9:8000/api/v1/users/user/${phoneNumber}`);
+        const response = await axios.get(`http://192.168.1.6:8000/api/v1/users/user/${phoneNumber}`);
         const { _id } = response.data;
         setOwnerId(_id); // Set the user ID
       } catch (error) {
@@ -275,7 +275,7 @@ export default ({ route }) => {
 
       // Make API call with searchText as a query parameter
       const response = await axios.get(
-        `http://192.168.1.9:8000/api/vehicles/owner/${ownerId}`,
+        `http://192.168.1.6:8000/api/vehicles/owner/${ownerId}`,
         {
           params: { searchText: query }, // Send searchText as query parameter
         }

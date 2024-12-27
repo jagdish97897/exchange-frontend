@@ -32,7 +32,7 @@ const GetVehicleScreen = ({ route, navigation }) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://192.168.1.9:8000/api/vehicles/owner/${ownerId}`
+        `http://192.168.1.6:8000/api/vehicles/owner/${ownerId}`
       );
       const result = await response.json();
 

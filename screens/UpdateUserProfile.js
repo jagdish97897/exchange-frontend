@@ -40,7 +40,7 @@ const UpdateUserProfile = ({ route }) => {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch(`http://192.168.1.9:8000/api/v1/users/user/${phoneNumber}`);
+      const response = await fetch(`http://192.168.1.6:8000/api/v1/users/user/${phoneNumber}`);
       const result = await response.json();
 
       if (response.ok) {
@@ -150,7 +150,7 @@ const UpdateUserProfile = ({ route }) => {
         // console.log('condition formadata',formData.profileImage);
       }
 
-      const response = await fetch(`http://192.168.1.9:8000/api/v1/users/updateuser/${phoneNumber}`, {
+      const response = await fetch(`http://192.168.1.6:8000/api/v1/users/updateuser/${phoneNumber}`, {
         method: 'PUT',
         body: formData,
       });

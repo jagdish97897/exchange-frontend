@@ -27,7 +27,7 @@ export default ({ navigation }) => {
         try {
             const requestData = { name, phoneNumber };
 
-            const response = await axios.post('http://192.168.1.9:8000/api/v1/visitor/loginvisitor', requestData);
+            const response = await axios.post('http://192.168.1.6:8000/api/v1/visitor/loginvisitor', requestData);
 
             if (response.status === 200) {
                 // console.log('Login successful:', response.data);

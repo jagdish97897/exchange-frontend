@@ -20,6 +20,7 @@ import GoogleMap from './screens/GoogleMap';
 import CargoDetails from './screens/CargoDetails';
 import BrokerDashboard from './screens/BrokerDashboard';
 import DriverDashboard from './screens/DriverDashboard';
+import TripDetails from './screens/TripDetails';
 
 const Stack = createNativeStackNavigator();
 
@@ -48,6 +49,8 @@ export default () => {
             <Stack.Screen name="GetVehicleScreen" component={GetVehicleScreen} />
             <Stack.Screen name="UpdateVehicleScreen" component={UpdateVehicleScreen} />
             <Stack.Screen name="CargoDetails" component={CargoDetails} />
+            <Stack.Screen name="TripDetails" component={TripDetails} />
+
          </Stack.Navigator>
       </>
    );
