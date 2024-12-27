@@ -32,7 +32,7 @@ export default ({ navigation }) => {
         }
 
         try {
-            const response = await fetch('http://192.168.1.6:8000/api/v1/auth/forgotPin', {
+            const response = await fetch('http://192.168.1.3:8000/api/v1/auth/forgotPin', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -59,7 +59,7 @@ export default ({ navigation }) => {
 
     const sendOtp = async () => {
         try {
-            const response = await fetch('http://192.168.1.6:8000/api/v1/auth/sendExistingVisitorOtp', {
+            const response = await fetch('http://192.168.1.3:8000/api/v1/auth/sendExistingVisitorOtp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -45,7 +45,7 @@ export default ({ navigation }) => {
         try {
             if (!isOtpSent) {
                 // Send OTP
-                const response = await axios.post('http://192.168.1.6:8000/api/v1/users/sendOtp', {
+                const response = await axios.post('http://192.168.1.3:8000/api/v1/users/sendOtp', {
                     phoneNumber,
                     type: ['consumer', 'transporter']
                 });
@@ -61,7 +61,7 @@ export default ({ navigation }) => {
                 }
             } else {
                 // Verify OTP
-                const response = await axios.post('http://192.168.1.6:8000/api/v1/users/verifyOtp', {
+                const response = await axios.post('http://192.168.1.3:8000/api/v1/users/verifyOtp', {
                     otp,
                     phoneNumber,
                 });
