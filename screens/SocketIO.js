@@ -7,7 +7,7 @@ let socketInstance;
 
 export const getSocket = (token) => {
     if (!socketInstance) {
-        socketInstance = io("http://192.168.1.3:8000", {
+        socketInstance = io("http://192.168.1.6:8000", {
             query: { token },
         });
     }
@@ -23,7 +23,7 @@ export const closeSocket = () => {
 // const SocketIO = (token) => {
 
 //     // Connect to the Socket.IO server
-//     socketInstance = io("http://192.168.1.3:8000", { query: { token } });
+//     socketInstance = io("http://192.168.1.6:8000", { query: { token } });
 
 //     socketInstance.on("connect", () => {
 //         console.log("Connected to the server!", socketInstance.id);

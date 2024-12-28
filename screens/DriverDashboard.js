@@ -35,7 +35,7 @@ export default ({ route }) => {
         const fetchTrips = async () => {
             setLoading(true);
             try {
-                const response = await axios.get('http://192.168.1.3:8000/api/trips/history', {
+                const response = await axios.get('http://192.168.1.6:8000/api/trips/history', {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -98,12 +98,12 @@ export default ({ route }) => {
 
     const handleView = async (trip) => {
         try {
-            // const response = await axios.get(`http://192.168.1.3:8000/api/trips/${tripId}`, {
+            // const response = await axios.get(`http://192.168.1.6:8000/api/trips/${tripId}`, {
             //     headers: { Authorization: `Bearer ${token} ` },
             // });
             // const tripDetails = response.data.trip;
             // navigation.navigate('TripDetails', { trip: tripDetails, socket });
-            navigation.navigate('TripDetails', { trip, socket });
+            navigation.navigate('TripDetails', { trip, socket, phoneNumber });
 
         } catch (error) {
             console.error('Error fetching trip details:', error);
