@@ -35,7 +35,7 @@ export default function TripDetails({ route }) {
             try {
                 if (!phoneNumber) return; // Guard clause to prevent unnecessary API calls.
 
-                const response = await axios.get(`http://192.168.1.6:8000/api/v1/users/${phoneNumber}`);
+                const response = await axios.get(`http://192.168.1.3:8000/api/v1/users/${phoneNumber}`);
                 setUser(response.data); // Set the user state with the fetched data.
             } catch (error) {
                 console.error("Error fetching user info:", error.message); // Log or handle the error.
@@ -47,7 +47,7 @@ export default function TripDetails({ route }) {
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.patch(`http://192.168.1.6:8000/api/trips/counterPrice`,
+            const response = await axios.patch(`http://192.168.1.3:8000/api/trips/counterPrice`,
                 { counterPrice, userId: user._id, tripId: trip._id }
             );
 
@@ -62,7 +62,7 @@ export default function TripDetails({ route }) {
     const handleBidReject = () => { };
 
     const handleBidAccept = async () => {
-        await axios.patch(`http://192.168.1.6:8000/api/trips/status`, {
+        await axios.patch(`http://192.168.1.3:8000/api/trips/status`, {
 
         });
     };
@@ -113,7 +113,7 @@ export default function TripDetails({ route }) {
                             <Text style={styles.label}>Status: </Text> {trip.status}
                         </Text>
                         <Text style={styles.detail}>
-                            <Text style={styles.label}>Quote Price: </Text> {trip.cargoDetails.payloadCost}
+                            <Text style={styles.label}>Quote Price: </Text> {trip.cargoDetails.quotePrice}
                         </Text>
 
                         {/* Counter Price Section */}

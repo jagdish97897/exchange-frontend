@@ -4,6 +4,7 @@ import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacit
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
 import { saveToken } from './Token.js';
+import { initializeSocket } from './SocketIO.js';
 
 export default ({ navigation }) => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -42,7 +43,7 @@ export default ({ navigation }) => {
         try {
             if (!isOtpSent) {
                 // Send OTP
-                const response = await axios.post('http://192.168.1.6:8000/api/v1/users/sendOtp', {
+                const response = await axios.post('http://192.168.1.3:8000/api/v1/users/sendOtp', {
                     phoneNumber,
                     type: ['owner', 'broker', 'driver']
                 });
@@ -58,26 +59,41 @@ export default ({ navigation }) => {
                 }
             } else {
                 // Verify OTP
-                const response = await axios.post('http://192.168.1.6:8000/api/v1/users/verifyOtp', {
+                const response = await axios.post('http://192.168.1.3:8000/api/v1/users/verifyOtp', {
                     otp,
                     phoneNumber,
                 });
     
                 if (response.status === 200) {
+                    console.log('HI TTTTTTT',response.data)
                     saveToken('token',response.data.data.token);
                     // console.log('response data token  : ', response.data.data.token);
                     Alert.alert('Success', 'Login successful.');
                     const userType = response.data.data.type;
+
+                    initializeSocket(response.data.data.token);
                     
                     switch(userType){
                         case 'owner': 
-                                    navigation.navigate('OwnerDashboard', { phoneNumber,token:response.data.data.token });
+                                    navigation.navigate('OwnerDashboard', {
+                                         phoneNumber,
+                                         token:response.data.data.token,
+                                         userId:response.data.data.id
+                                         });
                                     break;
                         case 'broker':
-                                    navigation.navigate('BrokerDashboard', { phoneNumber,token:response.data.data.token });
+                                    navigation.navigate('BrokerDashboard', { 
+                                        phoneNumber,
+                                        token:response.data.data.token,
+                                        userId:response.data.data.id 
+                                    });
                                     break;
                         case 'driver':
-                                    navigation.navigate('DriverDashboard', { phoneNumber,token:response.data.data.token });
+                                    navigation.navigate('DriverDashboard', {
+                                        phoneNumber,
+                                        token:response.data.data.token,  
+                                        userId:response.data.data.id 
+                                    });
                                     break;
                     }
                 } else {

@@ -6,9 +6,10 @@ import { Ionicons } from '@expo/vector-icons';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import Ind from '../assets/images/image 10.png';
-const { width, height } = Dimensions.get('window');
 import * as Location from 'expo-location';
-import { getSocket, closeSocket } from './SocketIO.js';
+const { width, height } = Dimensions.get('window');
+
+
 export const showAlert = (title, message, actions = [{ text: 'OK' }]) => {
   Alert.alert(title, message, actions);
 };
@@ -108,7 +109,7 @@ export const getCurrentLocation = async () => {
 };
 
 export default ({ route }) => {
-  const { phoneNumber, token } = route.params;
+  const { phoneNumber, token, userId } = route.params;
   const [menuVisible, setMenuVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [from, setFrom] = useState('');
@@ -119,17 +120,6 @@ export default ({ route }) => {
     longitude: '',
   });
 
-  useEffect(() => {
-    const socket = getSocket(token);
-
-    socket.on("newMessage", (message) => {
-      console.log("Message from server:", message);
-    });
-
-    return () => {
-      closeSocket(); // Disconnect socket on unmount
-    };
-  }, [token]);
   const handleFromChange = (text) => {
     setFrom(text);
     if (text.length === 6) {
@@ -349,7 +339,7 @@ export default ({ route }) => {
             <Text className="text-lg pb-2 font-bold pl-[70px]">Dashboard</Text>
             <Text
               onPress={() => {
-                navigation.navigate('Trips');
+                navigation.navigate('Trips', { userId });
               }}
               className="text-lg font-bold pl-[80px]"
             >

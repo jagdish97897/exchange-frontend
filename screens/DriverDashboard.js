@@ -19,14 +19,37 @@ import { getSocket, closeSocket } from './SocketIO.js';
 
 export default ({ route }) => {
 
-    const { phoneNumber, token } = route.params;
+    const { phoneNumber, token, userId } = route.params;
     const [menuVisible, setMenuVisible] = useState(false);
     const [trips, setTrips] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [socket, setSocket] = useState(null);
+
 
     const navigation = useNavigation();
-    const socket = getSocket(token);
 
+    useEffect(() => {
+        const socketInstance = getSocket();
+        setSocket(socketInstance);
+
+        return () => {
+            closeSocket(); // Disconnect socket on unmount
+        };
+    }, []);
+
+    // useEffect(() => {
+    //     const socketInstance = getSocket();
+
+    //     setSocket(socketInstance);
+
+    //     socket.on("newMessage", (message) => {
+    //         console.log("Message from server:", message);
+    //     });
+
+    //     return () => {
+    //         closeSocket(); // Disconnect socket on unmount
+    //     };
+    // }, [token]);
 
     // Fetch trip history from the API
     useEffect(() => {
@@ -35,7 +58,7 @@ export default ({ route }) => {
         const fetchTrips = async () => {
             setLoading(true);
             try {
-                const response = await axios.get('http://192.168.1.6:8000/api/trips/history', {
+                const response = await axios.get('http://192.168.1.3:8000/api/trips/history', {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -74,17 +97,21 @@ export default ({ route }) => {
             });
         };
 
-        socket.on('newTrip', handleNewTrip);
+        if (socket) {
+            socket.on('newTrip', handleNewTrip);
 
+            // Cleanup listener on unmount
+            return () => {
+                socket.off('newTrip', handleNewTrip);
+            };
+        }
         // Cleanup listener on unmount
-        return () => {
-            socket.off('newTrip', handleNewTrip);
-        };
+
     }, [socket, trips]);
 
-    socket.on("newMessage", (message) => {
-        console.log("Message from server:", message);
-    });
+    // socket.on("newMessage", (message) => {
+    //     console.log("Message from server:", message);
+    // });
 
     const toggleMenu = () => {
         setMenuVisible(!menuVisible);
@@ -98,7 +125,7 @@ export default ({ route }) => {
 
     const handleView = async (trip) => {
         try {
-            // const response = await axios.get(`http://192.168.1.6:8000/api/trips/${tripId}`, {
+            // const response = await axios.get(`http://192.168.1.3:8000/api/trips/${tripId}`, {
             //     headers: { Authorization: `Bearer ${token} ` },
             // });
             // const tripDetails = response.data.trip;
@@ -141,7 +168,7 @@ export default ({ route }) => {
                                         </Text>
                                         <Text style={styles.tripDetail}>
                                             <Text style={styles.label}>Payload Cost:</Text>{' '}
-                                            {trip.cargoDetails.payloadCost}
+                                            {trip.cargoDetails.quotePrice}
                                         </Text>
 
                                         {/* Action Buttons */}
@@ -212,7 +239,7 @@ export default ({ route }) => {
     //                                     <Text style={styles.label}>Date:</Text> {new Date(trip.message.tripDate).toLocaleString()}
     //                                 </Text>
     //                                 <Text style={styles.tripDetail}>
-    //                                     <Text style={styles.label}>Payload Cost:</Text> {trip.message.payloadCost}
+    //                                     <Text style={styles.label}>Payload Cost:</Text> {trip.message.quotePrice}
     //                                 </Text>
 
     //                                 {/* Action Buttons */}

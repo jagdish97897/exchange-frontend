@@ -4,6 +4,7 @@ import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacit
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
 import { saveToken } from './Token.js';
+import { initializeSocket } from './SocketIO.js';
 
 export default ({ navigation }) => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -45,7 +46,7 @@ export default ({ navigation }) => {
         try {
             if (!isOtpSent) {
                 // Send OTP
-                const response = await axios.post('http://192.168.1.6:8000/api/v1/users/sendOtp', {
+                const response = await axios.post('http://192.168.1.3:8000/api/v1/users/sendOtp', {
                     phoneNumber,
                     type: ['consumer', 'transporter']
                 });
@@ -61,16 +62,21 @@ export default ({ navigation }) => {
                 }
             } else {
                 // Verify OTP
-                const response = await axios.post('http://192.168.1.6:8000/api/v1/users/verifyOtp', {
+                const response = await axios.post('http://192.168.1.3:8000/api/v1/users/verifyOtp', {
                     otp,
                     phoneNumber,
                 });
 
                 if (response.status === 200) {
                     saveToken('token', response.data.data.token);
-                    // console.log('response data : ', response.data);
+                    console.log('response data : ', response.data.data.token);
                     Alert.alert('Success', 'Login successful.');
-                    navigation.navigate('ConsumerDashboard', { phoneNumber, token: response.data.data.token });
+                    initializeSocket(response.data.data.token);
+                    navigation.navigate('ConsumerDashboard', {
+                        phoneNumber,
+                        token: response.data.data.token,
+                        userId: response.data.data.id
+                    });
                     setOtp('');
                     setPhoneNumber('');
                     setIsOtpSent(false);

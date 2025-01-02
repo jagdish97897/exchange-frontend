@@ -2,28 +2,42 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, Button, View } from 'react-native';
 import { io } from "socket.io-client";
 
-let socketInstance;
+// socket.js
 
+let socket = null;
 
-export const getSocket = (token) => {
-    if (!socketInstance) {
-        socketInstance = io("http://192.168.1.6:8000", {
-            query: { token },
+export const initializeSocket = (token) => {
+    if (!socket) {
+        socket = io('http://192.168.1.3:8000', {
+            query: {
+                token: token,
+            },
         });
+
+        if (socket) {
+            console.log('socket connected');
+        }
     }
-    return socketInstance;
+    return socket;
+};
+
+export const getSocket = () => {
+    if (!socket) {
+        throw new Error('Socket not initialized. Call initializeSocket(token) first.');
+    }
+    return socket;
 };
 
 export const closeSocket = () => {
-    if (socketInstance) {
-        socketInstance.disconnect();
-        socketInstance = null;
+    if (socket) {
+        socket.disconnect();
+        socket = null;
     }
 };
 // const SocketIO = (token) => {
 
 //     // Connect to the Socket.IO server
-//     socketInstance = io("http://192.168.1.6:8000", { query: { token } });
+//     socketInstance = io("http://192.168.1.3:8000", { query: { token } });
 
 //     socketInstance.on("connect", () => {
 //         console.log("Connected to the server!", socketInstance.id);
@@ -50,10 +64,9 @@ export const closeSocket = () => {
 //     };
 // };
 
-const sendMessage = () => {
+export const sendMessage = () => {
     if (socketInstance) {
         socketInstance.emit("createMessage", { text: input });
     }
 };
 
-export { sendMessage };

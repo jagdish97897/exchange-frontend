@@ -10,10 +10,25 @@ import axios from 'axios';
 import { getSocket, closeSocket } from './SocketIO.js';
 
 export default ({ route }) => {
-    const { phoneNumber, token } = route.params;
+    const { phoneNumber, token, userId } = route.params;
     // console.log(phoneNumber)
     const [menuVisible, setMenuVisible] = useState(false);
     const [ownerId, setOwnerId] = useState('');
+    const [socket, setSocket] = useState(null);
+
+    useEffect(() => {
+        const socketInstance = getSocket();
+
+        setSocket(socketInstance);
+
+        socket.on("newMessage", (message) => {
+            console.log("Message from server:", message);
+        });
+
+        return () => {
+            closeSocket(); // Disconnect socket on unmount
+        };
+    }, [token]);
 
     const navigation = useNavigation();
 
@@ -117,7 +132,7 @@ export default ({ route }) => {
         // Fetch user data from API
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`http://192.168.1.6:8000/api/v1/users/user/${phoneNumber}`);
+                const response = await axios.get(`http://192.168.1.3:8000/api/v1/users/user/${phoneNumber}`);
                 const { _id } = response.data;
                 setOwnerId(_id); // Set the user ID
             } catch (error) {
