@@ -171,7 +171,7 @@ export default ({ route }) => {
   useEffect(() => {
     try {
       if (from.length === 6 && to.length === 6) {
-        navigation.navigate('CargoDetails', { from, to, phoneNumber, currentLocation });
+        navigation.navigate('CargoDetails', { from, to, phoneNumber, currentLocation, userId });
       }
     } catch (error) {
       console.error('Error in navigation logic:', error);
@@ -338,7 +338,7 @@ export default ({ route }) => {
             <Text className="text-lg pb-2 font-bold pl-[70px]">Dashboard</Text>
             <Text
               onPress={() => {
-                navigation.navigate('Trips', { userId });
+                navigation.navigate('TripScreen', { userId });
               }}
               className="text-lg font-bold pl-[80px]"
             >

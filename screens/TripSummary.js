@@ -10,55 +10,62 @@ import {
     ActivityIndicator,
     RefreshControl,
     TouchableOpacity,
-    Keyboard
+    Keyboard,
+    Modal,
+    TextInput,
+    Alert
 } from 'react-native';
 import { getSocket, closeSocket } from './SocketIO';
 import { LinearGradient } from 'expo-linear-gradient';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 const TripSummary = ({ route }) => {
-    const [keyboardVisible, setKeyboardVisible] = useState(false);
     const { tripId } = route.params;
+    const navigation = useNavigation();
+
+    const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [loading, setLoading] = useState(true);
     const [socket, setSocket] = useState(null);
     const [trip, setTrip] = useState(null);
-    const [refreshing, setRefreshing] = useState(false);
+    // const [refreshing, setRefreshing] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const [acceptedDriverId, setAcceptedDriverId] = useState(null);
+    const [showDetails, setShowDetails] = useState(false);
     const isMounted = useRef(true);
 
-        useEffect(() => {
-            const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-                setKeyboardVisible(true);
-            });
-            const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-                setKeyboardVisible(false);
-            });
-    
-            return () => {
-                keyboardDidShowListener.remove();
-                keyboardDidHideListener.remove();
-            };
-        }, []);
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardVisible(true);
+        });
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardVisible(false);
+        });
+
+        return () => {
+            keyboardDidShowListener.remove();
+            keyboardDidHideListener.remove();
+        };
+    }, []);
+
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedPrice, setSelectedPrice] = useState(null);
+    const [revisedPrice, setRevisedPrice] = useState('');
 
 
     useEffect(() => {
         const socketInstance = getSocket();
         setSocket(socketInstance);
-
-        return () => {
-            closeSocket();
-        };
     }, []);
 
     const fetchCounterPriceList = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`http://192.168.1.4:8000/api/trips/${tripId}`);
+            const response = await axios.get(`http://192.168.1.14:8000/api/trips/${tripId}`);
             if (isMounted.current) {
-                console.log('API Response:', response.data.trip);
                 setTrip(response.data.trip);
             }
         } catch (error) {
@@ -66,7 +73,7 @@ const TripSummary = ({ route }) => {
         } finally {
             if (isMounted.current) {
                 setLoading(false);
-                setRefreshing(false);  // Stop refresh indicator
+                // setRefreshing(false);  // Stop refresh indicator
             }
         }
     };
@@ -88,39 +95,49 @@ const TripSummary = ({ route }) => {
         if (socket) {
             socket.on('counterPrice', handleCounterPrice);
 
-            // Cleanup listener on unmount
             return () => {
                 socket.off('counterPrice', handleCounterPrice);
             };
         }
     }, [socket]);
 
-    const onRefresh = () => {
-        setRefreshing(true);  // Trigger refresh indicator
-        fetchCounterPriceList();  // Fetch new data
+
+    const openModal = (price) => {
+        setSelectedPrice(price);
+        setModalVisible(true);
     };
 
-    const acceptDriver = async (driverId) => {
-        setError(null);
-        setSuccess(null);
-        try {
-            const response = await axios.patch('http://192.168.1.4:8000/api/trips/accept-driver', {
-                tripId,
-                userId: driverId,  
-            });
-            setAcceptedDriverId(driverId);
-            setSuccess('Driver accepted successfully!');
-            fetchCounterPriceList();  
-        } catch (error) {
-            setError('Failed to accept driver');
+    const handleAccept = async (tripId, vspUserId) => {
+        console.log('Accepted:', vspUserId);
+        const response = await axios.patch(`http://192.168.1.14:8000/api/trips/bidStatus`, { tripId, vspUserId, status: "inProgress" });
+
+        if (response.status === 200) {
+            setModalVisible(false);
+            Alert.alert('Success', 'Thank you for accepting the bid');
+            navigation.navigate('TripScreen', { user });
         }
     };
-    
+
+    const handleReject = () => {
+        console.log('Rejected:', selectedPrice);
+        setModalVisible(false);
+    };
+
+    const handleRevisedPrice = async (userId, vspUserId, price) => {
+        console.log('userId : ', userId, 'vspUserId :', vspUserId, 'price : ', price, 'tripId : ', tripId);
+        console.log('Revised Price:', revisedPrice);
+        const response = await axios.patch(`http://192.168.1.14:8000/api/trips/revisedPrice`, { userId, vspUserId, price, tripId });
+
+        if (response.status === 200) {
+            setModalVisible(false);
+            setTrip(response.data.trip);
+        }
+    };
 
     if (loading) {
         return (
             <View style={styles.loaderContainer}>
-                <ActivityIndicator size="large" color="#0000ff" />
+                <ActivityIndicator size="large" color="#007bff" />
             </View>
         );
     }
@@ -138,495 +155,279 @@ const TripSummary = ({ route }) => {
         to,
         tripDate,
         cargoDetails,
-        specialInstruction,
-        status,
-        amount,
-        currentLocation,
         counterPriceList,
+        user,
+        bidder
     } = trip;
 
+    console.log('tripUser', trip.user);
+    // Handle accept and reject disable
+
+    const prices = counterPriceList.map((price, index) => ({
+        label: `Driver ${index + 1}`,
+        value: price.counterPrice,
+        user: price.user,
+    }));
+
+
     return (
-                <LinearGradient colors={['#06264D', '#FFF']} style={{ flex: 1 }}>
-                    <SafeAreaView style={{ flex: 1, paddingHorizontal: 20, paddingVertical: 40 }}>
-                        <KeyboardAwareScrollView
-                            resetScrollToCoords={{ x: 0, y: 0 }}
-                            contentContainerStyle={styles.container}
-                            scrollEnabled={true}
-                            enableAutomaticScroll={true}
-                            enableOnAndroid={true}
-                            extraScrollHeight={100}
-                            showsVerticalScrollIndicator={false}
-                            showsHorizontalScrollIndicator={false}
-                        >
-                            <Image
-                                source={require('../assets/images/logo-removebg-preview 1.png')}
-                                style={styles.logo}
-                            />
         <ScrollView
-            contentContainerStyle={styles.scrollView}
-            refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
+            contentContainerStyle={styles.container}
         >
-            <Text style={styles.title}>Trip Details</Text>
-
-            <View style={styles.card}>
-            <Text style={styles.label}>From:</Text>
-            <Text style={styles.value}>{from}</Text>
-
-            <Text style={styles.label}>To:</Text>
-            <Text style={styles.value}>{to}</Text>
-
-            <Text style={styles.label}>Trip Date:</Text>
-            <Text style={styles.value}>{new Date(tripDate).toLocaleString()}</Text>
-
-            <Text style={styles.label}>Status:</Text>
-            <Text style={styles.value}>{status}</Text>
-
-            <Text style={styles.label}>Amount:</Text>
-            <Text style={styles.value}>{amount}</Text>
-
-            <Text style={styles.label}>Special Instruction:</Text>
-            <Text style={styles.value}>{specialInstruction || 'N/A'}</Text>
-
-            
-            <Text style={styles.label}>Current Location:</Text>
-            <Text style={styles.value}>
-                Latitude: {currentLocation?.latitude || 'N/A'}, Longitude: {currentLocation?.longitude || 'N/A'}
-            </Text>
-
-            <Text style={styles.label}>Current Location:</Text>
-            <Text style={styles.value}>
-                Latitude: {currentLocation?.latitude || 'N/A'}, Longitude: {currentLocation?.longitude || 'N/A'}
-            </Text>
+            <View style={styles.summaryBox}>
+                <Text style={styles.heading}>Trip Summary</Text>
+                <Text style={styles.summaryText}>From: {from}</Text>
+                <Text style={styles.summaryText}>To: {to}</Text>
+                <Text style={styles.summaryText}>Date: {new Date(tripDate).toLocaleDateString()}</Text>
+                <Text style={styles.summaryText}>Quote Price: ₹{cargoDetails.quotePrice}</Text>
+                <TouchableOpacity
+                    style={styles.detailsButton}
+                    onPress={() => setShowDetails(!showDetails)}
+                >
+                    <Text style={styles.detailsButtonText}>{showDetails ? 'Hide Details' : 'Show Details'}</Text>
+                </TouchableOpacity>
             </View>
 
+            {showDetails && trip?.bids?.length === 0 && prices.map((price, index) => (
+                <TouchableOpacity
+                    key={index}
+                    style={styles.priceRow}
+                    onPress={() => openModal(price)}
+                >
+                    <Text style={styles.label}>{price.label}</Text>
+                    {price.user && (
+                        <Text style={styles.userInfo}>Price:  ₹{price.value || 'N/A'}</Text>
+                    )}
+                    {price.user && (
+                        <Text style={styles.userInfo}>By: {price.user.fullName} ({price.user.phoneNumber})</Text>
+                    )}
+                </TouchableOpacity>
+            ))}
 
+            {trip?.bids?.length > 0 && trip.bids.map((bid, index) => (
+                <TouchableOpacity
+                    key={index}
+                    style={styles.priceRow}
+                // onPress={() => openModal(price)}
+                >
+                    <Text style={styles.label}>{bid.role === 'consumer' ? 'Revised Price:' : 'Counter Price:'}  {bid.user && (
+                        <Text style={styles.userInfo}>  ₹{bid.price || 'N/A'}</Text>
+                    )}
+                    </Text>
+                </TouchableOpacity>
+            ))}
 
+            {trip.bids?.length > 0 &&
+                <View style={styles.modalContent}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Enter revised price"
+                        value={revisedPrice}
+                        onChangeText={setRevisedPrice}
+                        keyboardType="numeric"
+                    />
 
-
-            <Text style={styles.title}>Cargo Details:</Text>
-            <View style={styles.card}>
-                <Text style={styles.label}>Cargo Type:</Text>
-                <Text style={styles.value}>{cargoDetails?.cargoType || 'N/A'}</Text>
-
-                <Text style={styles.label}>Quote Price:</Text>
-                <Text style={styles.value}>{cargoDetails?.quotePrice || 'N/A'}</Text>
-
-                <Text style={styles.label}>Payload Weight:</Text>
-                <Text style={styles.value}>{cargoDetails?.payloadWeight || 'N/A'}</Text>
-
-                <Text style={styles.label}>Payload Dimensions:</Text>
-                <Text style={styles.value}>
-                    {cargoDetails?.payloadLength && cargoDetails?.payloadWidth && cargoDetails?.payloadHeight
-                        ? `${cargoDetails.payloadLength}x${cargoDetails.payloadWidth}x${cargoDetails.payloadHeight} (LxWxH in feet)`
-                        : 'N/A'}
-                </Text>
-            </View>
-
-            <Text style={styles.label}>Driver Price</Text>
-            {counterPriceList && counterPriceList.length > 0 ? (
-                counterPriceList.map((bidder, index) => (
-                    <View key={index} style={styles.card}>
-                        <Text style={styles.value}>
-                            Name: {bidder.user.fullName} Phone: {bidder.user.phoneNumber}, Bid: {bidder.counterPrice}
-                        </Text>
-                        <TouchableOpacity
-                            style={[
-                                styles.acceptButton,
-                                acceptedDriverId === bidder.user._id && { backgroundColor: '#d3d3d3' },
-                            ]}
-                            onPress={() => acceptDriver(bidder.user._id)}
-                            disabled={acceptedDriverId === bidder.user._id} 
-                        >
-                            <Text style={styles.buttonText}>
-                                {acceptedDriverId === bidder.user._id ? 'Accepted' : 'Accept Driver'}
-                            </Text>
+                    <View style={styles.buttonGroup}>
+                        <TouchableOpacity style={styles.acceptButton} onPress={() => handleAccept(tripId, bidder)}>
+                            <Text style={styles.buttonText}>Accept</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.submitButton} onPress={() => handleRevisedPrice(user, selectedPrice?.user?._id, revisedPrice)}>
+                            <Text style={styles.buttonText}>Submit</Text>
                         </TouchableOpacity>
                     </View>
-                ))
-            ) : (
-                <Text style={styles.value}>No bidders yet</Text>
-            )}
-            {error && <Text style={styles.errorText}>{error}</Text>}
-            {success && <Text style={styles.successText}>{success}</Text>}
-        </ScrollView>
+                </View>
+            }
 
-          </KeyboardAwareScrollView>
-        
-                        {!keyboardVisible && (
-                            <View style={styles.footer}>
-                                <Image
-                                    source={require('../assets/images/mantra.jpg')}
-                                    style={styles.smallImage}
-                                />
-                                <View style={styles.footerTextContainer}>
-                                    <Text style={styles.footerText}>Made in</Text>
-                                    <Image
-                                        source={require('../assets/images/image 10.png')}
-                                        style={styles.smallImage}
-                                    />
-                                </View>
-                                <Image
-                                    source={require('../assets/images/make-in-India-logo.jpg')}
-                                    style={styles.smallImage}
-                                />
-                            </View>
-                        )}
-                    </SafeAreaView>
-                </LinearGradient>
+            <Modal
+                transparent={true}
+                animationType="slide"
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        {/* Close Button */}
+                        <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+                            <Text style={styles.closeButtonText}>×</Text>
+                        </TouchableOpacity>
+
+                        <Text style={styles.modalTitle}>Counter Offer</Text>
+                        <Text style={styles.modalInfo}>User: {selectedPrice?.user?.fullName}</Text>
+                        <Text style={styles.modalInfo}>Price: ₹{selectedPrice?.value || 'N/A'}</Text>
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter revised price"
+                            value={revisedPrice}
+                            onChangeText={setRevisedPrice}
+                            keyboardType="numeric"
+                        />
+
+                        <View style={styles.buttonGroup}>
+                            <TouchableOpacity style={styles.acceptButton} onPress={() => handleAccept(tripId, selectedPrice?.user?._id)}>
+                                <Text style={styles.buttonText}>Accept</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.submitButton} onPress={() => handleRevisedPrice(user, selectedPrice?.user?._id, revisedPrice)}>
+                                <Text style={styles.buttonText}>Submit</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
+    container: {
+        padding: 16,
+        backgroundColor: '#f9f9f9',
+    },
     loaderContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#f9f9f9',
     },
     errorContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#f9f9f9',
     },
     errorText: {
-        fontSize: 18,
         color: 'red',
-    },
-    successText: {
-        fontSize: 18,
-        color: 'green',
-    },
-    scrollView: {
-        padding: 16,
-    },
-    card: {
-        backgroundColor: '#FFF',
-        borderRadius: 10,
-        padding: 16,
-        marginVertical: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
-    },
-    title: {
-        fontSize: 24,
+        fontSize: 16,
         fontWeight: 'bold',
+    },
+    summaryBox: {
+        backgroundColor: '#ffffff',
+        borderRadius: 8,
+        padding: 16,
+        marginBottom: 16,
+        elevation: 3,
+    },
+    heading: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        color: '#333',
+    },
+    summaryText: {
+        fontSize: 16,
+        marginBottom: 4,
+        color: '#555',
+    },
+    detailsButton: {
+        marginTop: 8,
+        paddingVertical: 8,
+        backgroundColor: '#007bff',
+        borderRadius: 4,
+        alignItems: 'center',
+    },
+    detailsButtonText: {
+        color: '#ffffff',
+        fontWeight: 'bold',
+    },
+    priceRow: {
+        padding: 16,
+        backgroundColor: '#ffffff',
+        borderRadius: 8,
+        marginBottom: 8,
+        elevation: 2,
     },
     label: {
         fontSize: 16,
-        fontWeight: '600',
-        marginTop: 8,
+        fontWeight: '500',
+        color: '#333',
     },
-    value: {
+    userInfo: {
+        fontSize: 14,
+        color: '#777',
+        marginTop: 4,
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        width: '100%',
+        backgroundColor: '#ffffff',
+        borderRadius: 8,
+        padding: 16,
+        elevation: 4,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        color: '#333',
+    },
+    modalInfo: {
         fontSize: 16,
-        marginVertical: 4,
+        marginBottom: 8,
+        color: '#555',
     },
-    cargoContainer: {
-        marginVertical: 16,
+    input: {
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 4,
+        padding: 8,
+        marginBottom: 16,
+        fontSize: 16,
     },
-    bidderContainer: {
-        paddingVertical: 10,
+    buttonGroup: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
     acceptButton: {
-        backgroundColor: '#007BFF',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 8,
-        marginTop: 10,
+        flex: 1,
+        backgroundColor: '#28a745',
+        borderRadius: 4,
+        paddingVertical: 12,
+        alignItems: 'center',
+        marginRight: 4,
+    },
+    rejectButton: {
+        flex: 1,
+        backgroundColor: '#dc3545',
+        borderRadius: 4,
+        paddingVertical: 12,
+        alignItems: 'center',
+        marginHorizontal: 4,
+    },
+    submitButton: {
+        flex: 1,
+        backgroundColor: '#007bff',
+        borderRadius: 4,
+        paddingVertical: 12,
+        alignItems: 'center',
+        marginLeft: 4,
     },
     buttonText: {
         color: '#ffffff',
-        fontSize: 16,
         fontWeight: 'bold',
     },
-    footer: {
-        flexDirection: 'row',
+    closeButton: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        backgroundColor: '#ddd',
+        borderRadius: 20,
+        width: 30,
+        height: 30,
+        justifyContent: 'center',
         alignItems: 'center',
-        justifyContent: 'space-around',
-        marginTop: 20
+        zIndex: 1,
     },
-    smallImage: {
-        width: 40,
-        height: 40
+    closeButtonText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
     },
-    footerTextContainer: {
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    footerText: {
-        color: '#000',
-        paddingLeft: 2
-    },
+
 });
 
 export default TripSummary;
-
-
-
-
-// import React, { useEffect, useState, useRef } from 'react';
-// import {
-//     View,
-//     Text,
-//     ScrollView,
-//     StyleSheet,
-//     ActivityIndicator,
-//     RefreshControl,
-//     TouchableOpacity,
-// } from 'react-native';
-// import { getSocket, closeSocket } from './SocketIO';
-// import axios from 'axios';
-
-// const TripSummary = ({ route }) => {
-//     const { tripId } = route.params;
-//     const [loading, setLoading] = useState(true);
-//     const [socket, setSocket] = useState(null);
-//     const [trip, setTrip] = useState(null);
-//     const [refreshing, setRefreshing] = useState(false);
-//     const [error, setError] = useState(null);
-//     const [success, setSuccess] = useState(null);
-//     const [acceptedDriverId, setAcceptedDriverId] = useState(null);
-//     const isMounted = useRef(true);
-
-//     useEffect(() => {
-//         const socketInstance = getSocket();
-//         setSocket(socketInstance);
-
-//         return () => {
-//             closeSocket();
-//         };
-//     }, []);
-
-//     const fetchCounterPriceList = async () => {
-//         setLoading(true);
-//         try {
-//             const response = await axios.get(`http://192.168.1.4:8000/api/trips/${tripId}`);
-//             if (isMounted.current) {
-//                 console.log('API Response:', response.data.trip);
-//                 setTrip(response.data.trip);
-//             }
-//         } catch (error) {
-//             console.error('Error fetching trip history:', error);
-//         } finally {
-//             if (isMounted.current) {
-//                 setLoading(false);
-//                 setRefreshing(false);  // Stop refresh indicator
-//             }
-//         }
-//     };
-
-//     useEffect(() => {
-//         fetchCounterPriceList();
-
-//         return () => {
-//             isMounted.current = false;
-//         };
-//     }, []);
-
-//     useEffect(() => {
-//         const handleCounterPrice = async () => {
-//             console.log('Event Received');
-//             await fetchCounterPriceList();
-//         };
-
-//         if (socket) {
-//             socket.on('counterPrice', handleCounterPrice);
-
-//             // Cleanup listener on unmount
-//             return () => {
-//                 socket.off('counterPrice', handleCounterPrice);
-//             };
-//         }
-//     }, [socket]);
-
-//     const onRefresh = () => {
-//         setRefreshing(true);  // Trigger refresh indicator
-//         fetchCounterPriceList();  // Fetch new data
-//     };
-
-//     const acceptDriver = async (driverId) => {
-//         setError(null);
-//         setSuccess(null);
-//         try {
-//             const response = await axios.patch('http://192.168.1.4:8000/api/trips/accept-driver', {
-//                 tripId,
-//                 userId: driverId,  
-//             });
-//             setAcceptedDriverId(driverId);
-//             setSuccess('Driver accepted successfully!');
-//             fetchCounterPriceList();  
-//         } catch (error) {
-//             setError('Failed to accept driver');
-//         }
-//     };
-    
-
-//     if (loading) {
-//         return (
-//             <View style={styles.loaderContainer}>
-//                 <ActivityIndicator size="large" color="#0000ff" />
-//             </View>
-//         );
-//     }
-
-//     if (!trip) {
-//         return (
-//             <View style={styles.errorContainer}>
-//                 <Text style={styles.errorText}>No trip details found</Text>
-//             </View>
-//         );
-//     }
-
-//     const {
-//         from,
-//         to,
-//         tripDate,
-//         cargoDetails,
-//         specialInstruction,
-//         status,
-//         amount,
-//         currentLocation,
-//         counterPriceList,
-//     } = trip;
-
-//     return (
-//         <ScrollView
-//             contentContainerStyle={styles.scrollView}
-//             refreshControl={
-//                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-//             }
-//         >
-//             <Text style={styles.title}>Trip Details</Text>
-
-//             <Text style={styles.label}>From:</Text>
-//             <Text style={styles.value}>{from}</Text>
-
-//             <Text style={styles.label}>To:</Text>
-//             <Text style={styles.value}>{to}</Text>
-
-//             <Text style={styles.label}>Trip Date:</Text>
-//             <Text style={styles.value}>{new Date(tripDate).toLocaleString()}</Text>
-
-//             <Text style={styles.label}>Status:</Text>
-//             <Text style={styles.value}>{status}</Text>
-
-//             <Text style={styles.label}>Amount:</Text>
-//             <Text style={styles.value}>{amount}</Text>
-
-//             <Text style={styles.label}>Special Instruction:</Text>
-//             <Text style={styles.value}>{specialInstruction || 'N/A'}</Text>
-
-//             <Text style={styles.label}>Current Location:</Text>
-//             <Text style={styles.value}>
-//                 Latitude: {currentLocation?.latitude || 'N/A'}, Longitude: {currentLocation?.longitude || 'N/A'}
-//             </Text>
-
-//             <Text style={styles.label}>Cargo Details:</Text>
-//             <View style={styles.cargoContainer}>
-//                 <Text style={styles.label}>Cargo Type:</Text>
-//                 <Text style={styles.value}>{cargoDetails?.cargoType || 'N/A'}</Text>
-
-//                 <Text style={styles.label}>Quote Price:</Text>
-//                 <Text style={styles.value}>{cargoDetails?.quotePrice || 'N/A'}</Text>
-
-//                 <Text style={styles.label}>Payload Weight:</Text>
-//                 <Text style={styles.value}>{cargoDetails?.payloadWeight || 'N/A'}</Text>
-
-//                 <Text style={styles.label}>Payload Dimensions:</Text>
-//                 <Text style={styles.value}>
-//                     {cargoDetails?.payloadLength && cargoDetails?.payloadWidth && cargoDetails?.payloadHeight
-//                         ? `${cargoDetails.payloadLength}x${cargoDetails.payloadWidth}x${cargoDetails.payloadHeight} (LxWxH in feet)`
-//                         : 'N/A'}
-//                 </Text>
-//             </View>
-
-//             <Text style={styles.label}>Driver Price</Text>
-//             {counterPriceList && counterPriceList.length > 0 ? (
-//                 counterPriceList.map((bidder, index) => (
-//                     <View key={index} style={styles.bidderContainer}>
-//                         <Text style={styles.value}>
-//                             Name: {bidder.user.fullName} Phone: {bidder.user.phoneNumber}, Bid: {bidder.counterPrice}
-//                         </Text>
-//                         <TouchableOpacity
-//                             style={[
-//                                 styles.acceptButton,
-//                                 acceptedDriverId === bidder.user._id && { backgroundColor: '#d3d3d3' },
-//                             ]}
-//                             onPress={() => acceptDriver(bidder.user._id)}
-//                             disabled={acceptedDriverId === bidder.user._id} // Disable button if driver is accepted
-//                         >
-//                             <Text style={styles.buttonText}>
-//                                 {acceptedDriverId === bidder.user._id ? 'Accepted' : 'Accept Driver'}
-//                             </Text>
-//                         </TouchableOpacity>
-//                     </View>
-//                 ))
-//             ) : (
-//                 <Text style={styles.value}>No bidders yet</Text>
-//             )}
-//             {error && <Text style={styles.errorText}>{error}</Text>}
-//             {success && <Text style={styles.successText}>{success}</Text>}
-//         </ScrollView>
-//     );
-// };
-
-// const styles = StyleSheet.create({
-//     loaderContainer: {
-//         flex: 1,
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//     },
-//     errorContainer: {
-//         flex: 1,
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//     },
-//     errorText: {
-//         fontSize: 18,
-//         color: 'red',
-//     },
-//     successText: {
-//         fontSize: 18,
-//         color: 'green',
-//     },
-//     scrollView: {
-//         padding: 16,
-//     },
-//     title: {
-//         fontSize: 24,
-//         fontWeight: 'bold',
-//     },
-//     label: {
-//         fontSize: 16,
-//         fontWeight: '600',
-//         marginTop: 8,
-//     },
-//     value: {
-//         fontSize: 16,
-//         marginVertical: 4,
-//     },
-//     cargoContainer: {
-//         marginVertical: 16,
-//     },
-//     bidderContainer: {
-//         paddingVertical: 10,
-//     },
-//     acceptButton: {
-//         backgroundColor: '#007BFF',
-//         paddingVertical: 10,
-//         paddingHorizontal: 20,
-//         borderRadius: 8,
-//         marginTop: 10,
-//     },
-//     buttonText: {
-//         color: '#ffffff',
-//         fontSize: 16,
-//         fontWeight: 'bold',
-//     },
-// });
-
-// export default TripSummary;
-

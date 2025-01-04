@@ -27,7 +27,7 @@ export default function Signup() {
     formData.append("profileImage", formdata.profileImage);
 
     try {
-      const response = await fetch("http://192.168.1.4:8005/api/v1/users/register", {
+      const response = await fetch("http://192.168.1.14:8005/api/v1/users/register", {
         method: "POST",
         body: formData,
       });

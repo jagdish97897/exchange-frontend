@@ -32,7 +32,7 @@ export default ({ navigation }) => {
         try {
             const requestData = { phoneNumber, pin };
 
-            const response = await axios.post('http://192.168.1.4:8000/api/v1/auth/login', requestData);
+            const response = await axios.post('http://192.168.1.14:8000/api/v1/auth/login', requestData);
 
             if (response.status === 200) {
                 Alert.alert('Success', 'Login successful');

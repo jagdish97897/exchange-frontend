@@ -174,7 +174,7 @@ const AddVehicleScreen = ({ route }) => {
       }
 
       const response = await axios.post(
-        "http://192.168.1.4:8000/api/vehicles/create",
+        "http://192.168.1.14:8000/api/vehicles/create",
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );

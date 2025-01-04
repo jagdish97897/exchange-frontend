@@ -35,19 +35,19 @@ export default function TripDetails({ route }) {
             try {
                 if (!phoneNumber) return; // Guard clause to prevent unnecessary API calls.
 
-                const response = await axios.get(`http://192.168.1.4:8000/api/v1/users/${phoneNumber}`);
+                const response = await axios.get(`http://192.168.1.14:8000/api/v1/users/${phoneNumber}`);
                 setUser(response.data); // Set the user state with the fetched data.
             } catch (error) {
                 console.error("Error fetching user info:", error.message); // Log or handle the error.
             }
         };
 
-        fetchUserInfo(); 
+        fetchUserInfo();
     }, [phoneNumber]);
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.patch(`http://192.168.1.4:8000/api/trips/counterPrice`,
+            const response = await axios.patch(`http://192.168.1.14:8000/api/trips/counterPrice`,
                 { counterPrice, userId: user._id, tripId: trip._id }
             );
 
@@ -62,8 +62,7 @@ export default function TripDetails({ route }) {
     const handleBidReject = () => { };
 
     const handleBidAccept = async () => {
-        await axios.patch(`http://192.168.1.4:8000/api/trips/status`, {
-
+        await axios.patch(`http://192.168.1.14:8000/api/trips/status`, {
         });
     };
 

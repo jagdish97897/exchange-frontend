@@ -22,7 +22,7 @@ const Profile = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const API_URL = `http://192.168.1.4:8000/api/v1/users/${phoneNumber}`;
+  const API_URL = `http://192.168.1.14:8000/api/v1/users/${phoneNumber}`;
 
   const fetchUserData = async () => {
     try {
@@ -166,7 +166,7 @@ export default Profile;
 //   const [user, setUser] = useState(null);
 //   const [loading, setLoading] = useState(true);
 
-//   const API_URL = `http://192.168.1.4:8000/api/v1/users/${phoneNumber}`;
+//   const API_URL = `http://192.168.1.14:8000/api/v1/users/${phoneNumber}`;
 
 //   useEffect(() => {
 //     const fetchUserData = async () => {

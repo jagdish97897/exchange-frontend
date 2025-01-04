@@ -45,7 +45,7 @@ export default ({ navigation }) => {
         try {
             if (!isOtpSent) {
                 // Send OTP
-                const response = await axios.post('http://192.168.1.4:8000/api/v1/users/sendOtp', {
+                const response = await axios.post('http://192.168.1.14:8000/api/v1/users/sendOtp', {
                     phoneNumber,
                     type: ['consumer', 'transporter']
                 });
@@ -61,14 +61,14 @@ export default ({ navigation }) => {
                 }
             } else {
                 // Verify OTP
-                const response = await axios.post('http://192.168.1.4:8000/api/v1/users/verifyOtp', {
+                const response = await axios.post('http://192.168.1.14:8000/api/v1/users/verifyOtp', {
                     otp,
                     phoneNumber,
                 });
 
                 if (response.status === 200) {
                     saveToken('token', response.data.data.token);
-                    console.log('response data : ', response.data.data.token);
+                    // console.log('response data : ', response.data.data.token);
                     Alert.alert('Success', 'Login successful.');
                     initializeSocket(response.data.data.token);
                     navigation.navigate('ConsumerDashboard', {
