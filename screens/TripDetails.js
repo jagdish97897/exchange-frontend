@@ -35,19 +35,19 @@ export default function TripDetails({ route }) {
             try {
                 if (!phoneNumber) return; // Guard clause to prevent unnecessary API calls.
 
-                const response = await axios.get(`http://192.168.1.3:8000/api/v1/users/${phoneNumber}`);
+                const response = await axios.get(`http://192.168.1.4:8000/api/v1/users/${phoneNumber}`);
                 setUser(response.data); // Set the user state with the fetched data.
             } catch (error) {
                 console.error("Error fetching user info:", error.message); // Log or handle the error.
             }
         };
 
-        fetchUserInfo(); // Call the function immediately within the effect.
+        fetchUserInfo(); 
     }, [phoneNumber]);
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.patch(`http://192.168.1.3:8000/api/trips/counterPrice`,
+            const response = await axios.patch(`http://192.168.1.4:8000/api/trips/counterPrice`,
                 { counterPrice, userId: user._id, tripId: trip._id }
             );
 
@@ -62,7 +62,7 @@ export default function TripDetails({ route }) {
     const handleBidReject = () => { };
 
     const handleBidAccept = async () => {
-        await axios.patch(`http://192.168.1.3:8000/api/trips/status`, {
+        await axios.patch(`http://192.168.1.4:8000/api/trips/status`, {
 
         });
     };
@@ -89,6 +89,9 @@ export default function TripDetails({ route }) {
                 >
                     <Text style={styles.title}>Trip Details</Text>
                     <View style={styles.card}>
+                        <Text style={styles.detail}>
+                            <Text style={styles.label}>From: </Text> {trip.user}
+                        </Text>
                         <Text style={styles.detail}>
                             <Text style={styles.label}>From: </Text> {trip.from}
                         </Text>
@@ -173,14 +176,14 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
-        backgroundColor: '#f2f2f2',
+
     },
     title: {
         fontSize: 28,
         fontWeight: 'bold',
         textAlign: 'center',
         marginBottom: 24,
-        color: '#2c3e50',
+        color: '#FFF',
     },
     card: {
         backgroundColor: '#ffffff',

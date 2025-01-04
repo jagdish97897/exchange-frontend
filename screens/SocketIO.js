@@ -8,7 +8,7 @@ let socket = null;
 
 export const initializeSocket = (token) => {
     if (!socket) {
-        socket = io('http://192.168.1.3:8000', {
+        socket = io('http://192.168.1.4:8000', {
             query: {
                 token: token,
             },
@@ -37,7 +37,7 @@ export const closeSocket = () => {
 // const SocketIO = (token) => {
 
 //     // Connect to the Socket.IO server
-//     socketInstance = io("http://192.168.1.3:8000", { query: { token } });
+//     socketInstance = io("http://192.168.1.4:8000", { query: { token } });
 
 //     socketInstance.on("connect", () => {
 //         console.log("Connected to the server!", socketInstance.id);

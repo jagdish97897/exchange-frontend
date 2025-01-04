@@ -46,7 +46,7 @@ const ContestpaymentImageUpload = ({ route }) => {
     formData.append('amount', amountState);
 
     try {
-      const response = await axios.post('http://192.168.1.8:8000/api/contestupload', formData, {
+      const response = await axios.post('http://192.168.1.4:8000/api/contestupload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

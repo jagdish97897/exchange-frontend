@@ -9,7 +9,6 @@ import Ind from '../assets/images/image 10.png';
 import * as Location from 'expo-location';
 const { width, height } = Dimensions.get('window');
 
-
 export const showAlert = (title, message, actions = [{ text: 'OK' }]) => {
   Alert.alert(title, message, actions);
 };

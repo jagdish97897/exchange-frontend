@@ -22,6 +22,7 @@ import BrokerDashboard from './screens/BrokerDashboard';
 import DriverDashboard from './screens/DriverDashboard';
 import TripDetails from './screens/TripDetails';
 import TripSummary from './screens/TripSummary';
+import ViewDetails from './screens/ViewDetails';
 
 const Stack = createNativeStackNavigator();
 
@@ -52,6 +53,7 @@ export default () => {
             <Stack.Screen name="CargoDetails" component={CargoDetails} />
             <Stack.Screen name="TripDetails" component={TripDetails} />
             <Stack.Screen name="TripSummary" component={TripSummary} />
+            <Stack.Screen name="ViewDetails" component={ViewDetails} />
          </Stack.Navigator>
       </>
    );
