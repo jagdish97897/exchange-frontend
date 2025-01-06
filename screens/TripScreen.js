@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { API_ENd_POINT } from '../app.config';
 
 const TripScreen = ({ route }) => {
     const { userId } = route.params;
@@ -27,7 +28,7 @@ const TripScreen = ({ route }) => {
     // const route = useRoute();
 
 
-    const apiEndpoint = `http://192.168.1.14:8000/api/trips/customer/${userId}`;
+    const apiEndpoint = `${API_ENd_POINT}/api/trips/customer/${userId}`;
 
     useEffect(() => {
         const fetchTrips = async () => {

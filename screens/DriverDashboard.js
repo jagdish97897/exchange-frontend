@@ -15,6 +15,7 @@ import { AntDesign, Feather, Entypo } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { getSocket, closeSocket } from './SocketIO.js';
+import { API_ENd_POINT } from '../app.config';
 
 export default ({ route }) => {
     const { phoneNumber, token, userId } = route.params;
@@ -29,9 +30,9 @@ export default ({ route }) => {
         const socketInstance = getSocket();
         setSocket(socketInstance);
 
-        return () => {
-            closeSocket(); // Disconnect socket on unmount
-        };
+        // return () => {
+        //     closeSocket(); // Disconnect socket on unmount
+        // };
     }, []);
 
     useEffect(() => {
@@ -40,7 +41,7 @@ export default ({ route }) => {
         const fetchTrips = async () => {
             setLoading(true);
             try {
-                const response = await axios.get('http://192.168.1.14:8000/api/trips/history', {
+                const response = await axios.get(`${API_ENd_POINT}/api/trips/history`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -50,8 +51,9 @@ export default ({ route }) => {
                     // Add a timer for each trip
                     const tripsWithTimers = response.data.trips.map((trip) => ({
                         ...trip,
-                        timer: getRemainingTime(new Date(trip.createdAt)),
+                        timer: getRemainingTime(new Date(trip.biddingStartTime)),
                     }));
+                    console.log('tripsWithTimers', tripsWithTimers)
                     setTrips(tripsWithTimers);
                 }
             } catch (error) {
@@ -78,7 +80,7 @@ export default ({ route }) => {
             setTrips((previousTrips) =>
                 previousTrips.map((trip) => ({
                     ...trip,
-                    timer: getRemainingTime(new Date(trip.createdAt)),
+                    timer: getRemainingTime(new Date(trip.biddingStartTime)),
                 }))
             );
         }, 1000);
@@ -86,9 +88,9 @@ export default ({ route }) => {
         return () => clearInterval(interval);
     }, []);
 
-    const getRemainingTime = (createdAt) => {
+    const getRemainingTime = (biddingStartTime) => {
         const now = new Date();
-        const expirationTime = new Date(createdAt.getTime() + 5 * 60 * 1000); // 5 minutes from creation
+        const expirationTime = new Date(biddingStartTime.getTime() + 30 * 60 * 1000); // 5 minutes from creation
         const difference = expirationTime - now;
 
         if (difference <= 0) {
@@ -103,9 +105,9 @@ export default ({ route }) => {
         console.log('Reject Trip:', tripId);
     };
 
-    const handleView = async (trip) => {
+    const handleView = async (tripId) => {
         try {
-            navigation.navigate('TripDetails', { trip, socket, phoneNumber });
+            navigation.navigate('TripDetails', { tripId, socket, phoneNumber });
         } catch (error) {
             console.error('Error fetching trip details:', error);
         }
@@ -127,13 +129,11 @@ export default ({ route }) => {
 
                             <ScrollView style={styles.tripList}>
                                 {trips
-                                    .filter((trip) => trip.timer !== 'Expired') // Filter out expired trips
-                                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort trips by most recent
                                     .map((trip) => (
                                         <View key={trip.tripId} style={styles.tripCard}>
-                                            <Text style={styles.tripDetail}>
+                                            {/* <Text style={styles.tripDetail}>
                                                 <Text style={styles.label}>userId:</Text> {trip.user}
-                                            </Text>
+                                            </Text> */}
                                             <Text style={styles.tripDetail}>
                                                 <Text style={styles.label}>From:</Text> {trip.from}
                                             </Text>
@@ -155,7 +155,7 @@ export default ({ route }) => {
 
                                             {/* Action Buttons */}
                                             <View style={styles.actionButtons}>
-                                                <TouchableOpacity onPress={() => handleView(trip)}>
+                                                <TouchableOpacity onPress={() => handleView(trip._id)}>
                                                     <Feather
                                                         name="eye"
                                                         size={24}

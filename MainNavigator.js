@@ -27,6 +27,8 @@ import ViewDetails from './screens/ViewDetails';
 
 const Stack = createNativeStackNavigator();
 
+
+
 export default () => {
    return (
       <>

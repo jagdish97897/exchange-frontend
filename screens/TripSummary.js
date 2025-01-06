@@ -20,6 +20,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import { API_ENd_POINT } from '../app.config';
 
 const TripSummary = ({ route }) => {
     const { tripId } = route.params;
@@ -35,6 +36,10 @@ const TripSummary = ({ route }) => {
     const [acceptedDriverId, setAcceptedDriverId] = useState(null);
     const [showDetails, setShowDetails] = useState(false);
     const isMounted = useRef(true);
+    const [isSubitModalVisible, setIsSubitModalVisible] = useState(false); // Controls the visibility
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedPrice, setSelectedPrice] = useState(null);
+    const [revisedPrice, setRevisedPrice] = useState('');
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -50,12 +55,6 @@ const TripSummary = ({ route }) => {
         };
     }, []);
 
-
-    const [modalVisible, setModalVisible] = useState(false);
-    const [selectedPrice, setSelectedPrice] = useState(null);
-    const [revisedPrice, setRevisedPrice] = useState('');
-
-
     useEffect(() => {
         const socketInstance = getSocket();
         setSocket(socketInstance);
@@ -64,9 +63,10 @@ const TripSummary = ({ route }) => {
     const fetchCounterPriceList = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`http://192.168.1.14:8000/api/trips/${tripId}`);
+            const response = await axios.get(`${API_ENd_POINT}/api/trips/${tripId}`);
             if (isMounted.current) {
                 setTrip(response.data.trip);
+
             }
         } catch (error) {
             console.error('Error fetching trip history:', error);
@@ -90,6 +90,7 @@ const TripSummary = ({ route }) => {
         const handleCounterPrice = async () => {
             console.log('Event Received');
             await fetchCounterPriceList();
+            setIsSubitModalVisible(true);
         };
 
         if (socket) {
@@ -109,7 +110,7 @@ const TripSummary = ({ route }) => {
 
     const handleAccept = async (tripId, vspUserId) => {
         console.log('Accepted:', vspUserId);
-        const response = await axios.patch(`http://192.168.1.14:8000/api/trips/bidStatus`, { tripId, vspUserId, status: "inProgress" });
+        const response = await axios.patch(`${API_ENd_POINT}/api/trips/bidStatus`, { tripId, vspUserId, status: "inProgress" });
 
         if (response.status === 200) {
             setModalVisible(false);
@@ -126,11 +127,12 @@ const TripSummary = ({ route }) => {
     const handleRevisedPrice = async (userId, vspUserId, price) => {
         console.log('userId : ', userId, 'vspUserId :', vspUserId, 'price : ', price, 'tripId : ', tripId);
         console.log('Revised Price:', revisedPrice);
-        const response = await axios.patch(`http://192.168.1.14:8000/api/trips/revisedPrice`, { userId, vspUserId, price, tripId });
+        const response = await axios.patch(`${API_ENd_POINT}/api/trips/revisedPrice`, { userId, vspUserId, price, tripId });
 
         if (response.status === 200) {
             setModalVisible(false);
             setTrip(response.data.trip);
+            setIsSubitModalVisible(false);
         }
     };
 
@@ -160,7 +162,7 @@ const TripSummary = ({ route }) => {
         bidder
     } = trip;
 
-    console.log('tripUser', trip.user);
+    console.log('tripUser', trip.bids);
     // Handle accept and reject disable
 
     const prices = counterPriceList.map((price, index) => ({
@@ -168,6 +170,7 @@ const TripSummary = ({ route }) => {
         value: price.counterPrice,
         user: price.user,
     }));
+    console.log(isSubitModalVisible, '33333333333')
 
 
     return (
@@ -217,8 +220,8 @@ const TripSummary = ({ route }) => {
                 </TouchableOpacity>
             ))}
 
-            {trip.bids?.length > 0 &&
-                <View style={styles.modalContent}>
+            {isSubitModalVisible &&
+                (<View style={styles.modalContent}>
                     <TextInput
                         style={styles.input}
                         placeholder="Enter revised price"
@@ -231,11 +234,14 @@ const TripSummary = ({ route }) => {
                         <TouchableOpacity style={styles.acceptButton} onPress={() => handleAccept(tripId, bidder)}>
                             <Text style={styles.buttonText}>Accept</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.submitButton} onPress={() => handleRevisedPrice(user, selectedPrice?.user?._id, revisedPrice)}>
+                        <TouchableOpacity style={styles.submitButton} onPress={() => {
+                            handleRevisedPrice(user, selectedPrice?.user?._id, revisedPrice);
+                            setRevisedPrice(''); // Clear the revised price
+                        }}>
                             <Text style={styles.buttonText}>Submit</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
+                </View>)
             }
 
             <Modal

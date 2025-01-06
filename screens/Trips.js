@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { API_ENd_POINT } from '../app.config';
 
 const TripScreen = () => {
   const [trips, setTrips] = useState({
@@ -26,12 +27,12 @@ const TripScreen = () => {
 
   const userId = route.params?.userId;
 
-  const apiEndpoint = `http://192.168.1.14:8000/api/trips/customer/${userId}`;
+  const apiEndpoint = `${API_ENd_POINT}/api/trips/customer/${userId}`;
 
   useEffect(() => {
     const fetchTrips = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.14:8000/api/trips/customer/${userId}`);
+        const response = await axios.get(`${API_ENd_POINT}/api/trips/customer/${userId}`);
         // use reduce for inProgress completed cancelled created trips
         if (response.status === 200) {
 

@@ -3,6 +3,7 @@ import { StyleSheet, TextInput, View, Button, Alert, TouchableOpacity, Text } fr
 import MapView, { Marker, Polyline } from "react-native-maps";
 import * as Location from "expo-location";
 import axios from "axios";
+import { API_ENd_POINT } from "../app.config";
 
 export const getCurrentLocationCoordinates = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -25,7 +26,7 @@ const GoogleMap = () => {
     useEffect(() => {
         const fetchApiKey = async () => {
             try {
-                const response = await axios.get(`http://192.168.1.14:8000/api/googleApiKey`);
+                const response = await axios.get(`${API_ENd_POINT}/api/googleApiKey`);
                 const apiKey = response.data; // Assuming the API key is in the response body
                 // console.log(apiKey);
                 // console.log(process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY);
@@ -83,7 +84,7 @@ const GoogleMap = () => {
         }
 
         try {
-            const response = await fetch("http://192.168.1.14:8000/api/location", {
+            const response = await fetch(`${API_ENd_POINT}/api/location`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ fromPin, toPin }),

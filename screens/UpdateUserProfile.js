@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+import { API_ENd_POINT } from '../app.config';
 
 const UpdateUserProfile = ({ route }) => {
   const navigation = useNavigation();
@@ -41,7 +42,7 @@ const UpdateUserProfile = ({ route }) => {
 
   const fetchUserData = async () => {
     try {
-      const response = await fetch(`http://192.168.1.14:8000/api/v1/users/user/${phoneNumber}`);
+      const response = await fetch(`${API_ENd_POINT}/api/v1/users/user/${phoneNumber}`);
       const result = await response.json();
 
       if (response.ok) {
@@ -149,7 +150,7 @@ const UpdateUserProfile = ({ route }) => {
         });
       }
 
-      const response = await fetch(`http://192.168.1.14:8000/api/v1/users/updateuser/${phoneNumber}`, {
+      const response = await fetch(`${API_ENd_POINT}/api/v1/users/updateuser/${phoneNumber}`, {
         method: 'PUT',
         body: formData,
       });

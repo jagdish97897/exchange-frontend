@@ -14,7 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { handleFileUpload } from "./AddVehicleScreen";
 import { Ionicons } from '@expo/vector-icons';
-
+import { API_ENd_POINT } from "../app.config";
 
 
 // Function to extract file name from the URL
@@ -42,7 +42,7 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
   useEffect(() => {
     const fetchVehicleDetails = async () => {
       try {
-        const response = await fetch(`http://192.168.1.14:8000/api/vehicles/${vehicleNumber}`);
+        const response = await fetch(`${API_ENd_POINT}/api/vehicles/${vehicleNumber}`);
         const result = await response.json();
         // console.log("result", result)
 
@@ -89,7 +89,7 @@ const UpdateVehicleScreen = ({ route, navigation }) => {
     }
 
     try {
-      const response = await fetch(`http://192.168.1.14:8000/api/vehicles/update/${vehicleNumber}`, {
+      const response = await fetch(`${API_ENd_POINT}/api/vehicles/update/${vehicleNumber}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

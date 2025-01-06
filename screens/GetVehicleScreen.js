@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { LinearGradient } from 'expo-linear-gradient';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Linking } from 'react-native';
-
-
+import { API_ENd_POINT } from "../app.config";
 import {
   SafeAreaView,
   FlatList,
@@ -32,7 +31,7 @@ const GetVehicleScreen = ({ route, navigation }) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://192.168.1.14:8000/api/vehicles/owner/${ownerId}`
+        `${API_ENd_POINT}/api/vehicles/owner/${ownerId}`
       );
       const result = await response.json();
 

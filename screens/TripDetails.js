@@ -5,15 +5,49 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView, Text, StyleSheet, View, Image, Keyboard, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
+import { API_ENd_POINT } from '../app.config';
 
 export default function TripDetails({ route }) {
-    const { trip, socket, phoneNumber } = route.params;
+    const { tripId, socket, phoneNumber } = route.params;
     const [counterPrice, setCounterPrice] = useState('');
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [user, setUser] = useState(null);
     const [accepted, setAccepted] = useState(false);
     const [acceptButtonVisible, setAcceptButtonVisible] = useState(false);
+    const [trip, setTrip] = useState(null);
+    const [loading, setLoading] = useState(false);
 
+    let isMounted = true;
+
+    const fetchTrips = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${API_ENd_POINT}/api/trips/${tripId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (isMounted && response.data.trip) {
+                setTrip(response.data.trip);
+            }
+        } catch (error) {
+            console.error('Error fetching trip history:', error);
+        } finally {
+            if (isMounted) {
+                setLoading(false);
+                console.log('Trips : ', trip);
+            }
+        }
+    };
+
+    useEffect(() => {
+        fetchTrips();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
     // console.log('socket', socket.fetchSockets());
 
     useEffect(() => {
@@ -35,7 +69,7 @@ export default function TripDetails({ route }) {
             try {
                 if (!phoneNumber) return; // Guard clause to prevent unnecessary API calls.
 
-                const response = await axios.get(`http://192.168.1.14:8000/api/v1/users/${phoneNumber}`);
+                const response = await axios.get(`${API_ENd_POINT}/api/v1/users/${phoneNumber}`);
                 setUser(response.data); // Set the user state with the fetched data.
             } catch (error) {
                 console.error("Error fetching user info:", error.message); // Log or handle the error.
@@ -47,12 +81,14 @@ export default function TripDetails({ route }) {
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.patch(`http://192.168.1.14:8000/api/trips/counterPrice`,
+            const response = await axios.patch(`${API_ENd_POINT}/api/trips/counterPrice`,
                 { counterPrice, userId: user._id, tripId: trip._id }
             );
 
             if (response.status === 200) {
                 Alert.alert('Update', 'Counter Price submitted successfully');
+                setAcceptButtonVisible(true);
+                setTrip(response.data.trip);
             }
         } catch (error) {
             console.log(error);
@@ -62,7 +98,7 @@ export default function TripDetails({ route }) {
     const handleBidReject = () => { };
 
     const handleBidAccept = async () => {
-        await axios.patch(`http://192.168.1.14:8000/api/trips/status`, {
+        await axios.patch(`${API_ENd_POINT}/api/trips/status`, {
         });
     };
 
@@ -88,9 +124,9 @@ export default function TripDetails({ route }) {
                 >
                     <Text style={styles.title}>Trip Details</Text>
                     <View style={styles.card}>
-                        <Text style={styles.detail}>
+                        {/* <Text style={styles.detail}>
                             <Text style={styles.label}>From: </Text> {trip.user}
-                        </Text>
+                        </Text> */}
                         <Text style={styles.detail}>
                             <Text style={styles.label}>From: </Text> {trip.from}
                         </Text>
@@ -118,8 +154,15 @@ export default function TripDetails({ route }) {
                             <Text style={styles.label}>Quote Price: </Text> {trip.cargoDetails.quotePrice}
                         </Text>
 
+                        {trip?.bids?.length > 0 && trip.bids.map((bid, index) => (
+                            <Text style={styles.detail}>{bid.role === 'consumer' ? 'Revised Price:' : 'Counter Price:'}  {bid.user && (
+                                <Text style={styles.label}>  ₹{bid.price || 'N/A'}</Text>
+                            )}
+                            </Text>
+                        ))}
+
                         {/* Counter Price Section */}
-                        <View style={styles.counterPriceContainer}>
+                        {!acceptButtonVisible && (<View style={styles.counterPriceContainer}>
                             <Text style={styles.label}>Counter Price: </Text>
                             <TextInput
                                 style={styles.input}
@@ -128,14 +171,14 @@ export default function TripDetails({ route }) {
                                 onChangeText={(text) => setCounterPrice(text)}
                                 keyboardType="numeric"
                             />
-                        </View>
+                        </View>)}
 
                         {/* Submit Button */}
                         {!acceptButtonVisible && <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                             <Text style={styles.buttonText}>Submit</Text>
                         </TouchableOpacity>}
 
-                        {acceptButtonVisible &&
+                        {/* {acceptButtonVisible &&
                             <view>
                                 <TouchableOpacity style={styles.button} onPress={handleBidAccept}>
                                     <Text style={styles.buttonText}>Accept</Text>
@@ -143,7 +186,7 @@ export default function TripDetails({ route }) {
                                 <TouchableOpacity style={styles.button} onPress={handleBidReject}>
                                     <Text style={styles.buttonText}>Reject</Text>
                                 </TouchableOpacity>
-                            </view>}
+                            </view>} */}
                     </View>
                 </KeyboardAwareScrollView>
 

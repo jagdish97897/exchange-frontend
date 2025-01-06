@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, Button, View } from 'react-native';
 import { io } from "socket.io-client";
+import { API_ENd_POINT } from '../app.config';
 
 // socket.js
 
@@ -8,7 +9,7 @@ let socket = null;
 
 export const initializeSocket = (token) => {
     if (!socket) {
-        socket = io('http://192.168.1.14:8000', {
+        socket = io(`${API_ENd_POINT}`, {
             query: {
                 token: token,
             },
@@ -37,7 +38,7 @@ export const closeSocket = () => {
 // const SocketIO = (token) => {
 
 //     // Connect to the Socket.IO server
-//     socketInstance = io("http://192.168.1.14:8000", { query: { token } });
+//     socketInstance = io(`${API_ENd_POINT}`, { query: { token } });
 
 //     socketInstance.on("connect", () => {
 //         console.log("Connected to the server!", socketInstance.id);

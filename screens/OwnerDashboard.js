@@ -9,6 +9,7 @@ import Ind from '../assets/images/image 10.png';
 import axios from 'axios';
 import { checkAndRequestLocationPermission } from './ConsumerDashboard';
 import { getSocket, closeSocket } from './SocketIO.js';
+import { API_ENd_POINT } from '../app.config';
 
 const { width, height } = Dimensions.get('window');
 
@@ -83,7 +84,7 @@ export default ({ route }) => {
       }
       // Mock OTP send logic
 
-      const response = await axios.post('http://192.168.1.14:8000/api/v1/users/sendOtp', {
+      const response = await axios.post(`${API_ENd_POINT}/api/v1/users/sendOtp`, {
         phoneNumber: brokerPhoneNumber,
         type: ['broker']
       });
@@ -120,7 +121,7 @@ export default ({ route }) => {
   const verifyOtp = async () => {
     try {
       // Use the rest operator to handle multiple arguments
-      const response = await axios.post('http://192.168.1.14:8000/api/v1/users/verifyOtp', {
+      const response = await axios.post(`${API_ENd_POINT}/api/v1/users/verifyOtp`, {
         otp, // Assuming first argument is the OTP
         phoneNumber: brokerPhoneNumber, // Assuming second argument is the phone number
       });
@@ -145,7 +146,7 @@ export default ({ route }) => {
         return;
       }
 
-      const response = await axios.post('http://192.168.1.14:8000/api/v1/users/addBroker', {
+      const response = await axios.post(`${API_ENd_POINT}/api/v1/users/addBroker`, {
         ownerId, vehicleNumber, brokerPhoneNumber
       });
 
@@ -260,7 +261,7 @@ export default ({ route }) => {
     // Fetch user data from API
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://192.168.1.14:8000/api/v1/users/user/${phoneNumber}`);
+        const response = await axios.get(`${API_ENd_POINT}/api/v1/users/user/${phoneNumber}`);
         const { _id } = response.data;
         setOwnerId(_id); // Set the user ID
       } catch (error) {
@@ -277,7 +278,7 @@ export default ({ route }) => {
 
       // Make API call with searchText as a query parameter
       const response = await axios.get(
-        `http://192.168.1.14:8000/api/vehicles/owner/${ownerId}`,
+        `${API_ENd_POINT}/api/vehicles/owner/${ownerId}`,
         {
           params: { searchText: query }, // Send searchText as query parameter
         }

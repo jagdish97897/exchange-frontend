@@ -5,6 +5,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import axios from 'axios';
 import { saveToken } from './Token.js';
 import { initializeSocket } from './SocketIO.js';
+import { API_ENd_POINT } from '../app.config';
 
 export default ({ navigation }) => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -45,7 +46,7 @@ export default ({ navigation }) => {
         try {
             if (!isOtpSent) {
                 // Send OTP
-                const response = await axios.post('http://192.168.1.14:8000/api/v1/users/sendOtp', {
+                const response = await axios.post(`${API_ENd_POINT}/api/v1/users/sendOtp`, {
                     phoneNumber,
                     type: ['consumer', 'transporter']
                 });
@@ -61,7 +62,7 @@ export default ({ navigation }) => {
                 }
             } else {
                 // Verify OTP
-                const response = await axios.post('http://192.168.1.14:8000/api/v1/users/verifyOtp', {
+                const response = await axios.post(`${API_ENd_POINT}/api/v1/users/verifyOtp`, {
                     otp,
                     phoneNumber,
                 });

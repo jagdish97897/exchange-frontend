@@ -3,6 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacity, Keyboard, Alert, Modal, Pressable } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { MaterialIcons } from '@expo/vector-icons';
+import { API_ENd_POINT } from '../app.config';
 
 export default ({ navigation }) => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -32,7 +33,7 @@ export default ({ navigation }) => {
         }
 
         try {
-            const response = await fetch('http://192.168.1.14:8000/api/v1/auth/forgotPin', {
+            const response = await fetch(`${API_ENd_POINT}/api/v1/auth/forgotPin`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -59,7 +60,7 @@ export default ({ navigation }) => {
 
     const sendOtp = async () => {
         try {
-            const response = await fetch('http://192.168.1.14:8000/api/v1/auth/sendExistingVisitorOtp', {
+            const response = await fetch(`${API_ENd_POINT}/api/v1/auth/sendExistingVisitorOtp`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
