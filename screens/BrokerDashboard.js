@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import Ind from '../assets/images/image 10.png';
 import axios from 'axios';
 import { getSocket, closeSocket } from './SocketIO.js';
-import { API_ENd_POINT } from '../app.config';
+import { API_END_POINT } from '../app.config';
 
 export default ({ route }) => {
     const { phoneNumber, token, userId } = route.params;
@@ -133,7 +133,7 @@ export default ({ route }) => {
         // Fetch user data from API
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`${API_ENd_POINT}/api/v1/users/user/${phoneNumber}`);
+                const response = await axios.get(`${API_END_POINT}/api/v1/users/user/${phoneNumber}`);
                 const { _id } = response.data;
                 setOwnerId(_id); // Set the user ID
             } catch (error) {

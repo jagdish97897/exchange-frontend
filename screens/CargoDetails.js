@@ -17,7 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { LinearGradient } from 'expo-linear-gradient';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { API_ENd_POINT } from '../app.config';
+import { API_END_POINT } from '../app.config';
 
 export const getCurrentDate = (today) => {
     const day = String(today.getDate()).padStart(2, '0');
@@ -71,7 +71,7 @@ const CargoDetails = ({ route }) => {
         };
 
         try {
-            const response = await axios.post(`${API_ENd_POINT}/api/trips/create`, {
+            const response = await axios.post(`${API_END_POINT}/api/trips/create`, {
                 from,
                 to,
                 phoneNumber,

@@ -4,7 +4,7 @@ import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacit
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
-import { API_ENd_POINT } from '../app.config';
+import { API_END_POINT } from '../app.config';
 
 export default ({ navigation }) => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -61,7 +61,7 @@ export default ({ navigation }) => {
         }
 
         try {
-            const response = await fetch(`${API_ENd_POINT}/api/v1/users/signup`, {
+            const response = await fetch(`${API_END_POINT}/api/v1/users/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'multipart/form-data',

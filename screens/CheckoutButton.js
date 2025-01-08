@@ -4,7 +4,7 @@ import RazorpayCheckout from 'react-native-razorpay';
 import axios from 'axios';
 import ProfileButton from './ProfileButton';
 import { LinearGradient } from 'expo-linear-gradient';
-import { API_ENd_POINT } from '../app.config';
+import { API_END_POINT } from '../app.config';
 
 const { width, height } = Dimensions.get('window');
 
@@ -36,10 +36,10 @@ const CheckoutButton = ({ route }) => {
 
   const checkoutHandler = async () => {
     try {
-      const { data: { key } } = await axios.get(`${API_ENd_POINT}/api/getkey`);
+      const { data: { key } } = await axios.get(`${API_END_POINT}/api/getkey`);
       // console.log("Razorpay Key:", key);
 
-      const { data: { order } } = await axios.post(`${API_ENd_POINT}/api/v1/visitor/placeOrder`, { amount: formData.amount });
+      const { data: { order } } = await axios.post(`${API_END_POINT}/api/v1/visitor/placeOrder`, { amount: formData.amount });
       // console.log("Order ID:", order.id);
       // console.log("Order Amount:", order.amount);
 
@@ -51,7 +51,7 @@ const CheckoutButton = ({ route }) => {
         description: "Tutorial of RazorPay",
         image: "https://i.imgur.com/3g7nmJC.png",
         order_id: order.id,
-        callback_url: `${API_ENd_POINT}/api/v1/visitor/verifyPayment`,
+        callback_url: `${API_END_POINT}/api/v1/visitor/verifyPayment`,
         prefill: {
           name: formData.name,
           email: formData.email,

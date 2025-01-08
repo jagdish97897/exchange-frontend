@@ -1,4 +1,4 @@
-import React, { useEffect, useState ,useContext} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -9,11 +9,12 @@ import {
     SafeAreaView,
     TouchableOpacity,
 } from 'react-native';
+
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { API_END_POINT } from '../app.config';
 
-const TripScreen = ({ route }) => {
+const TripScreen1 = ({ route }) => {
     const { userId } = route.params;
     const [loading, setLoading] = useState(true);
     const [trips, setTrips] = useState({
@@ -27,8 +28,7 @@ const TripScreen = ({ route }) => {
     const navigation = useNavigation();
     // const route = useRoute();
 
-
-    const apiEndpoint = `${API_END_POINT}/api/trips/customer/${userId}`;
+    const apiEndpoint = `${API_END_POINT}/api/trips/${userId}/acceptedBidTrips`;
 
     useEffect(() => {
         const fetchTrips = async () => {
@@ -37,7 +37,6 @@ const TripScreen = ({ route }) => {
                 const data = await response.json();
 
                 const categorizedTrips = {
-                    Archieved: data.trips.filter((trip) => trip.status === 'created'),
                     InProgress: data.trips.filter((trip) => trip.status === 'inProgress'),
                     Completed: data.trips.filter((trip) => trip.status === 'completed'),
                     Cancelled: data.trips.filter((trip) => trip.status === 'cancelled'),
@@ -55,7 +54,6 @@ const TripScreen = ({ route }) => {
     }, [userId]);
 
     const sectionColors = {
-        Archieved: '#e6f7ff', // Gold
         InProgress: '#fff7e6', // Dodger Blue
         Completed: '#e6ffe6', // Lime Green
         Cancelled: '#ffe6e6', // Tomato Red
@@ -115,7 +113,7 @@ const TripScreen = ({ route }) => {
             <SafeAreaView style={{ flex: 1, paddingHorizontal: 20, paddingVertical: 40 }}>
                 <ScrollView contentContainerStyle={styles.container}>
                     <Text style={styles.screenTitle}>Trips</Text>
-                    {['Archieved', 'InProgress', 'Completed', 'Cancelled'].map((status) =>
+                    {['InProgress', 'Completed', 'Cancelled'].map((status) =>
                         renderSection(status, trips[status])
                     )}
                 </ScrollView>
@@ -191,4 +189,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default TripScreen;
+export default TripScreen1;

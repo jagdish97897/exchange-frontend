@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import {
     SafeAreaView,
     View,
@@ -20,7 +20,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import { API_ENd_POINT } from '../app.config';
+import { API_END_POINT } from '../app.config';
+import { SocketContext } from '../SocketContext';
+
 
 const TripSummary = ({ route }) => {
     const { tripId } = route.params;
@@ -40,6 +42,8 @@ const TripSummary = ({ route }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedPrice, setSelectedPrice] = useState(null);
     const [revisedPrice, setRevisedPrice] = useState('');
+    // const { socket } = useContext(SocketContext);
+
 
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -58,15 +62,19 @@ const TripSummary = ({ route }) => {
     useEffect(() => {
         const socketInstance = getSocket();
         setSocket(socketInstance);
+
+        // return () => {
+        //     closeSocket(); // Disconnect socket on unmount
+        // };
     }, []);
 
     const fetchCounterPriceList = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${API_ENd_POINT}/api/trips/${tripId}`);
+            const response = await axios.get(`${API_END_POINT}/api/trips/${tripId}`);
+
             if (isMounted.current) {
                 setTrip(response.data.trip);
-
             }
         } catch (error) {
             console.error('Error fetching trip history:', error);
@@ -78,8 +86,15 @@ const TripSummary = ({ route }) => {
         }
     };
 
+    const handleCounterPrice = async () => {
+        // console.log('counterPrice Event Received');
+        await fetchCounterPriceList();
+        setShowDetails(true);
+        setIsSubitModalVisible(Number(trip?.bids?.length) % 2 === 1 ? true : false)
+    };
+
     useEffect(() => {
-        fetchCounterPriceList();
+        handleCounterPrice();
 
         return () => {
             isMounted.current = false;
@@ -87,13 +102,8 @@ const TripSummary = ({ route }) => {
     }, []);
 
     useEffect(() => {
-        const handleCounterPrice = async () => {
-            console.log('Event Received');
-            await fetchCounterPriceList();
-            setIsSubitModalVisible(true);
-        };
-
         if (socket) {
+            socket.off('counterPrice', handleCounterPrice);
             socket.on('counterPrice', handleCounterPrice);
 
             return () => {
@@ -110,7 +120,7 @@ const TripSummary = ({ route }) => {
 
     const handleAccept = async (tripId, vspUserId) => {
         console.log('Accepted:', vspUserId);
-        const response = await axios.patch(`${API_ENd_POINT}/api/trips/bidStatus`, { tripId, vspUserId, status: "inProgress" });
+        const response = await axios.patch(`${API_END_POINT}/api/trips/bidStatus`, { tripId, vspUserId, status: "inProgress" });
 
         if (response.status === 200) {
             setModalVisible(false);
@@ -127,7 +137,7 @@ const TripSummary = ({ route }) => {
     const handleRevisedPrice = async (userId, vspUserId, price) => {
         console.log('userId : ', userId, 'vspUserId :', vspUserId, 'price : ', price, 'tripId : ', tripId);
         console.log('Revised Price:', revisedPrice);
-        const response = await axios.patch(`${API_ENd_POINT}/api/trips/revisedPrice`, { userId, vspUserId, price, tripId });
+        const response = await axios.patch(`${API_END_POINT}/api/trips/revisedPrice`, { userId, vspUserId, price, tripId });
 
         if (response.status === 200) {
             setModalVisible(false);
@@ -170,7 +180,6 @@ const TripSummary = ({ route }) => {
         value: price.counterPrice,
         user: price.user,
     }));
-    console.log(isSubitModalVisible, '33333333333')
 
 
     return (
@@ -207,7 +216,7 @@ const TripSummary = ({ route }) => {
                 </TouchableOpacity>
             ))}
 
-            {trip?.bids?.length > 0 && trip.bids.map((bid, index) => (
+            {showDetails && trip?.bids?.length > 0 && trip.bids.map((bid, index) => (
                 <TouchableOpacity
                     key={index}
                     style={styles.priceRow}
@@ -220,24 +229,76 @@ const TripSummary = ({ route }) => {
                 </TouchableOpacity>
             ))}
 
-            {isSubitModalVisible &&
-                (<View style={styles.modalContent}>
+            {/* {isSubitModalVisible && (
+                <View style={styles.modalContent}>
                     <TextInput
-                        style={styles.input}
+                        style={[
+                            styles.input,
+                            trip?.bids?.length === 5 && { backgroundColor: '#d3d3d3' }, // Change background to indicate disabled
+                        ]}
                         placeholder="Enter revised price"
                         value={revisedPrice}
                         onChangeText={setRevisedPrice}
                         keyboardType="numeric"
+                        editable={trip?.bids?.length !== 5} // Disable input if bids.length is 5
+                    />
+
+                    <View style={styles.buttonGroup}>
+                        <TouchableOpacity
+                            style={styles.acceptButton}
+                            onPress={() => handleAccept(tripId, bidder)}
+                        >
+                            <Text style={styles.buttonText}>Accept</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={[
+                                styles.submitButton,
+                                trip?.bids?.length === 5 && { backgroundColor: '#d3d3d3' }, // Change button color when disabled
+                            ]}
+                            onPress={() => {
+                                handleRevisedPrice(user, selectedPrice?.user?._id, revisedPrice);
+                                setRevisedPrice(''); // Clear the revised price
+                            }}
+                            disabled={trip?.bids?.length === 5} // Disable button if bids.length is 5
+                        >
+                            <Text style={styles.buttonText}>Submit</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )} */}
+
+
+            {showDetails && Number(trip?.bids?.length) % 2 === 1 &&
+                (<View style={styles.modalContent}>
+                    <TextInput
+                        style={[
+                            styles.input,
+                            trip?.bids?.length === 5 && { backgroundColor: '#d3d3d3' }, // Change background to indicate disabled
+                        ]}
+                        placeholder="Enter revised price"
+                        value={revisedPrice}
+                        onChangeText={setRevisedPrice}
+                        keyboardType="numeric"
+                        editable={trip?.bids?.length !== 5} // Disable input if bids.length is 5
                     />
 
                     <View style={styles.buttonGroup}>
                         <TouchableOpacity style={styles.acceptButton} onPress={() => handleAccept(tripId, bidder)}>
                             <Text style={styles.buttonText}>Accept</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.submitButton} onPress={() => {
-                            handleRevisedPrice(user, selectedPrice?.user?._id, revisedPrice);
-                            setRevisedPrice(''); // Clear the revised price
-                        }}>
+                        <TouchableOpacity
+                            style={[
+                                styles.submitButton,
+                                trip?.bids?.length === 5 && { backgroundColor: '#d3d3d3' }, // Change button color when disabled
+                            ]}
+                            onPress={() => {
+                                handleRevisedPrice(user, trip?.bidder?.toString(), revisedPrice);
+                                setRevisedPrice(''); // Clear the revised price
+                            }}
+
+                            disabled={trip?.bids?.length === 5} // Disable button if bids.length is 5
+                        >
                             <Text style={styles.buttonText}>Submit</Text>
                         </TouchableOpacity>
                     </View>
@@ -280,7 +341,7 @@ const TripSummary = ({ route }) => {
                     </View>
                 </View>
             </Modal>
-        </ScrollView>
+        </ScrollView >
     );
 };
 

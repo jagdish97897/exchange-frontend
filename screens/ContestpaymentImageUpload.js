@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button, Alert, ScrollView, Image, StyleSheet, Sa
 import { launchImageLibrary } from 'react-native-image-picker';
 import axios from 'axios';
 import { LinearGradient } from 'expo-linear-gradient';
-import { API_ENd_POINT } from '../app.config';
+import { API_END_POINT } from '../app.config';
 
 const ContestpaymentImageUpload = ({ route }) => {
   // Destructure parameters from the route
@@ -47,7 +47,7 @@ const ContestpaymentImageUpload = ({ route }) => {
     formData.append('amount', amountState);
 
     try {
-      const response = await axios.post(`${API_ENd_POINT}/api/contestupload`, formData, {
+      const response = await axios.post(`${API_END_POINT}/api/contestupload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

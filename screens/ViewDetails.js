@@ -4,7 +4,7 @@ import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/nativ
 import { LinearGradient } from 'expo-linear-gradient';
 import { getCurrentDate } from './CargoDetails';
 import axios from 'axios';
-import { API_ENd_POINT } from '../app.config';
+import { API_END_POINT } from '../app.config';
 
 const ViewDetails = ({ route }) => {
     const { tripId, status } = route.params;
@@ -16,7 +16,7 @@ const ViewDetails = ({ route }) => {
 
     const navigation = useNavigation();
 
-    const apiEndpoint = `${API_ENd_POINT}/api/trips/${tripId}`;
+    const apiEndpoint = `${API_END_POINT}/api/trips/${tripId}`;
 
 
     // Fetch trip details
@@ -68,7 +68,7 @@ const ViewDetails = ({ route }) => {
     };
 
     const handleNavigate = async () => {
-        const response = await axios.post(`${API_ENd_POINT}/api/trips/${tripId}/startBidding`, {});
+        const response = await axios.post(`${API_END_POINT}/api/trips/${tripId}/startBidding`, {});
 
         if (response.status === 200) {
             navigation.navigate('TripSummary', { tripId })

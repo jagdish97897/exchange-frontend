@@ -12,7 +12,7 @@ import axios from "axios";
 import Loader from "../components/Buttons/Loader";
 import { Calendar } from 'react-native-calendars';
 import { format, formatDate } from 'date-fns';
-import { API_ENd_POINT } from '../app.config';
+import { API_END_POINT } from '../app.config';
 
 const today = new Date();
 const eighteenYearsAgo = new Date(today.setFullYear(today.getFullYear() - 18));
@@ -175,7 +175,7 @@ const AddVehicleScreen = ({ route }) => {
       }
 
       const response = await axios.post(
-        `${API_ENd_POINT}/api/vehicles/create`,
+        `${API_END_POINT}/api/vehicles/create`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );

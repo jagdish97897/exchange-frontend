@@ -1,42 +1,49 @@
-
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView, Text, StyleSheet, View, Image, Keyboard, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
-import { API_ENd_POINT } from '../app.config';
+import { API_END_POINT } from '../app.config';
+import { getSocket, closeSocket } from './SocketIO';
+import { SocketContext } from '../SocketContext.js';
+
+
 
 export default function TripDetails({ route }) {
-    const { tripId, socket, phoneNumber } = route.params;
+    const { tripId, phoneNumber } = route.params;
     const [counterPrice, setCounterPrice] = useState('');
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [user, setUser] = useState(null);
     const [accepted, setAccepted] = useState(false);
-    const [acceptButtonVisible, setAcceptButtonVisible] = useState(false);
+    const [submitButtonVisible, setSubmitButtonVisible] = useState(false);
     const [trip, setTrip] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [socket, setSocket] = useState(null);
+    const isMounted = useRef(true);
+    // const { socket } = useContext(SocketContext);
 
-    let isMounted = true;
+    useEffect(() => {
+        const socketInstance = getSocket();
+        setSocket(socketInstance);
+
+        // return () => {
+        //     closeSocket(); // Disconnect socket on unmount
+        // };
+    }, []);
 
     const fetchTrips = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`${API_ENd_POINT}/api/trips/${tripId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-
-            if (isMounted && response.data.trip) {
+            const response = await axios.get(`${API_END_POINT}/api/trips/${tripId}`);
+            // console.log('API Response:', response.data.trip);
+            if (isMounted.current && response.status === 200) {
                 setTrip(response.data.trip);
             }
         } catch (error) {
             console.error('Error fetching trip history:', error);
         } finally {
-            if (isMounted) {
+            if (isMounted.current) {
                 setLoading(false);
-                console.log('Trips : ', trip);
             }
         }
     };
@@ -45,9 +52,10 @@ export default function TripDetails({ route }) {
         fetchTrips();
 
         return () => {
-            isMounted = false;
+            isMounted.current = false;
         };
-    }, []);
+    }, [tripId]);
+
     // console.log('socket', socket.fetchSockets());
 
     useEffect(() => {
@@ -69,7 +77,7 @@ export default function TripDetails({ route }) {
             try {
                 if (!phoneNumber) return; // Guard clause to prevent unnecessary API calls.
 
-                const response = await axios.get(`${API_ENd_POINT}/api/v1/users/${phoneNumber}`);
+                const response = await axios.get(`${API_END_POINT}/api/v1/users/${phoneNumber}`);
                 setUser(response.data); // Set the user state with the fetched data.
             } catch (error) {
                 console.error("Error fetching user info:", error.message); // Log or handle the error.
@@ -81,14 +89,15 @@ export default function TripDetails({ route }) {
 
     const handleSubmit = async () => {
         try {
-            const response = await axios.patch(`${API_ENd_POINT}/api/trips/counterPrice`,
+            const response = await axios.patch(`${API_END_POINT}/api/trips/counterPrice`,
                 { counterPrice, userId: user._id, tripId: trip._id }
             );
 
             if (response.status === 200) {
                 Alert.alert('Update', 'Counter Price submitted successfully');
-                setAcceptButtonVisible(true);
+                setSubmitButtonVisible(true);
                 setTrip(response.data.trip);
+                setCounterPrice('');
             }
         } catch (error) {
             console.log(error);
@@ -98,16 +107,34 @@ export default function TripDetails({ route }) {
     const handleBidReject = () => { };
 
     const handleBidAccept = async () => {
-        await axios.patch(`${API_ENd_POINT}/api/trips/status`, {
+        await axios.patch(`${API_END_POINT}/api/trips/status`, {
         });
     };
 
     useEffect(() => {
-        socket.on('rebidPrice', (rebidPriceInfo) => {
-            setAcceptButtonVisible(true);
-        })
-    }
-        , [socket])
+        const handleFetchTrips = async () => {
+            setSubmitButtonVisible(true);
+            console.log('revisedPrice event recieved');
+            await fetchTrips();
+        }
+
+        if (socket) {
+            socket.off('revisedPrice', handleFetchTrips);
+            socket.on('revisedPrice', handleFetchTrips);
+
+            return () => {
+                socket.off('revisedPrice', handleFetchTrips);
+            }
+        }
+    }, [socket]);
+
+    // if (trip) {
+    //     console.log('TD&&&&&&', trip.counterPriceList);
+    // }
+
+    // const firstCounterPrice = '@@@@';
+
+    const firstCounterPrice = trip && trip.counterPriceList.length > 0 && user ? trip.counterPriceList.find(list => list.user === user._id)?.counterPrice : '';
 
     return (
         <LinearGradient colors={['#06264D', '#FFF']} style={{ flex: 1 }}>
@@ -123,10 +150,7 @@ export default function TripDetails({ route }) {
                     showsHorizontalScrollIndicator={false}
                 >
                     <Text style={styles.title}>Trip Details</Text>
-                    <View style={styles.card}>
-                        {/* <Text style={styles.detail}>
-                            <Text style={styles.label}>From: </Text> {trip.user}
-                        </Text> */}
+                    {trip && (<View style={styles.card}>
                         <Text style={styles.detail}>
                             <Text style={styles.label}>From: </Text> {trip.from}
                         </Text>
@@ -154,15 +178,21 @@ export default function TripDetails({ route }) {
                             <Text style={styles.label}>Quote Price: </Text> {trip.cargoDetails.quotePrice}
                         </Text>
 
+
                         {trip?.bids?.length > 0 && trip.bids.map((bid, index) => (
-                            <Text style={styles.detail}>{bid.role === 'consumer' ? 'Revised Price:' : 'Counter Price:'}  {bid.user && (
-                                <Text style={styles.label}>  ₹{bid.price || 'N/A'}</Text>
-                            )}
+                            <Text style={[styles.detail, { fontWeight: 'bold' }]}
+                                key={index}
+                            >
+                                {bid.role === 'consumer' ? 'Revised Price:' : 'Counter Price:'}
+                                {bid.user && (<Text >  ₹{bid.price || 'N/A'}</Text>)}
                             </Text>
                         ))}
 
-                        {/* Counter Price Section */}
-                        {!acceptButtonVisible && (<View style={styles.counterPriceContainer}>
+                        {firstCounterPrice && trip.bids.length === 0 && <Text style={styles.detail}>
+                            <Text style={styles.label}>Counter Price: </Text> {firstCounterPrice}
+                        </Text>}
+
+                        {(!firstCounterPrice || (trip && trip.bids.length > 0 && trip.bids.length % 2 === 0)) && (<View style={styles.counterPriceContainer}>
                             <Text style={styles.label}>Counter Price: </Text>
                             <TextInput
                                 style={styles.input}
@@ -173,21 +203,10 @@ export default function TripDetails({ route }) {
                             />
                         </View>)}
 
-                        {/* Submit Button */}
-                        {!acceptButtonVisible && <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                        {(!firstCounterPrice || (trip && trip.bids.length > 0 && trip.bids.length % 2 === 0)) && <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                             <Text style={styles.buttonText}>Submit</Text>
                         </TouchableOpacity>}
-
-                        {/* {acceptButtonVisible &&
-                            <view>
-                                <TouchableOpacity style={styles.button} onPress={handleBidAccept}>
-                                    <Text style={styles.buttonText}>Accept</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={styles.button} onPress={handleBidReject}>
-                                    <Text style={styles.buttonText}>Reject</Text>
-                                </TouchableOpacity>
-                            </view>} */}
-                    </View>
+                    </View>)}
                 </KeyboardAwareScrollView>
 
                 {!keyboardVisible && (
@@ -210,7 +229,7 @@ export default function TripDetails({ route }) {
                     </View>
                 )}
             </SafeAreaView>
-        </LinearGradient>
+        </LinearGradient >
     );
 }
 

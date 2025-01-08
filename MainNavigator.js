@@ -24,6 +24,7 @@ import TripDetails from './screens/TripDetails';
 import TripSummary from './screens/TripSummary';
 import TripScreen from './screens/TripScreen';
 import ViewDetails from './screens/ViewDetails';
+import TripScreen1 from './screens/TripScreen1';
 
 const Stack = createNativeStackNavigator();
 
@@ -58,6 +59,7 @@ export default () => {
             <Stack.Screen name="TripSummary" component={TripSummary} />
             <Stack.Screen name="TripScreen" component={TripScreen} />
             <Stack.Screen name="ViewDetails" component={ViewDetails} />
+            <Stack.Screen name="TripScreen1" component={TripScreen1} />
          </Stack.Navigator>
       </>
    );

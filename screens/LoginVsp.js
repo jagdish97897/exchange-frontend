@@ -3,9 +3,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacity, Keyboard, Alert } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
-import { saveToken } from './Token.js';
+import { saveToken } from '../Token.js';
 import { initializeSocket } from './SocketIO.js';
-import { API_ENd_POINT } from '../app.config';
+import { API_END_POINT } from '../app.config';
 
 export default ({ navigation }) => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
@@ -44,7 +44,7 @@ export default ({ navigation }) => {
         try {
             if (!isOtpSent) {
                 // Send OTP
-                const response = await axios.post(`${API_ENd_POINT}/api/v1/users/sendOtp`, {
+                const response = await axios.post(`${API_END_POINT}/api/v1/users/sendOtp`, {
                     phoneNumber,
                     type: ['owner', 'broker', 'driver']
                 });
@@ -60,7 +60,7 @@ export default ({ navigation }) => {
                 }
             } else {
                 // Verify OTP
-                const response = await axios.post(`${API_ENd_POINT}/api/v1/users/verifyOtp`, {
+                const response = await axios.post(`${API_END_POINT}/api/v1/users/verifyOtp`, {
                     otp,
                     phoneNumber,
                 });

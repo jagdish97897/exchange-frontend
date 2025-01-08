@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Image, Alert, StyleSheet, Scro
 import axios from 'axios';
 import RazorpayCheckout from 'react-native-razorpay';
 import { Picker } from '@react-native-picker/picker';
-import { API_ENd_POINT } from '../app.config';
+import { API_END_POINT } from '../app.config';
 
 const Booking = () => {
   const [formData, setFormData] = useState({
@@ -29,11 +29,11 @@ const Booking = () => {
 
     try {
       // Fetch the API key
-      const { data: { key } } = await axios.get(`${API_ENd_POINT}/api/getkey`);
+      const { data: { key } } = await axios.get(`${API_END_POINT}/api/getkey`);
       // console.log('API Key:', key);
 
       // Place the order
-      const { data: { order } } = await axios.post(`${API_ENd_POINT}/api/v1/visitor/placeOrder`, { amount: selectedAmount });
+      const { data: { order } } = await axios.post(`${API_END_POINT}/api/v1/visitor/placeOrder`, { amount: selectedAmount });
       // console.log('Order:', order);
 
       // Payment options
@@ -44,7 +44,7 @@ const Booking = () => {
         name: 'TWI',
         description: 'Test Transaction',
         order_id: order.id,
-        callback_url: `${API_ENd_POINT}/api/v1/visitor/verifyPayment`,
+        callback_url: `${API_END_POINT}/api/v1/visitor/verifyPayment`,
         prefill: {
           email,
           name: `${firstname} ${lastname}`,

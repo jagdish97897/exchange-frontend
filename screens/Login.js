@@ -5,7 +5,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { CommonActions } from '@react-navigation/native';
-import { API_ENd_POINT } from '../app.config';
+import { API_END_POINT } from '../app.config';
 
 const { width, height } = Dimensions.get('window');
 
@@ -33,7 +33,7 @@ export default ({ navigation }) => {
         try {
             const requestData = { phoneNumber, pin };
 
-            const response = await axios.post(`${API_ENd_POINT}/api/v1/auth/login`, requestData);
+            const response = await axios.post(`${API_END_POINT}/api/v1/auth/login`, requestData);
 
             if (response.status === 200) {
                 Alert.alert('Success', 'Login successful');

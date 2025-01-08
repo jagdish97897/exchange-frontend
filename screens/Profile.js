@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import tailwind from 'tailwind-react-native-classnames';
-import { API_ENd_POINT } from '../app.config';
+import { API_END_POINT } from '../app.config';
 
 const { width, height } = Dimensions.get('window');
 
@@ -23,7 +23,7 @@ const Profile = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const API_URL = `${API_ENd_POINT}/api/v1/users/${phoneNumber}`;
+  const API_URL = `${API_END_POINT}/api/v1/users/${phoneNumber}`;
 
   const fetchUserData = async () => {
     try {
@@ -167,7 +167,7 @@ export default Profile;
 //   const [user, setUser] = useState(null);
 //   const [loading, setLoading] = useState(true);
 
-//   const API_URL = `${API_ENd_POINT}/api/v1/users/${phoneNumber}`;
+//   const API_URL = `${API_END_POINT}/api/v1/users/${phoneNumber}`;
 
 //   useEffect(() => {
 //     const fetchUserData = async () => {
