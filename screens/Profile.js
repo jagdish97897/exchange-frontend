@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,8 @@ import {
 import { AntDesign, Feather } from '@expo/vector-icons';
 import tailwind from 'tailwind-react-native-classnames';
 import { API_END_POINT } from '../app.config';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 const { width, height } = Dimensions.get('window');
 
@@ -41,6 +43,25 @@ const Profile = ({ navigation, route }) => {
       setLoading(false);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      let isMounted = true;
+
+      // Refresh trips when screen gains focus
+      const refreshTrips = async () => {
+        if (phoneNumber) {
+          await fetchUserData();
+        }
+      };
+
+      refreshTrips();
+
+      return () => {
+        isMounted = false;
+      };
+    }, [phoneNumber])
+  );
 
   useEffect(() => {
     fetchUserData();

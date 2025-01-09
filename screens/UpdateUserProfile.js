@@ -13,6 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { API_END_POINT } from '../app.config';
+import { getToken } from '../Token';
 
 const UpdateUserProfile = ({ route }) => {
   const navigation = useNavigation();
@@ -33,6 +34,8 @@ const UpdateUserProfile = ({ route }) => {
     dlNumber: '',
     email: '',
   });
+
+  const [isImageSelected, setIsImageSelected] = useState(false);
 
   const [errors, setErrors] = useState({});
 
@@ -88,6 +91,7 @@ const UpdateUserProfile = ({ route }) => {
           ...prevData,
           profileImage: result.assets[0].uri,
         }));
+        setIsImageSelected(true); // Mark that an image has been selected
       } else {
         Alert.alert('Image selection canceled');
       }
@@ -123,38 +127,50 @@ const UpdateUserProfile = ({ route }) => {
   };
 
   const handleSubmit = async () => {
-    if (!validateFields()) {
-      return;
-    }
+    // if (!validateFields()) {
+    //   return;
+    // }
 
     try {
-      const formData = new FormData();
+      // const formData = new FormData();
+      // const formData = {};
 
-      // Append text fields
-      for (const key in userData) {
-        if (key !== 'profileImage') {
-          formData.append(key, userData[key]);
-        }
-      }
+      // // Append text fields
+      // for (const key in userData) {
+      //   // formData.append(key, userData[key]);
+      //   // if (key !== 'profileImage') {
 
+      //   // } else {
+      //   //   formData.append(key, imageUrl);
+      //   // }  
+
+      //   formData[key] = userData[key];
+      // }
+
+
+      // console.log('formData values @@@@@@@@@@@', formData)
       // Append the image file
-      if (userData.profileImage) {
-        const uriParts = userData.profileImage.split('.');
-        const fileType = uriParts[uriParts.length - 1];
-        const imageName = userData.profileImage.split('/').pop();
+      // if (userData.profileImage) {
+      //   const uriParts = userData.profileImage.split('.');
+      //   const fileType = uriParts[uriParts.length - 1];
+      //   const imageName = userData.profileImage.split('/').pop();
 
-        formData.append('profileImage', {
-          uri: userData.profileImage,
-          name: imageName,
-          type: `image/${fileType}`,
-        });
-      }
+      //   formData.append('profileImage', {
+      //     uri: userData.profileImage,
+      //     name: imageName,
+      //     type: `image/${fileType}`,
+      //   });
+      // }
 
-      console.log('formData')
+      // console.log('userData', userData);
+
       const response = await fetch(`${API_END_POINT}/api/v1/users/updateuser/${phoneNumber}`,
         {
           method: 'PUT',
-          body: formData,
+          headers: {
+            'Content-Type': 'application/json', // Specify JSON content type
+          },
+          body: JSON.stringify(userData),
         }
       );
       const result = await response.json();
@@ -167,7 +183,7 @@ const UpdateUserProfile = ({ route }) => {
         Alert.alert('Error', result.message || 'Failed to update user data.');
       }
     } catch (error) {
-      console.error('Error updating user data:', error);
+      console.log('Error updating user data:', error);
       Alert.alert('Error', 'An error occurred while updating user data.');
     }
   };
@@ -196,6 +212,52 @@ const UpdateUserProfile = ({ route }) => {
     ));
   };
 
+
+  const handleUploadImage = async () => {
+    try {
+      if (isImageSelected) {
+        console.log('profileImage recieved %%%%%%%%%%%%%', userData.profileImage);
+        const formData = new FormData();
+        const uriParts = userData.profileImage.split('.');
+        const fileType = uriParts[uriParts.length - 1];
+        const imageName = userData.profileImage.split('/').pop();
+
+        formData.append('file', {
+          uri: userData.profileImage,
+          name: imageName,
+          type: `image/${fileType}`
+        });
+
+        const response = await fetch(`${API_END_POINT}/api/v1/users/upload`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            // Authorization: `Bearer ${getToken('token')}`, // Add authentication if required
+          },
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          setUserData((prevData) => ({
+            ...prevData,
+            profileImage: result.fileUrl,
+          }));
+
+          setIsImageSelected(false);
+          console.log('Image uploaded successfully:', result.fileUrl);
+        } else {
+          console.error('Image upload failed:', result.message);
+        }
+      }
+
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  };
+
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Update Profile</Text>
@@ -205,6 +267,7 @@ const UpdateUserProfile = ({ route }) => {
           <Image
             source={{ uri: encodeURI(userData.profileImage) }}
             style={styles.image}
+            onLoadEnd={handleUploadImage}
           />
         ) : (
           <View style={styles.imagePlaceholder}>
@@ -212,6 +275,7 @@ const UpdateUserProfile = ({ route }) => {
           </View>
         )}
       </TouchableOpacity>
+
       {errors.profileImage && <Text style={styles.errorText}>{errors.profileImage}</Text>}
 
       <View style={styles.inputWrapper}>

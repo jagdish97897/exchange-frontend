@@ -289,105 +289,24 @@ export default ({ route }) => {
                             </ScrollView>
                         )}
                     </SafeAreaView>
+
+                    <View style={styles.bottomNav}>
+                        <TouchableOpacity>
+                            <AntDesign name="home" size={24} color="white" />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.shopButton}>
+                            <Entypo name="shop" size={24} color="white" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => navigation.navigate('Profile', { phoneNumber })}
+                        >
+                            <AntDesign name="user" size={24} color="white" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
     );
-
-    // return (
-    //     <KeyboardAvoidingView
-    //         style={{ flex: 1 }}
-    //         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    //     >
-    //         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-    //             <View style={{ flex: 1, marginTop: 40 }}>
-    //                 <SafeAreaView style={styles.container}>
-    //                     <View style={styles.header}>
-    //                         <Text style={styles.headerText}>Dashboard</Text>
-    //                         <Text
-    //                             onPress={() => navigation.navigate('TripScreen1', { userId })}
-    //                             style={styles.headerLink}
-    //                         >
-    //                             Trips
-    //                         </Text>
-    //                     </View>
-
-    //                     <Text style={styles.title}>Trip History</Text>
-
-    //                     {loading && trips.length === 0 ? (
-    //                         <ActivityIndicator size="large" color="#0000ff" />
-    //                     ) : (
-
-    //                         <ScrollView style={styles.tripList}>
-    //                             {trips
-    //                                 .map((trip) => (
-    //                                     <View key={trip._id} style={styles.tripCard}>
-    //                                         {/* <Text style={styles.tripDetail}>
-    //                                             <Text style={styles.label}>userId:</Text> {trip.user}
-    //                                         </Text> */}
-    //                                         <Text style={styles.tripDetail}>
-    //                                             <Text style={styles.label}>From:</Text> {trip.from}
-    //                                         </Text>
-    //                                         <Text style={styles.tripDetail}>
-    //                                             <Text style={styles.label}>To:</Text> {trip.to}
-    //                                         </Text>
-    //                                         <Text style={styles.tripDetail}>
-    //                                             <Text style={styles.label}>Date:</Text>{' '}
-    //                                             {new Date(trip.tripDate).toLocaleString()}
-    //                                         </Text>
-    //                                         <Text style={styles.tripDetail}>
-    //                                             <Text style={styles.label}>Payload Cost:</Text>{' '}
-    //                                             {trip.cargoDetails.quotePrice}
-    //                                         </Text>
-
-    //                                         <View style={styles.timerContainer}>
-    //                                             <Text style={styles.timer}>{trip.timer}</Text>
-    //                                         </View>
-
-    //                                         {/* Action Buttons */}
-    //                                         <View style={styles.actionButtons}>
-    //                                             <TouchableOpacity onPress={() => handleView(trip._id)}>
-    //                                                 <Feather
-    //                                                     name="eye"
-    //                                                     size={24}
-    //                                                     color="blue"
-    //                                                     style={styles.icon}
-    //                                                 />
-    //                                             </TouchableOpacity>
-    //                                             <TouchableOpacity onPress={() => handleReject(trip._id)}>
-    //                                                 <Entypo
-    //                                                     name="circle-with-cross"
-    //                                                     size={24}
-    //                                                     color="orange"
-    //                                                     style={styles.icon}
-    //                                                 />
-    //                                             </TouchableOpacity>
-    //                                         </View>
-    //                                     </View>
-    //                                 ))}
-    //                         </ScrollView>
-
-    //                     )}
-    //                 </SafeAreaView>
-
-    //                 <View style={styles.bottomNav}>
-    //                     <TouchableOpacity>
-    //                         <AntDesign name="home" size={24} color="white" />
-    //                     </TouchableOpacity>
-    //                     <TouchableOpacity style={styles.shopButton}>
-    //                         <Entypo name="shop" size={24} color="white" />
-    //                     </TouchableOpacity>
-    //                     <TouchableOpacity
-    //                         onPress={() => navigation.navigate('Profile', { phoneNumber })}
-    //                     >
-    //                         <AntDesign name="user" size={24} color="white" />
-    //                     </TouchableOpacity>
-    //                 </View>
-
-    //             </View>
-    //         </TouchableWithoutFeedback>
-    //     </KeyboardAvoidingView>
-    // );
 };
 
 const styles = StyleSheet.create({
