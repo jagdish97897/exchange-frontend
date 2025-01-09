@@ -45,4 +45,4 @@ export default ({ config
   }
 });
 
-export const API_END_POINT = 'http://192.168.1.4:8000';
+export const API_END_POINT = 'http://192.168.1.14:8000';

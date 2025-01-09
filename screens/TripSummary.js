@@ -38,7 +38,7 @@ const TripSummary = ({ route }) => {
     const [acceptedDriverId, setAcceptedDriverId] = useState(null);
     const [showDetails, setShowDetails] = useState(false);
     const isMounted = useRef(true);
-    const [isSubitModalVisible, setIsSubitModalVisible] = useState(false); // Controls the visibility
+    const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false); // Controls the visibility
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedPrice, setSelectedPrice] = useState(null);
     const [revisedPrice, setRevisedPrice] = useState('');
@@ -90,7 +90,7 @@ const TripSummary = ({ route }) => {
         // console.log('counterPrice Event Received');
         await fetchCounterPriceList();
         setShowDetails(true);
-        setIsSubitModalVisible(Number(trip?.bids?.length) % 2 === 1 ? true : false)
+        setIsSubmitModalVisible(Number(trip?.bids?.length) % 2 === 1 ? true : false)
     };
 
     useEffect(() => {
@@ -142,7 +142,7 @@ const TripSummary = ({ route }) => {
         if (response.status === 200) {
             setModalVisible(false);
             setTrip(response.data.trip);
-            setIsSubitModalVisible(false);
+            setIsSubmitModalVisible(false);
         }
     };
 
@@ -229,7 +229,7 @@ const TripSummary = ({ route }) => {
                 </TouchableOpacity>
             ))}
 
-            {/* {isSubitModalVisible && (
+            {/* {isSubmitModalVisible && (
                 <View style={styles.modalContent}>
                     <TextInput
                         style={[

@@ -192,7 +192,6 @@ export default ({ route }) => {
         const handleFetchTrips = async () => {
             console.log('newTripEvent Received');
             await fetchTrips(true);
-            setIsSubitModalVisible(true);
         };
 
         if (socket) {

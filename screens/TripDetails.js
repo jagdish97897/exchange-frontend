@@ -134,7 +134,7 @@ export default function TripDetails({ route }) {
 
     // const firstCounterPrice = '@@@@';
 
-    const firstCounterPrice = trip && trip.counterPriceList.length > 0 && user ? trip.counterPriceList.find(list => list.user === user._id)?.counterPrice : '';
+    const firstCounterPrice = trip && trip.counterPriceList.length > 0 && user ? trip.counterPriceList.find(list => list.user._id === user._id)?.counterPrice : '';
 
     return (
         <LinearGradient colors={['#06264D', '#FFF']} style={{ flex: 1 }}>

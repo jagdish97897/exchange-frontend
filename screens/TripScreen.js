@@ -1,4 +1,4 @@
-import React, { useEffect, useState ,useContext} from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import {
     View,
     Text,
@@ -9,7 +9,7 @@ import {
     SafeAreaView,
     TouchableOpacity,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { API_END_POINT } from '../app.config';
 
@@ -23,36 +23,52 @@ const TripScreen = ({ route }) => {
         Cancelled: [],
     });
 
-
     const navigation = useNavigation();
     // const route = useRoute();
-
-
     const apiEndpoint = `${API_END_POINT}/api/trips/customer/${userId}`;
 
+    const fetchTrips = async () => {
+        try {
+            const response = await fetch(apiEndpoint);
+            const data = await response.json();
+
+            const categorizedTrips = {
+                Archieved: data.trips.filter((trip) => trip.status === 'created'),
+                InProgress: data.trips.filter((trip) => trip.status === 'inProgress'),
+                Completed: data.trips.filter((trip) => trip.status === 'completed'),
+                Cancelled: data.trips.filter((trip) => trip.status === 'cancelled'),
+            };
+
+            setTrips(categorizedTrips);
+        } catch (error) {
+            console.error('Error fetching trips:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
     useEffect(() => {
-        const fetchTrips = async () => {
-            try {
-                const response = await fetch(apiEndpoint);
-                const data = await response.json();
-
-                const categorizedTrips = {
-                    Archieved: data.trips.filter((trip) => trip.status === 'created'),
-                    InProgress: data.trips.filter((trip) => trip.status === 'inProgress'),
-                    Completed: data.trips.filter((trip) => trip.status === 'completed'),
-                    Cancelled: data.trips.filter((trip) => trip.status === 'cancelled'),
-                };
-
-                setTrips(categorizedTrips);
-            } catch (error) {
-                console.error('Error fetching trips:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         if (userId) fetchTrips();
     }, [userId]);
+
+
+    useFocusEffect(
+        useCallback(() => {
+            let isMounted = true;
+
+            // Refresh trips when screen gains focus
+            const refreshTrips = async () => {
+                await fetchTrips();
+            };
+
+            refreshTrips();
+
+            return () => {
+                isMounted = false;
+            };
+        }, [])
+    );
 
     const sectionColors = {
         Archieved: '#e6f7ff', // Gold
