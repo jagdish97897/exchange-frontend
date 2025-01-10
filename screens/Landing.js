@@ -1,8 +1,12 @@
 import { SafeAreaView, Text, View, Image, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from "react-native";
+import { useNavigation } from '@react-navigation/native';
 
-export default ({ navigation }) => {
+
+export default () => {
+  const navigation = useNavigation();
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Logo at the top */}
