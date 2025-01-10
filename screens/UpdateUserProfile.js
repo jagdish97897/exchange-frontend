@@ -216,7 +216,6 @@ const UpdateUserProfile = ({ route }) => {
   const handleUploadImage = async () => {
     try {
       if (isImageSelected) {
-        console.log('profileImage recieved %%%%%%%%%%%%%', userData.profileImage);
         const formData = new FormData();
         const uriParts = userData.profileImage.split('.');
         const fileType = uriParts[uriParts.length - 1];

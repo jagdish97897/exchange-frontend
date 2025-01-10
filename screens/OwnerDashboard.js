@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, Dimensions, Image, Modal, Button, Alert, TextInput, FlatList, ScrollView } from "react-native";
 import Autocomplete from "react-google-autocomplete";
 import { AntDesign, Feather, Entypo } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import LinearGradient from 'react-native-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Ind from '../assets/images/image 10.png';
 import axios from 'axios';
 import { checkAndRequestLocationPermission } from './ConsumerDashboard';
 import { getSocket, closeSocket } from './SocketIO.js';
 import { API_END_POINT } from '../app.config';
 
-const { width, height } = Dimensions.get('window');
 
+const { width, height } = Dimensions.get('window');
 
 
 export default ({ route }) => {
@@ -42,13 +42,15 @@ export default ({ route }) => {
 
     setSocket(socketInstance);
 
-    socket.on("newMessage", (message) => {
-      console.log("Message from server:", message);
-    });
+    if (socket) {
+      socket.on("newMessage", (message) => {
+        console.log("Message from server:", message);
+      });
+    }
 
-    return () => {
-      closeSocket(); // Disconnect socket on unmount
-    };
+    // return () => {
+    //   closeSocket(); // Disconnect socket on unmount
+    // };
   }, [token]);
 
   useEffect(() => {
@@ -74,6 +76,25 @@ export default ({ route }) => {
       }
     })();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      let isMounted = true;
+
+      // Refresh trips when screen gains focus
+      const refreshTrips = async () => {
+        // if (token) {
+        //     await fetchTrips(isMounted);
+        // }
+      };
+
+      refreshTrips();
+
+      return () => {
+        isMounted = false;
+      };
+    }, [token])
+  );
 
 
   const sendOtp = async () => {
@@ -261,7 +282,7 @@ export default ({ route }) => {
     // Fetch user data from API
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${API_END_POINT}/api/v1/users/user/${phoneNumber}`);
+        const response = await axios.get(`${API_END_POINT}/api/v1/users/${phoneNumber}`);
         const { _id } = response.data;
         setOwnerId(_id); // Set the user ID
       } catch (error) {
@@ -539,10 +560,10 @@ export default ({ route }) => {
 
 const styles = new StyleSheet.create({
   cardContainer: {
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    flexWrap: 'wrap', 
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
     gap: 10,
   },
   selectionContainer: {
@@ -679,7 +700,7 @@ const styles = new StyleSheet.create({
     height: 30,             // Sets the height of the button
   },
   scrollViewContent: {
-    flexGrow: 1, 
+    flexGrow: 1,
     justifyContent: 'space-between',
   },
   vehicleItem: {
@@ -697,6 +718,6 @@ const styles = new StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10, 
+    marginTop: 10,
   },
 })
