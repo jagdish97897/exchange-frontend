@@ -54,13 +54,12 @@ const CargoDetails = ({ route }) => {
             keyboardDidHideListener.remove();
         };
     }, []);
-
     const handleSubmit = async () => {
         if (!cargoType || !quotePrice || !payloadWeight) {
             Alert.alert('Validation Error', 'Cargo type, payload cost, and payload weight are required!');
             return;
         }
-
+    
         const cargoDetails = {
             cargoType,
             quotePrice: parseFloat(quotePrice),
@@ -69,7 +68,7 @@ const CargoDetails = ({ route }) => {
             payloadLength: payloadLength ? parseFloat(payloadLength) : null,
             payloadWidth: payloadWidth ? parseFloat(payloadWidth) : null,
         };
-
+    
         try {
             const response = await axios.post(`${API_END_POINT}/api/trips/create`, {
                 from,
@@ -80,17 +79,70 @@ const CargoDetails = ({ route }) => {
                 tripDate,
                 specialInstruction,
             });
-
+    
             if (response.status === 200) {
                 Alert.alert('Cargo Details Submitted', 'Your cargo details have been successfully submitted!');
-                // Navigate to TripSummary or any other screen
+                
+                // Clear form fields after successful submission
+                setCargoType('');
+                setQuotePrice('');
+                setPayloadWeight('');
+                setPayloadHeight('');
+                setPayloadLength('');
+                setPayloadWidth('');
+                setTripDate(new Date());
+                setSpecialInstruction('');
+    
+                // Navigate to the desired screen
                 navigation.navigate('TripScreen', { userId });
-                // navigation.navigate('Trips', { userId });
             }
         } catch (error) {
             console.log('Error while submitting cargo details:', error);
         }
     };
+    
+
+
+
+    
+
+
+    // const handleSubmit = async () => {
+    //     if (!cargoType || !quotePrice || !payloadWeight) {
+    //         Alert.alert('Validation Error', 'Cargo type, payload cost, and payload weight are required!');
+    //         return;
+    //     }
+
+    //     const cargoDetails = {
+    //         cargoType,
+    //         quotePrice: parseFloat(quotePrice),
+    //         payloadWeight: parseFloat(payloadWeight),
+    //         payloadHeight: payloadHeight ? parseFloat(payloadHeight) : null,
+    //         payloadLength: payloadLength ? parseFloat(payloadLength) : null,
+    //         payloadWidth: payloadWidth ? parseFloat(payloadWidth) : null,
+    //     };
+
+    //     try {
+    //         const response = await axios.post(`${API_END_POINT}/api/trips/create`, {
+    //             from,
+    //             to,
+    //             phoneNumber,
+    //             currentLocation,
+    //             cargoDetails,
+    //             tripDate,
+    //             specialInstruction,
+    //         });
+
+    //         if (response.status === 200) {
+    //             Alert.alert('Cargo Details Submitted', 'Your cargo details have been successfully submitted!');
+    //             // Navigate to TripSummary or any other screen
+    //             navigation.navigate('TripScreen', { userId });
+    //             // navigation.navigate('Trips', { userId });
+    //         }
+    //     } catch (error) {
+    //         console.log('Error while submitting cargo details:', error);
+    //     }
+    // };
 
     return (
 

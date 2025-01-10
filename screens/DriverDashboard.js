@@ -8,7 +8,7 @@ import {
     StyleSheet,
     ScrollView,
     ActivityIndicator,
-    KeyboardAvoidingView, Platform, Keyboard,
+    KeyboardAvoidingView, Platform, Keyboard, Modal, Button,
     RefreshControl
 } from "react-native";
 import { useFocusEffect } from '@react-navigation/native';
@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { getSocket, closeSocket } from './SocketIO.js';
 import { API_END_POINT } from '../app.config';
+import { BackHandler } from 'react-native';
 // import { SocketContext } from '../SocketContext.js';
 
 export default ({ route }) => {
@@ -26,6 +27,7 @@ export default ({ route }) => {
     const [loading, setLoading] = useState(true);
     const [socket, setSocket] = useState(null);
     const [refreshing, setRefreshing] = useState(false); // Refresh state
+    const [showExitOptions, setShowExitOptions] = useState(false); 
 
 
     const navigation = useNavigation();
@@ -102,26 +104,7 @@ export default ({ route }) => {
         };
     }, [token]);
 
-    // Update timers for trips
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         setTrips((previousTrips) =>
-    //             previousTrips.map((trip) => {
-    //                 const remainingTime = getRemainingTime(new Date(trip.biddingStartTime));
 
-    //                 if (remainingTime === 'Expired') {
-
-    //                 }
-    //                 return {
-    //                     ...trip,
-    //                     timer: remainingTime,
-    //                 }
-    //             }
-    //             ))
-    //     }, 1000);
-
-    //     return () => clearInterval(interval);
-    // }, []);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -213,6 +196,25 @@ export default ({ route }) => {
         setRefreshing(false);
     };
 
+    const handleCloseApp = () => {
+        BackHandler.exitApp();
+    };
+
+    useFocusEffect(
+        React.useCallback(() => {
+            if (route.name === 'DriverDashboard') {
+                const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+                    setShowExitOptions(true); // Show modal when back is pressed
+                    return true; // Prevent default back button behavior
+                });
+
+                return () => backHandler.remove(); // Cleanup listener on unmount
+            }
+        }, [route]) // Re-run effect when the route changes
+    );
+
+
+
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
@@ -289,7 +291,7 @@ export default ({ route }) => {
                             </ScrollView>
                         )}
                     </SafeAreaView>
-
+                    
                     <View style={styles.bottomNav}>
                         <TouchableOpacity>
                             <AntDesign name="home" size={24} color="white" />
@@ -303,6 +305,24 @@ export default ({ route }) => {
                             <AntDesign name="user" size={24} color="white" />
                         </TouchableOpacity>
                     </View>
+                    
+                    {/* Modal for exit options */}
+                    <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={showExitOptions}
+                        onRequestClose={() => setShowExitOptions(false)}
+                    >
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalContainer}>
+                                <Text style={styles.exitText}>Do you really want to close the app?</Text>
+                                <View style={styles.buttonGroup}>
+                                    <Button title="Close App" onPress={handleCloseApp} color="#FF5C5C" />
+                                    <Button title="Not Close" onPress={() => setShowExitOptions(false)} color="#5CCF5C" />
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
                 </View>
             </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
@@ -310,6 +330,30 @@ export default ({ route }) => {
 };
 
 const styles = StyleSheet.create({
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+    },
+    modalContainer: {
+        backgroundColor: '#FFF',
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+        alignItems: 'center',
+    },
+    exitText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    buttonGroup: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        width: '100%',
+    },
     container: {
         flex: 1,
         paddingHorizontal: 16,

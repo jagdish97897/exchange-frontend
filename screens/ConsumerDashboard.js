@@ -3,11 +3,11 @@ import { SafeAreaView, View, Text, TouchableOpacity, TouchableWithoutFeedback, S
 import Autocomplete from "react-google-autocomplete";
 import { AntDesign, Feather, Entypo } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
-import LinearGradient from 'react-native-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Ind from '../assets/images/image 10.png';
 import * as Location from 'expo-location';
 const { width, height } = Dimensions.get('window');
+import { BackHandler } from 'react-native';
 
 export const showAlert = (title, message, actions = [{ text: 'OK' }]) => {
   Alert.alert(title, message, actions);
@@ -113,11 +113,12 @@ export default ({ route }) => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-  const toInputRef = useRef(null); // Create a ref for the "to" field
+  const toInputRef = useRef(null); 
   const [currentLocation, setCurrentLocation] = useState({
     latitude: '',
     longitude: '',
   });
+  const [showExitOptions, setShowExitOptions] = useState(false);
 
   const handleFromChange = (text) => {
     setFrom(text);
@@ -267,6 +268,23 @@ export default ({ route }) => {
   const handleSubmit = () => {
     // Logic to handle form submission
   };
+
+  const handleCloseApp = () => {
+    BackHandler.exitApp();
+};
+
+useFocusEffect(
+  React.useCallback(() => {
+      if (route.name === 'ConsumerDashboard') {
+          const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+              setShowExitOptions(true); // Show modal when back is pressed
+              return true; // Prevent default back button behavior
+          });
+
+          return () => backHandler.remove(); // Cleanup listener on unmount
+      }
+  }, [route]) // Re-run effect when the route changes
+);
 
   return (
     <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
@@ -435,12 +453,53 @@ export default ({ route }) => {
             <AntDesign name="user" size={24} color="white" />
           </TouchableOpacity>
         </View>
+                                    {/* Modal for exit options */}
+                                    <Modal
+                                animationType="slide"
+                                transparent={true}
+                                visible={showExitOptions}
+                                onRequestClose={() => setShowExitOptions(false)}
+                            >
+                                <View style={styles.modalOverlay}>
+                                    <View style={styles.modalContainer}>
+                                        <Text style={styles.exitText}>Do you really want to close the app?</Text>
+                                        <View style={styles.buttonGroup}>
+                                            <Button title="Close App" onPress={handleCloseApp} color="#FF5C5C" />
+                                            <Button title="Not Close" onPress={() => setShowExitOptions(false)} color="#5CCF5C" />
+                                        </View>
+                                    </View>
+                                </View>
+                            </Modal>
       </View>
     </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+},
+modalContainer: {
+    backgroundColor: '#FFF',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+},
+exitText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+},
+buttonGroup: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+},
   container: {
     flex: 1,
     backgroundColor: '#FFF',

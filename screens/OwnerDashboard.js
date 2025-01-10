@@ -539,10 +539,10 @@ export default ({ route }) => {
 
 const styles = new StyleSheet.create({
   cardContainer: {
-    flexDirection: 'row', // Or 'column' depending on your layout preference
-    justifyContent: 'space-between', // Adjust spacing between cards
-    alignItems: 'center', // Align the cards vertically
-    flexWrap: 'wrap', // Allows cards to wrap to the next row if needed
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    flexWrap: 'wrap', 
     gap: 10,
   },
   selectionContainer: {
@@ -561,8 +561,6 @@ const styles = new StyleSheet.create({
     justifyContent: 'center',
   },
   card: {
-    // width: 140,
-    // height: 100,
     width: width * 0.37, // Responsive width
     height: height * 0.12, // Responsive height
     backgroundColor: '#ffffff',
@@ -681,7 +679,7 @@ const styles = new StyleSheet.create({
     height: 30,             // Sets the height of the button
   },
   scrollViewContent: {
-    flexGrow: 1, // Ensures the ScrollView takes up all available space
+    flexGrow: 1, 
     justifyContent: 'space-between',
   },
   vehicleItem: {
@@ -699,6 +697,6 @@ const styles = new StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 10, // Add margin to separate from the vehicle list
+    marginTop: 10, 
   },
 })

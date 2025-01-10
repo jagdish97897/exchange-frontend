@@ -204,7 +204,7 @@ export function resetPasswordRequest(email) {
 export function resetPassword(data) {
   return new Promise(async (resolve, reject) => {
     try {
-      const response = await fetch("http://192.168.1.6:8005/api/v1/users/change-password", {
+      const response = await fetch("http://192.168.1.11:8005/api/v1/users/change-password", {
         method: "POST",
         body: JSON.stringify(data),
         headers: { "content-type": "application/json" },

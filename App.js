@@ -1,16 +1,15 @@
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { Provider } from 'react-redux';
-import store from './app/store';
 import MainNavigator from './MainNavigator';
+import { AuthProvider } from './screens/AuthContext.js'; 
 
 export default function App() {
-
   return (
-    <Provider store={store} >
+    <AuthProvider>
       <NavigationContainer>
         <MainNavigator />
       </NavigationContainer>
-    </Provider>
+    </AuthProvider>
   );
 }
 

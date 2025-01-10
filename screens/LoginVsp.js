@@ -4,10 +4,12 @@ import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacit
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
 import { saveToken } from '../Token.js';
+import { useAuth } from './AuthContext'; 
 import { initializeSocket } from './SocketIO.js';
 import { API_END_POINT } from '../app.config';
 
 export default ({ navigation }) => {
+    const { login } = useAuth();
     const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState('');
     const [otp, setOtp] = useState('');
@@ -70,6 +72,7 @@ export default ({ navigation }) => {
                     saveToken('token',response.data.data.token);
                     // console.log('response data token  : ', response.data.data.token);
                     Alert.alert('Success', 'Login successful.');
+                    login();
                     const userType = response.data.data.type;
 
                     initializeSocket(response.data.data.token);
