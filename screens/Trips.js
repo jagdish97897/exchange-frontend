@@ -35,10 +35,10 @@ const TripScreen = () => {
         if (response.status === 200) {
 
           const categorizedTrips = {
-            created: data.trips.filter((trip) => trip.status === 'created'),
-            inProgress: data.trips.filter((trip) => trip.status === 'inProgress'),
-            completed: data.trips.filter((trip) => trip.status === 'completed'),
-            cancelled: data.trips.filter((trip) => trip.status === 'cancelled'),
+            created: data?.trips?.filter((trip) => trip.status === 'created') ?? [],
+            inProgress: data?.trips?.filter((trip) => trip.status === 'inProgress') ?? [],
+            completed: data?.trips?.filter((trip) => trip.status === 'completed') ?? [],
+            cancelled: data?.trips?.filter((trip) => trip.status === 'cancelled') ?? [],
           };
 
           setTrips(categorizedTrips);

@@ -33,10 +33,10 @@ const TripScreen = ({ route }) => {
             const data = await response.json();
 
             const categorizedTrips = {
-                Archieved: data.trips.filter((trip) => trip.status === 'created'),
-                InProgress: data.trips.filter((trip) => trip.status === 'inProgress'),
-                Completed: data.trips.filter((trip) => trip.status === 'completed'),
-                Cancelled: data.trips.filter((trip) => trip.status === 'cancelled'),
+                Archieved: data?.trips?.filter((trip) => trip.status === 'created')?? [],
+                InProgress: data?.trips?.filter((trip) => trip.status === 'inProgress')?? [],
+                Completed: data?.trips?.filter((trip) => trip.status === 'completed')?? [],
+                Cancelled: data?.trips?.filter((trip) => trip.status === 'cancelled')?? [],
             };
 
             setTrips(categorizedTrips);

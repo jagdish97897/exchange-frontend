@@ -37,9 +37,9 @@ const TripScreen1 = ({ route }) => {
                 const data = await response.json();
 
                 const categorizedTrips = {
-                    InProgress: data.trips.filter((trip) => trip.status === 'inProgress'),
-                    Completed: data.trips.filter((trip) => trip.status === 'completed'),
-                    Cancelled: data.trips.filter((trip) => trip.status === 'cancelled'),
+                    InProgress: data?.trips?.filter((trip) => trip.status === 'inProgress') ?? [],
+                    Completed: data?.trips?.filter((trip) => trip.status === 'completed') ?? [],
+                    Cancelled: data?.trips?.filter((trip) => trip.status === 'cancelled') ?? [],
                 };
 
                 setTrips(categorizedTrips);

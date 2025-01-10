@@ -126,10 +126,21 @@ const Profile = ({ route }) => {
     >
       {/* Profile Image and Name */}
       <View style={tailwind`items-center mt-6`}>
-        <Image
-          source={{ uri: encodeURI(user.profileImage) || 'https://via.placeholder.com/150' }}
-          style={[tailwind`rounded-full border-4 border-blue-500`, { width: width * 0.35, height: width * 0.35 }]}
-        />
+        {/* Border around the profile image */}
+        <View
+          style={[
+            tailwind`rounded-full border-4 border-blue-300`,
+            { width: width * 0.35, height: width * 0.35, justifyContent: 'center', alignItems: 'center' },
+          ]}
+        >
+          <Image
+            source={{ uri: encodeURI(user.profileImage) || 'https://via.placeholder.com/150' }}
+            style={[
+              tailwind`rounded-full`,
+              { width: width * 0.32, height: width * 0.32 },
+            ]}
+          />
+        </View>
         <Text style={[tailwind`text-2xl font-bold mt-4`, { fontSize: width * 0.08 }]}>{user.fullName}</Text>
         <Text style={tailwind`text-gray-600 text-lg mt-2`}>{user.type}</Text>
       </View>

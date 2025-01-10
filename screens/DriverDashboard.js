@@ -27,7 +27,8 @@ export default ({ route }) => {
     const [loading, setLoading] = useState(true);
     const [socket, setSocket] = useState(null);
     const [refreshing, setRefreshing] = useState(false); // Refresh state
-    const [showExitOptions, setShowExitOptions] = useState(false); 
+    const [showExitOptions, setShowExitOptions] = useState(false);
+    const [bidAccepted, setBidAccepted] = useState(false);
 
 
     const navigation = useNavigation();
@@ -64,13 +65,15 @@ export default ({ route }) => {
     const fetchTrips = async (isMounted) => {
         setLoading(true);
         try {
-            const response = await axios.get(`${API_END_POINT}/api/trips/history`, {
+            const response = await axios.get(`${API_END_POINT}/api/trips/history/${userId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
 
-            if (isMounted && response.data.trips?.length) {
+            if (response.data.bidAccepted) {
+                setBidAccepted(response.data.bidAccepted);
+            } else if (isMounted && response.data.trips?.length) {
                 // Add a timer for each trip
                 const tripsWithTimers = response.data.trips.map((trip) => ({
                     ...trip,
@@ -238,60 +241,63 @@ export default ({ route }) => {
                         {loading && trips.length === 0 ? (
                             <ActivityIndicator size="large" color="#0000ff" />
                         ) : (
-                            <ScrollView
-                                style={styles.tripList}
-                                refreshControl={
-                                    <RefreshControl
-                                        refreshing={refreshing}
-                                        onRefresh={handleRefresh}
-                                    />
-                                }
-                            >
-                                {trips.map((trip) => (
-                                    <View key={trip._id} style={styles.tripCard}>
-                                        <Text style={styles.tripDetail}>
-                                            <Text style={styles.label}>From:</Text> {trip.from}
-                                        </Text>
-                                        <Text style={styles.tripDetail}>
-                                            <Text style={styles.label}>To:</Text> {trip.to}
-                                        </Text>
-                                        <Text style={styles.tripDetail}>
-                                            <Text style={styles.label}>Date:</Text>{' '}
-                                            {new Date(trip.tripDate).toLocaleString()}
-                                        </Text>
-                                        <Text style={styles.tripDetail}>
-                                            <Text style={styles.label}>Payload Cost:</Text>{' '}
-                                            {trip.cargoDetails.quotePrice}
-                                        </Text>
+                            bidAccepted ?
+                                <Text style={styles.bidAcceted}>Thank you ! You have accepted a bid. Continue your journey safely!</Text>
+                                :
+                                <ScrollView
+                                    style={styles.tripList}
+                                    refreshControl={
+                                        <RefreshControl
+                                            refreshing={refreshing}
+                                            onRefresh={handleRefresh}
+                                        />
+                                    }
+                                >
+                                    {trips.map((trip) => (
+                                        <View key={trip._id} style={styles.tripCard}>
+                                            <Text style={styles.tripDetail}>
+                                                <Text style={styles.label}>From:</Text> {trip.from}
+                                            </Text>
+                                            <Text style={styles.tripDetail}>
+                                                <Text style={styles.label}>To:</Text> {trip.to}
+                                            </Text>
+                                            <Text style={styles.tripDetail}>
+                                                <Text style={styles.label}>Date:</Text>{' '}
+                                                {new Date(trip.tripDate).toLocaleString()}
+                                            </Text>
+                                            <Text style={styles.tripDetail}>
+                                                <Text style={styles.label}>Payload Cost:</Text>{' '}
+                                                {trip.cargoDetails.quotePrice}
+                                            </Text>
 
-                                        <View style={styles.timerContainer}>
-                                            <Text style={styles.timer}>{trip.timer}</Text>
-                                        </View>
+                                            <View style={styles.timerContainer}>
+                                                <Text style={styles.timer}>{trip.timer}</Text>
+                                            </View>
 
-                                        <View style={styles.actionButtons}>
-                                            <TouchableOpacity onPress={() => handleView(trip._id)}>
-                                                <Feather
-                                                    name="eye"
-                                                    size={24}
-                                                    color="blue"
-                                                    style={styles.icon}
-                                                />
-                                            </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => handleReject(trip._id)}>
-                                                <Entypo
-                                                    name="circle-with-cross"
-                                                    size={24}
-                                                    color="orange"
-                                                    style={styles.icon}
-                                                />
-                                            </TouchableOpacity>
+                                            <View style={styles.actionButtons}>
+                                                <TouchableOpacity onPress={() => handleView(trip._id)}>
+                                                    <Feather
+                                                        name="eye"
+                                                        size={24}
+                                                        color="blue"
+                                                        style={styles.icon}
+                                                    />
+                                                </TouchableOpacity>
+                                                <TouchableOpacity onPress={() => handleReject(trip._id)}>
+                                                    <Entypo
+                                                        name="circle-with-cross"
+                                                        size={24}
+                                                        color="orange"
+                                                        style={styles.icon}
+                                                    />
+                                                </TouchableOpacity>
+                                            </View>
                                         </View>
-                                    </View>
-                                ))}
-                            </ScrollView>
+                                    ))}
+                                </ScrollView>
                         )}
                     </SafeAreaView>
-                    
+
                     <View style={styles.bottomNav}>
                         <TouchableOpacity>
                             <AntDesign name="home" size={24} color="white" />
@@ -305,7 +311,7 @@ export default ({ route }) => {
                             <AntDesign name="user" size={24} color="white" />
                         </TouchableOpacity>
                     </View>
-                    
+
                     {/* Modal for exit options */}
                     <Modal
                         animationType="slide"
@@ -334,7 +340,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     modalContainer: {
         backgroundColor: '#FFF',
@@ -427,5 +433,13 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: 'blue',
     },
-
+    bidAcceted: {
+        fontSize: 18, // Slightly larger text for readability
+        fontWeight: 'bold', // Bold to emphasize importance
+        textAlign: 'center', // Center-align text for balance
+        color: '#4CAF50', // A calming green color (symbolizing safety)
+        paddingHorizontal: 20, // Padding for better alignment
+        marginVertical: 15, // Space above and below
+        lineHeight: 25, // Space between lines for better readability
+    }
 });
