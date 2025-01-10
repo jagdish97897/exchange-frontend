@@ -222,7 +222,7 @@ const UpdateUserProfile = ({ route }) => {
         const fileType = uriParts[uriParts.length - 1];
         const imageName = userData.profileImage.split('/').pop();
 
-        formData.append('file', {
+        formData.append('files', {
           uri: userData.profileImage,
           name: imageName,
           type: `image/${fileType}`
