@@ -28,6 +28,8 @@ import TripSummary from './screens/TripSummary';
 import TripScreen from './screens/TripScreen';
 import ViewDetails from './screens/ViewDetails';
 import TripScreen1 from './screens/TripScreen1';
+import AddWalletAmount from './screens/AddWalletAmount.js';
+import Wallet from './screens/Wallet.js';
 
 
 const Stack = createNativeStackNavigator();
@@ -59,6 +61,8 @@ const MainNavigator = () => {
           <Stack.Screen name="TripScreen" component={TripScreen} />
           <Stack.Screen name="TripScreen1" component={TripScreen1} />
           <Stack.Screen name="ViewDetails" component={ViewDetails} />
+          <Stack.Screen name="AddWalletAmount" component={AddWalletAmount} />
+          <Stack.Screen name="Wallet" component={Wallet} />
         </>
       ) : (
         // Unprotected routes for unauthenticated users

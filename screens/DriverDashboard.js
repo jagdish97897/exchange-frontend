@@ -195,7 +195,7 @@ export default ({ route }) => {
 
     const handleRefresh = async () => {
         setRefreshing(true);
-        await fetchTrips(true); // Fetch trips during refresh
+        await fetchTrips(true); 
         setRefreshing(false);
     };
 
@@ -207,13 +207,13 @@ export default ({ route }) => {
         React.useCallback(() => {
             if (route.name === 'DriverDashboard') {
                 const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-                    setShowExitOptions(true); // Show modal when back is pressed
-                    return true; // Prevent default back button behavior
+                    setShowExitOptions(true); 
+                    return true; 
                 });
 
-                return () => backHandler.remove(); // Cleanup listener on unmount
+                return () => backHandler.remove(); 
             }
-        }, [route]) // Re-run effect when the route changes
+        }, [route]) 
     );
 
 
@@ -299,8 +299,9 @@ export default ({ route }) => {
                     </SafeAreaView>
 
                     <View style={styles.bottomNav}>
-                        <TouchableOpacity>
-                            <AntDesign name="home" size={24} color="white" />
+                        <TouchableOpacity 
+                            onPress={() => navigation.navigate('Wallet', { userId })}>
+                            <AntDesign name="wallet" size={24} color="white" />
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.shopButton}>
                             <Entypo name="shop" size={24} color="white" />
