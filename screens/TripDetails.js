@@ -175,7 +175,7 @@ export default function TripDetails({ route }) {
                             <Text style={styles.label}>Status: </Text> {trip.status}
                         </Text>
                         <Text style={styles.detail}>
-                            <Text style={styles.label}>Quote Price: </Text> {trip.cargoDetails.quotePrice}
+                            <Text style={styles.label}>Quote Price: </Text> {trip.cargoDetails.reducedQuotePrice}
                         </Text>
 
 
@@ -184,7 +184,7 @@ export default function TripDetails({ route }) {
                                 key={index}
                             >
                                 {bid.role === 'consumer' ? 'Revised Price:' : 'Counter Price:'}
-                                {bid.user && (<Text >  ₹{bid.price || 'N/A'}</Text>)}
+                                {bid.user && (<Text >  ₹{bid.role === 'consumer' ? bid.reducedPrice : bid.price || 'N/A'}</Text>)}
                             </Text>
                         ))}
 

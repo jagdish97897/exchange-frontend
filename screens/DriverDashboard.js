@@ -63,6 +63,7 @@ export default ({ route }) => {
     );
 
     const fetchTrips = async (isMounted) => {
+        console.log(userId)
         setLoading(true);
         try {
             const response = await axios.get(`${API_END_POINT}/api/trips/history/${userId}`, {
@@ -70,9 +71,10 @@ export default ({ route }) => {
                     Authorization: `Bearer ${token}`,
                 },
             });
+            console.log('Respo', response.data.trips[0].cargoDetails);
 
             if (response.data.bidAccepted) {
-                setBidAccepted(response.data.bidAccepted);
+                setBidAccepted(true);
             } else if (isMounted && response.data.trips?.length) {
                 // Add a timer for each trip
                 const tripsWithTimers = response.data.trips.map((trip) => ({
@@ -195,7 +197,7 @@ export default ({ route }) => {
 
     const handleRefresh = async () => {
         setRefreshing(true);
-        await fetchTrips(true); 
+        await fetchTrips(true);
         setRefreshing(false);
     };
 
@@ -207,13 +209,13 @@ export default ({ route }) => {
         React.useCallback(() => {
             if (route.name === 'DriverDashboard') {
                 const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-                    setShowExitOptions(true); 
-                    return true; 
+                    setShowExitOptions(true);
+                    return true;
                 });
 
-                return () => backHandler.remove(); 
+                return () => backHandler.remove();
             }
-        }, [route]) 
+        }, [route])
     );
 
 
@@ -267,7 +269,7 @@ export default ({ route }) => {
                                             </Text>
                                             <Text style={styles.tripDetail}>
                                                 <Text style={styles.label}>Payload Cost:</Text>{' '}
-                                                {trip.cargoDetails.quotePrice}
+                                                {trip.cargoDetails.reducedQuotePrice}
                                             </Text>
 
                                             <View style={styles.timerContainer}>
@@ -299,7 +301,7 @@ export default ({ route }) => {
                     </SafeAreaView>
 
                     <View style={styles.bottomNav}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             onPress={() => navigation.navigate('Wallet', { userId })}>
                             <AntDesign name="wallet" size={24} color="white" />
                         </TouchableOpacity>

@@ -113,7 +113,7 @@ export default ({ route }) => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-  const toInputRef = useRef(null); 
+  const toInputRef = useRef(null);
   const [currentLocation, setCurrentLocation] = useState({
     latitude: '',
     longitude: '',
@@ -173,6 +173,8 @@ export default ({ route }) => {
     try {
       if (from.length === 6 && to.length === 6) {
         navigation.navigate('CargoDetails', { from, to, phoneNumber, currentLocation, userId });
+        setFrom('');
+        setTo('');
       }
     } catch (error) {
       console.error('Error in navigation logic:', error);
@@ -271,20 +273,20 @@ export default ({ route }) => {
 
   const handleCloseApp = () => {
     BackHandler.exitApp();
-};
+  };
 
-useFocusEffect(
-  React.useCallback(() => {
+  useFocusEffect(
+    React.useCallback(() => {
       if (route.name === 'ConsumerDashboard') {
-          const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-              setShowExitOptions(true); // Show modal when back is pressed
-              return true; // Prevent default back button behavior
-          });
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+          setShowExitOptions(true); // Show modal when back is pressed
+          return true; // Prevent default back button behavior
+        });
 
-          return () => backHandler.remove(); // Cleanup listener on unmount
+        return () => backHandler.remove(); // Cleanup listener on unmount
       }
-  }, [route]) // Re-run effect when the route changes
-);
+    }, [route]) // Re-run effect when the route changes
+  );
 
   return (
     <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
@@ -453,23 +455,23 @@ useFocusEffect(
             <AntDesign name="user" size={24} color="white" />
           </TouchableOpacity>
         </View>
-                                    {/* Modal for exit options */}
-                                    <Modal
-                                animationType="slide"
-                                transparent={true}
-                                visible={showExitOptions}
-                                onRequestClose={() => setShowExitOptions(false)}
-                            >
-                                <View style={styles.modalOverlay}>
-                                    <View style={styles.modalContainer}>
-                                        <Text style={styles.exitText}>Do you really want to close the app?</Text>
-                                        <View style={styles.buttonGroup}>
-                                            <Button title="Close App" onPress={handleCloseApp} color="#FF5C5C" />
-                                            <Button title="Not Close" onPress={() => setShowExitOptions(false)} color="#5CCF5C" />
-                                        </View>
-                                    </View>
-                                </View>
-                            </Modal>
+        {/* Modal for exit options */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={showExitOptions}
+          onRequestClose={() => setShowExitOptions(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.exitText}>Do you really want to close the app?</Text>
+              <View style={styles.buttonGroup}>
+                <Button title="Close App" onPress={handleCloseApp} color="#FF5C5C" />
+                <Button title="Not Close" onPress={() => setShowExitOptions(false)} color="#5CCF5C" />
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -480,26 +482,26 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
-},
-modalContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
     backgroundColor: '#FFF',
     padding: 20,
     borderRadius: 10,
     width: '80%',
     alignItems: 'center',
-},
-exitText: {
+  },
+  exitText: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-},
-buttonGroup: {
+  },
+  buttonGroup: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
-},
+  },
   container: {
     flex: 1,
     backgroundColor: '#FFF',

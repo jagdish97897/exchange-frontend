@@ -177,7 +177,7 @@ const TripSummary = ({ route }) => {
 
     const prices = counterPriceList.map((price, index) => ({
         label: `Driver ${index + 1}`,
-        value: price.counterPrice,
+        value: price.increasedCounterPrice,
         user: price.user,
     }));
 
@@ -211,7 +211,7 @@ const TripSummary = ({ route }) => {
                         <Text style={styles.userInfo}>Price:  ₹{price.value || 'N/A'}</Text>
                     )}
                     {price.user && (
-                        <Text style={styles.userInfo}>By: {price.user.fullName} ({price.user.phoneNumber})</Text>
+                        <Text style={styles.userInfo}>By: {price.user.fullName} </Text>
                     )}
                 </TouchableOpacity>
             ))}
@@ -222,8 +222,8 @@ const TripSummary = ({ route }) => {
                     style={styles.priceRow}
                 // onPress={() => openModal(price)}
                 >
-                    <Text style={styles.label}>{bid.role === 'consumer' ? 'Revised Price:' : 'Counter Price:'}  {bid.user && (
-                        <Text style={styles.userInfo}>  ₹{bid.price || 'N/A'}</Text>
+                    <Text style={styles.label}>{bid.role === 'consumer' ? `Revised Price:` : `Counter Price:`}  {bid.user && (
+                        <Text style={styles.userInfo}>  ₹{bid.role === 'consumer' ? bid.price : bid.increasedPrice || 'N/A'}</Text>
                     )}
                     </Text>
                 </TouchableOpacity>
