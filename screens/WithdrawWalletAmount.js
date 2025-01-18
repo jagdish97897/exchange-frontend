@@ -3,11 +3,11 @@ import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from "reac
 import axios from "axios";
 import RazorpayCheckout from "react-native-razorpay";
 import { useRoute } from "@react-navigation/native";
-import { API_END_POINT } from "../app.config";
+import { API_END_POINT } from "../app.config"; 
 
-const AddWalletAmount = () => {
+const WithdrawWalletAmount = () => {
   const route = useRoute();
-  const { userId } = route.params;
+  const { userId } = route.params; 
   const [amount, setAmount] = useState("");
 
   const handleCheckout = async () => {
@@ -63,7 +63,7 @@ const AddWalletAmount = () => {
 
           try {
             const verificationResponse = await axios.post(
-              `${API_END_POINT}/api/wallet/paymentVerification`,
+              `${API_END_POINT}/api/wallet/paymentVerificationforWithdraw`,
               verificationData
             );
 
@@ -92,7 +92,7 @@ const AddWalletAmount = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Add Money to Wallet</Text>
+      <Text style={styles.title}>Withdraw Money from Wallet</Text>
       <TextInput
         style={styles.input}
         placeholder="Enter Amount"
@@ -101,7 +101,7 @@ const AddWalletAmount = () => {
         onChangeText={setAmount}
       />
       <TouchableOpacity style={styles.button} onPress={handleCheckout}>
-        <Text style={styles.buttonText}>Add to Wallet</Text>
+        <Text style={styles.buttonText}>Withdraw </Text>
       </TouchableOpacity>
     </View>
   );
@@ -145,4 +145,122 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddWalletAmount;
+export default WithdrawWalletAmount;
+
+
+// import React, { useState } from "react";
+// import {
+//   View,
+//   Text,
+//   TextInput,
+//   TouchableOpacity,
+//   Alert,
+//   StyleSheet,
+// } from "react-native";
+// import { useRoute } from "@react-navigation/native";
+// import axios from "axios";
+
+// const WithdrawWalletAmount = () => {
+//   const route = useRoute(); // Access navigation route params
+//   const { userId } = route.params; // Get userId passed from the previous screen
+
+//   const [amount, setAmount] = useState(""); // Withdrawal amount
+//   const [isLoading, setIsLoading] = useState(false);
+
+//   const handleWithdraw = async () => {
+//     if (!amount || isNaN(amount) || Number(amount) <= 0) {
+//       Alert.alert("Validation Error", "Please enter a valid amount.");
+//       return;
+//     }
+
+//     setIsLoading(true);
+
+//     try {
+//       const API_BASE_URL = "http://192.168.1.7:8000/api/wallet/wallet/withdrawamount";
+//       const response = await axios.post(API_BASE_URL, { userId, amount });
+
+//       if (response.data.success) {
+//         Alert.alert("Success", `Withdrawal successful. New Balance: ₹${response.data.balance}`);
+//       } else {
+//         Alert.alert("Error", response.data.message || "Failed to withdraw.");
+//       }
+//     } catch (error) {
+//       console.error("Withdrawal Error:", error);
+//       Alert.alert("Error", "An error occurred while processing the withdrawal.");
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   return (
+//     <View style={styles.container}>
+//       <Text style={styles.title}>Withdraw Wallet Amount</Text>
+//       <Text style={styles.userIdText}>User ID: {userId}</Text>
+
+//       <TextInput
+//         style={styles.input}
+//         placeholder="Enter Amount"
+//         value={amount}
+//         onChangeText={setAmount}
+//         keyboardType="numeric"
+//       />
+
+//       <TouchableOpacity
+//         style={[styles.button, isLoading && { backgroundColor: "#ccc" }]}
+//         onPress={handleWithdraw}
+//         disabled={isLoading}
+//       >
+//         <Text style={styles.buttonText}>
+//           {isLoading ? "Processing..." : "Withdraw"}
+//         </Text>
+//       </TouchableOpacity>
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     padding: 20,
+//     backgroundColor: "#f9f9f9",
+//   },
+//   title: {
+//     fontSize: 20,
+//     fontWeight: "bold",
+//     marginBottom: 10,
+//     color: "#333",
+//   },
+//   userIdText: {
+//     fontSize: 16,
+//     marginBottom: 20,
+//     color: "#555",
+//   },
+//   input: {
+//     width: "100%",
+//     height: 50,
+//     borderColor: "#ccc",
+//     borderWidth: 1,
+//     borderRadius: 5,
+//     paddingHorizontal: 10,
+//     marginBottom: 15,
+//     backgroundColor: "#fff",
+//   },
+//   button: {
+//     width: "100%",
+//     height: 50,
+//     backgroundColor: "#4CAF50",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     borderRadius: 5,
+//   },
+//   buttonText: {
+//     fontSize: 16,
+//     fontWeight: "bold",
+//     color: "#fff",
+//   },
+// });
+
+// export default WithdrawWalletAmount;
+

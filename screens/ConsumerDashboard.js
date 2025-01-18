@@ -445,8 +445,9 @@ export default ({ route }) => {
             paddingBottom: 20,
           }}
         >
-          <TouchableOpacity>
-            <AntDesign name="home" size={24} color="white" />
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Wallet', { userId })}>
+            <AntDesign name="wallet" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity style={{ backgroundColor: 'blue', borderRadius: 24, padding: 10 }}>
             <Entypo name="shop" size={24} color="white" />

@@ -30,6 +30,7 @@ import ViewDetails from './screens/ViewDetails';
 import TripScreen1 from './screens/TripScreen1';
 import AddWalletAmount from './screens/AddWalletAmount.js';
 import Wallet from './screens/Wallet.js';
+import WithdrawWalletAmount from './screens/WithdrawWalletAmount.js';
 
 
 const Stack = createNativeStackNavigator();
@@ -63,6 +64,7 @@ const MainNavigator = () => {
           <Stack.Screen name="ViewDetails" component={ViewDetails} />
           <Stack.Screen name="AddWalletAmount" component={AddWalletAmount} />
           <Stack.Screen name="Wallet" component={Wallet} />
+          <Stack.Screen name="WithdrawWalletAmount" component={WithdrawWalletAmount} />
         </>
       ) : (
         // Unprotected routes for unauthenticated users
