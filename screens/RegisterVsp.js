@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacity, Keyboard, Alert } from 'react-native';
+import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacity, Keyboard, Alert, ActivityIndicator } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
 import { API_END_POINT } from '../app.config';
+import { useNavigation } from '@react-navigation/native';
+import { getCurrentDate } from './CargoDetails';
+import DatePicker from 'react-native-date-picker';
+import { MaterialIcons } from '@expo/vector-icons';
 
-export default ({ navigation }) => {
+export default () => {
     const [keyboardVisible, setKeyboardVisible] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+    const navigation = useNavigation();
 
     const [formData, setFormData] = useState({
         fullName: '',
@@ -15,6 +22,8 @@ export default ({ navigation }) => {
         type: '',
         aadharNumber: '',
         panNumber: '',
+        dob: new Date(),
+        gender: '',
         profileImage: null, // Change to handle image URI
     });
 
@@ -43,12 +52,19 @@ export default ({ navigation }) => {
     };
 
     const handleRegister = async () => {
+        setLoading(true);
+
         const form = new FormData();
         form.append('fullName', formData.fullName);
         form.append('phoneNumber', formData.phoneNumber);
         form.append('type', formData.type);
         form.append('aadharNumber', formData.aadharNumber);
         form.append('panNumber', formData.panNumber);
+        form.append('gender', formData.gender);
+
+        form.append('dob', JSON.stringify(formData.dob));
+
+        console.log('formData.gender :', formData.gender);
 
         if (formData.profileImage) {
             const filename = formData.profileImage.split('/').pop();
@@ -79,6 +95,9 @@ export default ({ navigation }) => {
             }
         } catch (error) {
             Alert.alert('Error', `Error: ${error}`);
+        } finally {
+            // Remove loading indicator
+            setLoading(false);
         }
     };
 
@@ -95,6 +114,10 @@ export default ({ navigation }) => {
             keyboardDidHideListener.remove();
         };
     }, []);
+
+    const today = new Date();
+    const eighteenYearsAgo = new Date(today.setFullYear(today.getFullYear() - 18));
+
 
     return (
         <LinearGradient colors={['#06264D', "#FFF"]} style={{ flex: 1 }}>
@@ -138,8 +161,8 @@ export default ({ navigation }) => {
                             onValueChange={(itemValue) => handleChange('type', itemValue)}
                         >
                             <Picker.Item label="Select Type" value="" />
-                            <Picker.Item label="owner" value="owner" />
-                            <Picker.Item label="broker" value="broker" />
+                            <Picker.Item label="Owner" value="owner" />
+                            <Picker.Item label="Broker" value="broker" />
                         </Picker>
                     </View>
 
@@ -151,14 +174,47 @@ export default ({ navigation }) => {
                                 placeholderTextColor="#000"
                                 onChangeText={(text) => handleChange('aadharNumber', text)}
                                 value={formData.aadharNumber}
+                                keyboardType="phone-pad"
                             />
                             <TextInput
                                 placeholder='Pan Number'
                                 style={styles.input}
                                 placeholderTextColor="#000"
-                                onChangeText={(text) => handleChange('panNumber', text)}
+                                onChangeText={(text) => handleChange('panNumber', text.toUpperCase())}
                                 value={formData.panNumber.toUpperCase()}
                             />
+                            <TouchableOpacity
+                                style={[styles.dateInput]}
+                                onPress={() => setIsDatePickerOpen(true)}
+                            >
+                                <Text style={styles.dateText}>{formData.dob > eighteenYearsAgo ? 'Dob' : getCurrentDate(formData.dob)}</Text>
+                                <MaterialIcons name="calendar-month" size={20} color="#888" />
+                            </TouchableOpacity>
+                            <DatePicker
+                                modal
+                                open={isDatePickerOpen}
+                                date={formData.dob}
+                                onConfirm={(date) => {
+                                    setIsDatePickerOpen(false);
+                                    handleChange('dob', date);
+                                }}
+                                mode="date"
+                                onCancel={() => {
+                                    setIsDatePickerOpen(false);
+                                }}
+                                maximumDate={eighteenYearsAgo}
+                            />
+                            <View style={styles.pickerContainer}>
+                                <Picker
+                                    selectedValue={formData.gender}
+                                    style={styles.picker}
+                                    onValueChange={(itemValue) => handleChange('gender', itemValue)}
+                                >
+                                    <Picker.Item label="Gender" value="" />
+                                    <Picker.Item label="Male" value="male" />
+                                    <Picker.Item label="Female" value="female" />
+                                </Picker>
+                            </View>
                             <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
                                 <Text style={styles.uploadButtonText}>Pick Profile Image</Text>
                             </TouchableOpacity>
@@ -171,12 +227,14 @@ export default ({ navigation }) => {
                         </>
                     )}
 
-                    <TouchableOpacity
+                    {loading ? (
+                        <ActivityIndicator size="large" color="#0000ff" />
+                    ) : <TouchableOpacity
                         style={styles.button}
                         onPress={handleRegister}
                     >
                         <Text style={styles.buttonText}>Register</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity>}
                 </KeyboardAwareScrollView>
                 {!keyboardVisible && (
                     <View style={styles.footer}>
@@ -293,5 +351,19 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         alignSelf: 'center',
     },
-
+    dateInput: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        padding: 14,
+        backgroundColor: '#fff',
+        marginBottom: 15,
+    },
+    dateText: {
+        flex: 1,
+        color: '#000',
+        fontSize: 15,
+    },
 });

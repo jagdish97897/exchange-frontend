@@ -63,7 +63,7 @@ export default ({ route }) => {
     );
 
     const fetchTrips = async (isMounted) => {
-        console.log(userId)
+        // console.log(userId)
         setLoading(true);
         try {
             const response = await axios.get(`${API_END_POINT}/api/trips/history/${userId}`, {
@@ -71,7 +71,8 @@ export default ({ route }) => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log('Respo', response.data.trips[0].cargoDetails);
+
+            // console.log('Respo', response.data.trips);
 
             if (response.data.bidAccepted) {
                 setBidAccepted(true);

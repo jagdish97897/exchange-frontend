@@ -1,16 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView, View, Text, Image } from "react-native";
 import { Button } from 'react-native-elements';
 import { SwipeButton } from 'react-native-expo-swipe-button';
 import { styled } from "nativewind";
+import { useNavigation } from '@react-navigation/native';
+
 
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledImage = styled(Image);
 
-export default ({ navigation }) => {
+export default () => {
     const [check, setCheck] = useState(-1);
+    const navigation = useNavigation();
+    const [swipeKey, setSwipeKey] = useState(0); // Key to reset SwipeButton
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            // Reset SwipeButton when screen is focused
+            setSwipeKey((prev) => prev + 1);
+            setCheck(-1); // Reset check state
+        });
+
+        return unsubscribe;
+    }, [navigation]);
 
     return (
         <StyledSafeAreaView className="flex-1 justify-evenly items-center bg-white">
@@ -37,6 +51,7 @@ export default ({ navigation }) => {
             </StyledView>
 
             <SwipeButton
+                key={swipeKey} // Unique key forces re-render
                 title={`Swipe right to start your journey as a ${check === 0 ? "Consumer" : 'VSP'}`}
                 borderRadius={180}
                 onComplete={() => navigation.navigate(check === 0 ? 'RegisterCons' : 'RegisterVsp')}

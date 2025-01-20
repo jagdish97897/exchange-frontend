@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from "react-native";
 import axios from "axios";
 import RazorpayCheckout from "react-native-razorpay";
-import { useRoute } from "@react-navigation/native";
 import { API_END_POINT } from "../app.config";
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 
 const AddWalletAmount = () => {
   const route = useRoute();
+  const navigation = useNavigation();
   const { userId } = route.params;
   const [amount, setAmount] = useState("");
 
@@ -62,6 +63,7 @@ const AddWalletAmount = () => {
           };
 
           try {
+            setAmount('');
             const verificationResponse = await axios.post(
               `${API_END_POINT}/api/wallet/paymentVerification`,
               verificationData
@@ -75,6 +77,8 @@ const AddWalletAmount = () => {
             } else {
               Alert.alert("Error", "Payment verification failed.");
             }
+
+            navigation.navigate('Wallet', { userId });
           } catch (verificationError) {
             console.error("Verification error:", verificationError);
             Alert.alert("Error", "Failed to verify payment. Please contact support.");

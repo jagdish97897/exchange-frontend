@@ -3,15 +3,17 @@ import { SafeAreaView, View, Text, Image } from "react-native";
 import { Button } from 'react-native-elements';
 import { SwipeButton } from 'react-native-expo-swipe-button';
 import { styled } from "nativewind";
+import { useNavigation } from '@react-navigation/native';
 
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledImage = styled(Image);
 
-export default ({ navigation }) => {
+export default () => {
     const [check, setCheck] = useState(-1);
     const [swipeKey, setSwipeKey] = useState(0); // Key to reset SwipeButton
+    const navigation = useNavigation();
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {

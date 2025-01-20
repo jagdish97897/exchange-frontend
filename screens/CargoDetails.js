@@ -24,8 +24,13 @@ export const getCurrentDate = (today) => {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const year = today.getFullYear();
 
-    return ` ${day} -${month} -${year}`;
+    return `${day}-${month}-${year}`;
 };
+
+
+const today = new Date(); // Current date
+const twoMonthsAfter = new Date();
+twoMonthsAfter.setMonth(today.getMonth() + 2);
 
 const CargoDetails = ({ route }) => {
     const navigation = useNavigation();
@@ -59,7 +64,7 @@ const CargoDetails = ({ route }) => {
             Alert.alert('Validation Error', 'Cargo type, payload cost, and payload weight are required!');
             return;
         }
-    
+
         const cargoDetails = {
             cargoType,
             quotePrice: parseFloat(quotePrice),
@@ -68,7 +73,7 @@ const CargoDetails = ({ route }) => {
             payloadLength: payloadLength ? parseFloat(payloadLength) : null,
             payloadWidth: payloadWidth ? parseFloat(payloadWidth) : null,
         };
-    
+
         try {
             const response = await axios.post(`${API_END_POINT}/api/trips/create`, {
                 from,
@@ -79,10 +84,10 @@ const CargoDetails = ({ route }) => {
                 tripDate,
                 specialInstruction,
             });
-    
+
             if (response.status === 200) {
                 Alert.alert('Cargo Details Submitted', 'Your cargo details have been successfully submitted!');
-                
+
                 // Clear form fields after successful submission
                 setCargoType('');
                 setQuotePrice('');
@@ -92,7 +97,7 @@ const CargoDetails = ({ route }) => {
                 setPayloadWidth('');
                 setTripDate(new Date());
                 setSpecialInstruction('');
-    
+
                 // Navigate to the desired screen
                 navigation.navigate('TripScreen', { userId });
             }
@@ -100,11 +105,11 @@ const CargoDetails = ({ route }) => {
             console.log('Error while submitting cargo details:', error);
         }
     };
-    
 
 
 
-    
+
+
 
 
     // const handleSubmit = async () => {
@@ -226,9 +231,12 @@ const CargoDetails = ({ route }) => {
                                         setIsDatePickerOpen(false);
                                         setTripDate(date);
                                     }}
+                                    mode="date"
                                     onCancel={() => {
                                         setIsDatePickerOpen(false);
                                     }}
+                                    maximumDate={twoMonthsAfter}
+                                    minimumDate={today}
                                 />
                                 {/* Special Instruction */}
                                 <Text style={styles.label}>Special Instruction</Text>

@@ -41,7 +41,7 @@ const initialFormData = {
   driverGender: "",
 };
 
-const validateEmail = (email) => {
+export const validateEmail = (email) => {
   // Regex for validating email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -122,7 +122,7 @@ const AddVehicleScreen = ({ route }) => {
     setIsLoading(true);// Show loader
 
     try {
-      console.log("Submitting...");
+      // console.log("Submitting...");
 
       if (!validateEmail(userData.driverEmail)) {
         Alert.alert('Error', 'Please enter a valid email address.');
@@ -447,7 +447,7 @@ const AddVehicleScreen = ({ route }) => {
           />
           <TextInput
             style={styles.input}
-            placeholder="Driver Pan Number"
+            placeholder="Driver PAN Number"
             placeholderTextColor="#000"
             value={userData.driverPanNumber}
             onChangeText={(value) => handleInputChange("driverPanNumber", value.toUpperCase())}
@@ -455,7 +455,7 @@ const AddVehicleScreen = ({ route }) => {
           />
           <TextInput
             style={styles.input}
-            placeholder="Driver Dl Number"
+            placeholder="Driving Licence Number"
             placeholderTextColor="#000"
             value={userData.driverDlNumber}
             onChangeText={(value) => handleInputChange("driverDlNumber", value.toUpperCase())}
