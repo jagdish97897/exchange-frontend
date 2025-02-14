@@ -19,6 +19,8 @@ import { getSocket, closeSocket } from './SocketIO.js';
 import { API_END_POINT } from '../app.config';
 import { BackHandler } from 'react-native';
 // import { SocketContext } from '../SocketContext.js';
+import { checkExpoPushTokenChange } from './ConsumerDashboard.js';
+
 
 export default ({ route }) => {
     const { phoneNumber, token, userId } = route.params;
@@ -29,6 +31,7 @@ export default ({ route }) => {
     const [refreshing, setRefreshing] = useState(false); // Refresh state
     const [showExitOptions, setShowExitOptions] = useState(false);
     const [bidAccepted, setBidAccepted] = useState(false);
+    const { expoPushToken } = useNotification();
 
 
     const navigation = useNavigation();
@@ -42,6 +45,15 @@ export default ({ route }) => {
         //     closeSocket(); // Disconnect socket on unmount
         // };
     }, []);
+
+    useEffect(() => {
+        if (!userId || !expoPushToken) {
+            return;
+        } else {
+            checkExpoPushTokenChange(userId, expoPushToken);
+        }
+
+    }, [userId, expoPushToken]);
 
     useFocusEffect(
         useCallback(() => {

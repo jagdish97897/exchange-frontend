@@ -8,6 +8,11 @@ import Ind from '../assets/images/image 10.png';
 import * as Location from 'expo-location';
 const { width, height } = Dimensions.get('window');
 import { BackHandler } from 'react-native';
+// import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';  // To store token locally
+import { useNotification } from '../context/notification';
+import { API_END_POINT } from '../app.config';
+
 
 export const showAlert = (title, message, actions = [{ text: 'OK' }]) => {
   Alert.alert(title, message, actions);
@@ -107,6 +112,30 @@ export const getCurrentLocation = async () => {
   }
 };
 
+// Function to store token in backend
+async function savePushTokenToDatabase(userId, token) {
+  await fetch(`${API_END_POINT}/api/v1/users/save-push-token`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, expoPushToken: token }),
+  });
+}
+
+export const checkExpoPushTokenChange = async (userId, expoPushToken) => {
+  try {
+    // Get the previously stored token (to avoid unnecessary updates)
+    const storedToken = await AsyncStorage.getItem('expoPushToken');
+
+    if (expoPushToken && storedToken !== expoPushToken) {
+      // Update the backend only if the token has changed
+      await savePushTokenToDatabase(userId, expoPushToken);
+      await AsyncStorage.setItem('expoPushToken', expoPushToken);  // Store the latest token locally
+    }
+  } catch (error) {
+    console.log('Failed to submit expoPushToken : ', error.message);
+  }
+};
+
 export default ({ route }) => {
   const { phoneNumber, token, userId } = route.params;
   const [menuVisible, setMenuVisible] = useState(false);
@@ -119,6 +148,14 @@ export default ({ route }) => {
     longitude: '',
   });
   const [showExitOptions, setShowExitOptions] = useState(false);
+  const { expoPushToken } = useNotification();
+
+  // console.log('expoPushToken', expoPushToken);
+
+  // const projectId =
+  //   Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+
+  // console.log('Expo Project ID:', projectId);
 
   const handleFromChange = (text) => {
     setFrom(text);
@@ -126,6 +163,16 @@ export default ({ route }) => {
       toInputRef.current?.focus(); // Focus "to" field when "from" has 6 digits
     }
   };
+
+
+  useEffect(() => {
+    if (!userId || !expoPushToken) {
+      return;
+    } else {
+      checkExpoPushTokenChange(userId, expoPushToken);
+    }
+
+  }, [userId, expoPushToken]);
 
   useEffect(() => {
     try {

@@ -31,6 +31,7 @@ import TripScreen1 from './screens/TripScreen1';
 import AddWalletAmount from './screens/AddWalletAmount.js';
 import Wallet from './screens/Wallet.js';
 import WithdrawWalletAmount from './screens/WithdrawWalletAmount.js';
+import Notification from './utils/registerForPushNotifications.js';
 
 
 const Stack = createNativeStackNavigator();
@@ -48,7 +49,6 @@ const MainNavigator = () => {
           <Stack.Screen name="OwnerDashboard" component={OwnerDashboard} />
           <Stack.Screen name="BrokerDashboard" component={BrokerDashboard} />
           <Stack.Screen name="DriverDashboard" component={DriverDashboard} />
-
           <Stack.Screen name="Trips" component={Trips} />
           <Stack.Screen name="Profile" component={Profile} />
           <Stack.Screen name="UpdateUserProfile" component={UpdateUserProfile} />
@@ -70,6 +70,8 @@ const MainNavigator = () => {
         // Unprotected routes for unauthenticated users
         <>
           <Stack.Screen name="Landing" component={Landing} />
+
+          {/* <Stack.Screen name="Landing" component={Notification} /> */}
           <Stack.Screen name="FlowSelect" component={FlowSelect} />
           <Stack.Screen name="FlowSelectregistation" component={FlowSelectregistation} />
           <Stack.Screen name="LoginCons" component={LoginCons} />

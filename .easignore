@@ -34,8 +34,3 @@ yarn-error.*
 
 # TypeScript
 *.tsbuildinfo
-
-# EAS and Config
-
-google-services (1).json
-tsil-afc6d-firebase-adminsdk-bhchg-edefbb944f.json

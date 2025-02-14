@@ -9,6 +9,7 @@ import Ind from '../assets/images/image 10.png';
 import axios from 'axios';
 import { getSocket, closeSocket } from './SocketIO.js';
 import { API_END_POINT } from '../app.config';
+import { checkExpoPushTokenChange } from './ConsumerDashboard.js';
 
 export default ({ route }) => {
     const { phoneNumber, token, userId } = route.params;
@@ -16,6 +17,8 @@ export default ({ route }) => {
     const [menuVisible, setMenuVisible] = useState(false);
     const [ownerId, setOwnerId] = useState('');
     const [socket, setSocket] = useState(null);
+    const { expoPushToken } = useNotification();
+
 
     useEffect(() => {
         const socketInstance = getSocket();
@@ -44,6 +47,16 @@ export default ({ route }) => {
             closeSocket(); // Disconnect socket on unmount
         };
     }, [token]);
+
+    useEffect(() => {
+        if (!userId || !expoPushToken) {
+            return;
+        } else {
+            checkExpoPushTokenChange(userId, expoPushToken);
+        }
+
+    }, [userId, expoPushToken]);
+
     const handleDocumentsClick = () => {
         // Navigate to the Documents page
         navigation.navigate('Documents');

@@ -10,6 +10,8 @@ import axios from 'axios';
 import { checkAndRequestLocationPermission } from './ConsumerDashboard';
 import { getSocket, closeSocket } from './SocketIO.js';
 import { API_END_POINT } from '../app.config';
+import { checkExpoPushTokenChange } from './ConsumerDashboard.js';
+
 
 
 const { width, height } = Dimensions.get('window');
@@ -30,6 +32,7 @@ export default ({ route }) => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [socket, setSocket] = useState(null);
+  const { expoPushToken } = useNotification();
 
   const [currentLocation, setCurrentLocation] = useState({
     latitude: '',
@@ -52,6 +55,15 @@ export default ({ route }) => {
     //   closeSocket(); // Disconnect socket on unmount
     // };
   }, [token]);
+
+  useEffect(() => {
+    if (!userId || !expoPushToken) {
+      return;
+    } else {
+      checkExpoPushTokenChange(userId, expoPushToken);
+    }
+
+  }, [userId, expoPushToken]);
 
   useEffect(() => {
     (async () => {

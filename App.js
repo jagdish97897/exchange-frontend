@@ -1,14 +1,17 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import MainNavigator from './MainNavigator';
-import { AuthProvider } from './screens/AuthContext.js'; 
+import { AuthProvider } from './screens/AuthContext.js';
+import { NotificationProvider } from './context/notification.js';
 
 export default function App() {
   return (
     <AuthProvider>
-      <NavigationContainer>
-        <MainNavigator />
-      </NavigationContainer>
+      <NotificationProvider>
+        <NavigationContainer>
+          <MainNavigator />
+        </NavigationContainer>
+      </NotificationProvider>
     </AuthProvider>
   );
 }

@@ -17,6 +17,7 @@ export default ({ config
   ],
   ios: {
     supportsTablet: true,
+    bundleIdentifier: "com.transvuesolution.Exchange"
   },
   android: {
     config: {
@@ -36,13 +37,14 @@ export default ({ config
     plugins: [
       "expo-secure-store"
     ],
-    package: "com.tsilteam.Exchange"
+    package: "com.transvuesolution.Exchange",
+    googleServicesFile: "./google-services (1).json"
   },
   extra: {
     eas: {
-      projectId: "de3fe3a0-f038-40e2-a3c2-60dfe6a9a9c7"
+      projectId: "33be0800-3595-47aa-bb08-b7308c36d0b2"
     }
   }
 });
 
-export const API_END_POINT = 'http://192.168.1.8:8000';
+export const API_END_POINT = 'http://192.168.1.13:8000';
