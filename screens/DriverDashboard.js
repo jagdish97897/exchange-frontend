@@ -83,8 +83,7 @@ export default ({ route }) => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-
-            // console.log('Respo', response.data.trips);
+            // console.log('Respo', response.data.trips[0].cargoDetails);
 
             if (response.data.bidAccepted) {
                 setBidAccepted(true);

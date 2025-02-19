@@ -17,6 +17,22 @@ export const getCurrentLocationCoordinates = async () => {
     return location.coords;
 }
 
+export const fetchApiKey = async () => {
+    try {
+        const response = await axios.get(`${API_END_POINT}/api/googleApiKey`);
+        const apiKey = response.data; // Assuming the API key is in the response body
+        // console.log(apiKey);
+        // console.log(process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY);
+
+        if (apiKey.length > 0) {
+            return apiKey;
+        }
+        return '';
+    } catch (error) {
+        console.error("Error fetching the Google Maps API key:", error);
+    }
+};
+
 const GoogleMap = () => {
     const [fromPin, setFromPin] = useState("");
     const [toPin, setToPin] = useState("");
@@ -24,22 +40,10 @@ const GoogleMap = () => {
     const [GOOGLE_MAPS_API_KEY, setGOOGLE_MAPS_API_KEY] = useState(null);
 
     useEffect(() => {
-        const fetchApiKey = async () => {
-            try {
-                const response = await axios.get(`${API_END_POINT}/api/googleApiKey`);
-                const apiKey = response.data; // Assuming the API key is in the response body
-                // console.log(apiKey);
-                // console.log(process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY);
-
-                if (apiKey) {
-                    setGOOGLE_MAPS_API_KEY(apiKey);
-                }
-            } catch (error) {
-                console.error("Error fetching the Google Maps API key:", error);
-            }
-        };
-
-        fetchApiKey();
+        const apiKey = fetchApiKey();
+        if (apiKey.length > 0) {
+            setGOOGLE_MAPS_API_KEY(apiKey);
+        }
     }, []);
 
     // Fetch current location

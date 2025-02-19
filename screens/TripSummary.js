@@ -116,7 +116,7 @@
 
 //     const handlePayment = async (userId, tripId) => {
 //         const amount = 20;
-      
+
 //         try {
 //           // Fetch Razorpay key
 //           const { data: keyData } = await axios.get(`${API_END_POINT}/api/getkey`);
@@ -124,16 +124,16 @@
 //           if (!key) {
 //             throw new Error("Failed to fetch Razorpay key.");
 //           }
-      
+
 //           // Create Razorpay order
 //           const response = await axios.post(`${API_END_POINT}/api/wallet/checkout`, { amount });
 //           const order = response?.data?.order;
-      
+
 //           if (!order || !order.id) {
 //             Alert.alert("Error", "Failed to create Razorpay order.");
 //             return;
 //           }
-      
+
 //           // Razorpay checkout options
 //           const options = {
 //             description: "Add Money to Wallet",
@@ -150,7 +150,7 @@
 //             },
 //             theme: { color: "#F37254" }, // Customize the theme color
 //           };
-      
+
 //           // Open Razorpay Checkout
 //           RazorpayCheckout.open(options)
 //             .then(async (paymentData) => {
@@ -164,14 +164,14 @@
 //                   razorpay_payment_id: paymentData.razorpay_payment_id,
 //                   razorpay_signature: paymentData.razorpay_signature,
 //                 };
-      
+
 //                 const verificationResponse = await axios.post(
 //                   `${API_END_POINT}/api/trips/paymentVerificationForTrip`,
 //                   verificationData
 //                 );
-      
+
 //                 const { success, balance } = verificationResponse.data;
-      
+
 //                 if (success) {
 //                   Alert.alert(
 //                     "Success",
@@ -194,9 +194,9 @@
 //           Alert.alert("Error", "An error occurred during checkout. Please try again later.");
 //         }
 //       };
-      
-      
-      
+
+
+
 //     const handleReject = () => {
 //         console.log('Rejected:', selectedPrice);
 //         setModalVisible(false);
@@ -370,7 +370,7 @@
 //                                 <Text style={styles.buttonText}>Accept</Text>
 //                             </TouchableOpacity>
 
-                    
+
 
 //                             <TouchableOpacity style={styles.submitButton} onPress={() => handleRevisedPrice(user, selectedPrice?.user?._id, revisedPrice)}>
 //                                 <Text style={styles.buttonText}>Submit</Text>
@@ -657,17 +657,6 @@ const TripSummary = ({ route }) => {
         setModalVisible(true);
     };
 
-    const handleAccept = async (tripId, vspUserId) => {
-        console.log('Accepted:', vspUserId);
-        const response = await axios.patch(`${API_END_POINT}/api/trips/bidStatus`, { tripId, vspUserId, status: "created" });
-
-        if (response.status === 200) {
-            setModalVisible(false);
-            Alert.alert('Success', 'Thank you for accepting the bid');
-            navigation.navigate('TripScreen', { user });
-        }
-    };
-
     const handleReject = () => {
         console.log('Rejected:', selectedPrice);
         setModalVisible(false);
@@ -711,7 +700,18 @@ const TripSummary = ({ route }) => {
         bidder
     } = trip;
 
-    console.log('tripUser', trip.bids);
+    const handleAccept = async (tripId, vspUserId) => {
+        console.log('Accepted:', vspUserId);
+        const response = await axios.patch(`${API_END_POINT}/api/trips/bidStatus`, { tripId, vspUserId, status: "created" });
+
+        if (response.status === 200) {
+            setModalVisible(false);
+            Alert.alert('Success', 'Thank you for accepting the bid');
+            navigation.navigate('TripScreen', { userId: user });
+        }
+    };
+
+    // console.log('tripUser', trip.bids);
     // Handle accept and reject disable
 
     const prices = counterPriceList.map((price, index) => ({
@@ -789,14 +789,14 @@ const TripSummary = ({ route }) => {
                         <TouchableOpacity
                             style={[
                                 styles.submitButton,
-                                trip?.bids?.length === 5 && { backgroundColor: '#d3d3d3' }, 
+                                trip?.bids?.length === 5 && { backgroundColor: '#d3d3d3' },
                             ]}
                             onPress={() => {
                                 handleRevisedPrice(user, trip?.bidder?.toString(), revisedPrice);
                                 setRevisedPrice('');
                             }}
 
-                            disabled={trip?.bids?.length === 5} 
+                            disabled={trip?.bids?.length === 5}
                         >
                             <Text style={styles.buttonText}>Submit</Text>
                         </TouchableOpacity>

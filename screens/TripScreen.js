@@ -53,8 +53,14 @@ const TripScreen = ({ route }) => {
   };
 
   useEffect(() => {
-    if (userId) fetchTrips();
+    if (userId) {
+      console.log("Fetching trips for user:", userId); // Debugging
+      fetchTrips();
+    } else {
+      console.error("userId is undefined");
+    }
   }, [userId]);
+  
 
   useFocusEffect(
     useCallback(() => {
@@ -106,7 +112,6 @@ const TripScreen = ({ route }) => {
       RazorpayCheckout.open(options)
         .then(async (paymentResult) => {
           const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = paymentResult;
-  
           // Verify the payment
           await axios.post(`${API_END_POINT}/api/trips/paymentVerificationForTrip`, {
             userId,
@@ -118,7 +123,7 @@ const TripScreen = ({ route }) => {
           });
   
           Alert.alert('Success', 'Payment completed successfully.');
-          fetchTrips(); // Refresh trips after payment
+          await fetchTrips(); // Refresh trips after payment
         })
         .catch((error) => {
           console.error('Payment failed:', error);
@@ -160,35 +165,6 @@ const TripScreen = ({ route }) => {
     </View>
   );
   
-
-  // const renderTripCard = (item) => (
-  //   <View style={styles.card} key={item._id}>
-  //     <Text style={styles.tripText}>Trip ID: {item._id}</Text>
-  //     <Text style={styles.tripText}>From: {item.from}</Text>
-  //     <Text style={styles.tripText}>To: {item.to}</Text>
-  //     <Text style={styles.tripText}>Cargo Type: {item.cargoDetails.cargoType}</Text>
-  //     <Text style={styles.tripText}>Quote Price: ₹{item.cargoDetails.quotePrice}</Text>
-  //     <Text style={styles.tripText}>final Price: ₹{item.finalPrice}</Text>
-  //     <Text style={styles.tripText}>Date: {new Date(item.tripDate).toLocaleDateString()}</Text>
-  //     <Text style={styles.instructionsText}>
-  //       Instructions: {item.specialInstruction || 'N/A'}
-  //     </Text>
-  //     {item.status === 'created' && item.biddingStatus === 'accepted' && (
-  //       <TouchableOpacity
-  //         style={[styles.button, styles.payNowButton]}
-  //         onPress={() => initiatePayment(item._id, item.finalPrice)}
-  //       >
-  //         <Text style={styles.buttonText}>Pay Now</Text>
-  //       </TouchableOpacity>
-  //     )}
-  //     <TouchableOpacity
-  //       style={styles.button}
-  //       onPress={() => navigation.navigate('ViewDetails', { tripId: item._id, status: item.status })}
-  //     >
-  //       <Text style={styles.buttonText}>View Details</Text>
-  //     </TouchableOpacity>
-  //   </View>
-  // );
 
   const renderSection = (status, trips) => (
     <View

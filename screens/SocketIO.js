@@ -35,6 +35,7 @@ export const closeSocket = () => {
         socket = null;
     }
 };
+
 // const SocketIO = (token) => {
 
 //     // Connect to the Socket.IO server
@@ -47,8 +48,6 @@ export const closeSocket = () => {
 //     socketInstance.on("newMessage", (message) => {
 //         console.log("New message received:", message);
 //     });
-
-
 
 //     socketInstance.on("disconnect", () => {
 //         console.log("Disconnected from the server.");

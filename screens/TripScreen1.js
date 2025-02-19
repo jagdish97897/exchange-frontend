@@ -54,9 +54,9 @@ const TripScreen1 = ({ route }) => {
     }, [userId]);
 
     const sectionColors = {
-        InProgress: '#fff7e6', // Dodger Blue
-        Completed: '#e6ffe6', // Lime Green
-        Cancelled: '#ffe6e6', // Tomato Red
+        InProgress: '#fff7e6', 
+        Completed: '#e6ffe6', 
+        Cancelled: '#ffe6e6', 
     };
 
     const renderTripCard = (item) => (
@@ -68,12 +68,13 @@ const TripScreen1 = ({ route }) => {
             <Text style={styles.tripText}>
                 Date: {new Date(item.tripDate).toLocaleDateString()}
             </Text>
+
             <Text style={styles.instructionsText}>
                 Instructions: {item.specialInstruction || 'N/A'}
             </Text>
             <TouchableOpacity
                 style={styles.button}
-                onPress={() => navigation.navigate('ViewDetails', { tripId: item._id, status: item.status })}
+                onPress={() => navigation.navigate('ViewDetails1', { tripId: item._id, status: item.status, userId })}
             >
                 <Text style={styles.buttonText}>View Details</Text>
             </TouchableOpacity>

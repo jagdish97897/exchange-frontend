@@ -31,7 +31,9 @@ import TripScreen1 from './screens/TripScreen1';
 import AddWalletAmount from './screens/AddWalletAmount.js';
 import Wallet from './screens/Wallet.js';
 import WithdrawWalletAmount from './screens/WithdrawWalletAmount.js';
-import Notification from './utils/registerForPushNotifications.js';
+import ViewDetails1 from './screens/ViewDetails1.js';
+import UserDashboard from './screens/UserDashboard.js';
+import DriverLocation from './screens/DriverLocation.js';
 
 
 const Stack = createNativeStackNavigator();
@@ -50,6 +52,8 @@ const MainNavigator = () => {
           <Stack.Screen name="BrokerDashboard" component={BrokerDashboard} />
           <Stack.Screen name="DriverDashboard" component={DriverDashboard} />
           <Stack.Screen name="Trips" component={Trips} />
+          <Stack.Screen name="UserDashboard" component={UserDashboard} />
+          <Stack.Screen name="DriverLocation" component={DriverLocation} />
           <Stack.Screen name="Profile" component={Profile} />
           <Stack.Screen name="UpdateUserProfile" component={UpdateUserProfile} />
           <Stack.Screen name="AddVehicleScreen" component={AddVehicleScreen} />
@@ -62,6 +66,7 @@ const MainNavigator = () => {
           <Stack.Screen name="TripScreen" component={TripScreen} />
           <Stack.Screen name="TripScreen1" component={TripScreen1} />
           <Stack.Screen name="ViewDetails" component={ViewDetails} />
+          <Stack.Screen name="ViewDetails1" component={ViewDetails1} />
           <Stack.Screen name="AddWalletAmount" component={AddWalletAmount} />
           <Stack.Screen name="Wallet" component={Wallet} />
           <Stack.Screen name="WithdrawWalletAmount" component={WithdrawWalletAmount} />

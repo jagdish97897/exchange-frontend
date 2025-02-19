@@ -49,12 +49,6 @@ export const checkAndRequestLocationPermission = async () => {
               if (isLocationServicesEnabled) {
                 await checkAndRequestLocationPermission();
               }
-              //  else {
-              //   showAlert(
-              //     'Location Services Still Disabled',
-              //     'Unable to enable location services. Please turn them on manually in settings.'
-              //   );
-              // }
             },
           },
         ]
@@ -62,21 +56,6 @@ export const checkAndRequestLocationPermission = async () => {
       return;
     }
 
-    // // Check current permission status
-    // const { status: currentStatus } = await Location.getForegroundPermissionsAsync();
-
-    // if (currentStatus === 'granted') {
-    //   showAlert('Permission Granted', 'You have already granted location access.');
-    //   return await getCurrentLocation();
-    // }
-
-    // if (currentStatus === 'denied') {
-    //   showAlert(
-    //     'Permission Denied',
-    //     'You have denied location access. Please enable it in settings if needed.'
-    //   );
-    //   return;
-    // }
 
     // Request location permissions
     const { status: requestedStatus } = await Location.requestForegroundPermissionsAsync();

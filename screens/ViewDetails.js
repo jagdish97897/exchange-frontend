@@ -11,12 +11,14 @@ const ViewDetails = ({ route }) => {
     const [tripDetails, setTripDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [editModalVisible, setEditModalVisible] = useState(false);
-    const [editedTrip, setEditedTrip] = useState(null); // To store edited details
+    const [editedTrip, setEditedTrip] = useState(null); 
     const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
     const navigation = useNavigation();
 
     const apiEndpoint = `${API_END_POINT}/api/trips/${tripId}`;
+
+
 
 
     // Fetch trip details
@@ -130,11 +132,29 @@ const ViewDetails = ({ route }) => {
                         {status !== 'created' && (
                             <View style={styles.additionalInfo}>
                                 <Text style={styles.detailText}>Vehicle Number: {tripDetails.vehicleNumber}</Text>
-                                <Text style={styles.detailText}>Driver Details: {tripDetails.driverDetails || 'N/A'}</Text>
+                                <Text style={styles.detailText}>Driver Details: {tripDetails.bidder || 'N/A'}</Text>
                                 <Text style={styles.detailText}>Pickup Address: {tripDetails.pickupAddress || 'N/A'}</Text>
-                                <Text style={styles.detailText}>Dropoff Address: {tripDetails.dropoffAddress || 'N/A'}</Text>
+                                <Text style={styles.detailText}>Dropoff Address: {tripDetails.pickupAddress || 'N/A'}</Text>
                             </View>
                         )}
+
+                        {status === 'inProgress' ?
+                            (
+                                tripDetails.biddingStatus === 'accepted' ?
+                                    (
+                                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DriverLocation', { userId:tripDetails.bidder, from:tripDetails.from, to:tripDetails.to})}>
+                                            <Text style={styles.buttonText}>View Driver Location</Text>
+                                        </TouchableOpacity>
+                                    ) : (
+                                        <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
+                                            <Text style={styles.buttonText}>Back to manu</Text>
+                                        </TouchableOpacity>
+                                    )
+                            ) : (
+                                <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
+                                    <Text style={styles.buttonText}>Back</Text>
+                                </TouchableOpacity>
+                            )}
 
                         {status === 'created' ?
                             (
@@ -259,29 +279,6 @@ const ViewDetails = ({ route }) => {
                                 }
                                 placeholder="Special instruction"
                             />
-                            {/* Trip Date */}
-                            {/* 
-                            <TouchableOpacity
-                                style={styles.input}
-                                onPress={() => {
-                                    setIsDatePickerOpen(true);
-                                }}
-                                placeholder="Trip Date"
-                            >
-                                <Text>{getCurrentDate(editedTrip.tripDate)}</Text>
-                            </TouchableOpacity>
-                            <DatePicker
-                                modal
-                                open={isDatePickerOpen}
-                                date={editedTrip.tripDate}
-                                onConfirm={(date) => {
-                                    setIsDatePickerOpen(false);
-                                    setEditedTrip({ ...editedTrip, tripDate: date });
-                                }}
-                                onCancel={() => {
-                                    setIsDatePickerOpen(false);
-                                }}
-                            /> */}
                         </ScrollView>
                         <View style={styles.modalActions}>
                             <TouchableOpacity

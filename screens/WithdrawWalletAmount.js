@@ -3,11 +3,11 @@ import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from "reac
 import axios from "axios";
 import RazorpayCheckout from "react-native-razorpay";
 import { useRoute } from "@react-navigation/native";
-import { API_END_POINT } from "../app.config"; 
+import { API_END_POINT } from "../app.config";
 
 const WithdrawWalletAmount = () => {
   const route = useRoute();
-  const { userId } = route.params; 
+  const { userId } = route.params;
   const [amount, setAmount] = useState("");
 
   const handleCheckout = async () => {
@@ -41,11 +41,11 @@ const WithdrawWalletAmount = () => {
         key,
         amount: order.amount,
         name: "EXCHANGE TWI",
-        order_id: order.id, 
+        order_id: order.id,
         prefill: {
-          email: "user@example.com", 
-          contact: "9999999999", 
-          name: "User Name", 
+          email: "user@example.com",
+          contact: "9999999999",
+          name: "User Name",
         },
         theme: { color: "#F37254" }, // Customize the theme color
       };
@@ -176,8 +176,8 @@ export default WithdrawWalletAmount;
 //     setIsLoading(true);
 
 //     try {
-//       const API_BASE_URL = "http://192.168.1.7:8000/api/wallet/wallet/withdrawamount";
-//       const response = await axios.post(API_BASE_URL, { userId, amount });
+//       const API_END_POINT = "http://192.168.1.6:8000/api/wallet/wallet/withdrawamount";
+//       const response = await axios.post(API_END_POINT, { userId, amount });
 
 //       if (response.data.success) {
 //         Alert.alert("Success", `Withdrawal successful. New Balance: ₹${response.data.balance}`);
