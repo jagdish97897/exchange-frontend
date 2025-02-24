@@ -10,7 +10,7 @@ const { width, height } = Dimensions.get('window');
 import { BackHandler } from 'react-native';
 // import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';  // To store token locally
-import { useNotification } from '../context/notification';
+import { useNotification } from '../context/NotificationContext';
 import { API_END_POINT } from '../app.config';
 
 

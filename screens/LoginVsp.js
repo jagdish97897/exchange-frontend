@@ -4,7 +4,7 @@ import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacit
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import axios from 'axios';
 import { saveToken } from '../Token.js';
-import { useAuth } from './AuthContext'; 
+import { useAuth } from '../context/AuthContext.js'; 
 import { initializeSocket } from './SocketIO.js';
 import { API_END_POINT } from '../app.config';
 
@@ -68,12 +68,15 @@ export default ({ navigation }) => {
                 });
     
                 if (response.status === 200) {
-                    // console.log('HI TTTTTTT',response.data)
+                    // console.log('phoneNumber 123#: ',phoneNumber)
                     saveToken('token',response.data.data.token);
+                    // console.log('phoneNumber 123@: ',phoneNumber)
+
                     // console.log('response data token  : ', response.data.data.token);
                     Alert.alert('Success', 'Login successful.');
                     login();
                     const userType = response.data.data.type;
+                    // console.log('userType',userType);
 
                     initializeSocket(response.data.data.token);
                     

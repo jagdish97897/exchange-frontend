@@ -16,7 +16,7 @@ import tailwind from 'tailwind-react-native-classnames';
 import { API_END_POINT } from '../app.config';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { deleteToken } from '../Token';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 
 const { width, height } = Dimensions.get('window');

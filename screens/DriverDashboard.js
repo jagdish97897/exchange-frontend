@@ -18,8 +18,9 @@ import axios from 'axios';
 import { getSocket, closeSocket } from './SocketIO.js';
 import { API_END_POINT } from '../app.config';
 import { BackHandler } from 'react-native';
-// import { SocketContext } from '../SocketContext.js';
 import { checkExpoPushTokenChange } from './ConsumerDashboard.js';
+import { useNotification } from '../context/NotificationContext.js';
+import * as Location from 'expo-location';
 
 
 export default ({ route }) => {
@@ -32,7 +33,48 @@ export default ({ route }) => {
     const [showExitOptions, setShowExitOptions] = useState(false);
     const [bidAccepted, setBidAccepted] = useState(false);
     const { expoPushToken } = useNotification();
+    const [hasPermission, setHasPermission] = useState(false);
 
+
+    useEffect(() => {
+        const requestLocationPermission = async () => {
+            try {
+                const { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') {
+                    Alert.alert('Permission Denied', 'Location access is required.');
+                    return;
+                }
+                setHasPermission(true);
+                getLocationAndSend();
+            } catch (error) {
+                console.error('Error requesting location permission:', error);
+            }
+        };
+        requestLocationPermission();
+    }, []);
+
+    const getLocationAndSend = async () => {
+        if (!hasPermission) return;
+        try {
+            const location = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.High,
+            });
+            const { latitude, longitude } = location.coords;
+            // setCurrentLocation({ latitude, longitude });
+            // Now, we only send the userId, latitude, and longitude.
+            // The server will use these to determine the zone.
+            socket.emit("saveLocation", { userId, latitude, longitude });
+        } catch (error) {
+            console.error("Error getting location:", error);
+        }
+    };
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            getLocationAndSend();
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [hasPermission]);
 
     const navigation = useNavigation();
     // const { socket } = useContext(SocketContext);

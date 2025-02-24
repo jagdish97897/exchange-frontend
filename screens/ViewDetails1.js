@@ -81,7 +81,6 @@ const ViewDetails1 = ({ route }) => {
                                         <TouchableOpacity style={styles.button}  onPress={() => navigation.navigate('UserDashboard', { userId, from:tripDetails.from, to:tripDetails.to})} >
                                             <Text style={styles.buttonText}>View map</Text>
                                         </TouchableOpacity>
-
                                     ) : (
 
                                         <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>

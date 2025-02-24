@@ -40,11 +40,20 @@ const GoogleMap = () => {
     const [GOOGLE_MAPS_API_KEY, setGOOGLE_MAPS_API_KEY] = useState(null);
 
     useEffect(() => {
-        const apiKey = fetchApiKey();
-        if (apiKey.length > 0) {
-            setGOOGLE_MAPS_API_KEY(apiKey);
-        }
+        const fetchKey = async () => {
+            try {
+                const apiKey = await fetchApiKey(); // Wait for the API key
+                if (apiKey.length > 0) {
+                    setGOOGLE_MAPS_API_KEY(apiKey);
+                }
+            } catch (error) {
+                console.error("Error fetching API key:", error);
+            }
+        };
+    
+        fetchKey(); // Call the async function
     }, []);
+    
 
     // Fetch current location
     const getCurrentLocation = async (setPinCallback) => {

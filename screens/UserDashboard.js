@@ -7,7 +7,7 @@ import { getSocket } from './SocketIO';
 import { fetchApiKey } from './GoogleMap';
 
 // Utility function to get coordinates from a pincode using Google Geocode API
-export const getCoordinatesFromPincode = async (pincode, apikey) => {
+export const getCoordinatesFromPincode = async (pincode, apiKey) => {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${pincode}&key=${apiKey}`;
   try {
     const response = await fetch(url);
@@ -29,27 +29,35 @@ export default function LocationScreen({ route }) {
   const [pickupCords, setPickupCords] = useState(null);
   const [dropLocationCords, setDropLocationCords] = useState(null);
   const [showDirections, setShowDirections] = useState(false);
-  const [socket, setSocket] = useState(null);
+  // const [socket, setSocket] = useState(null);
   const [GOOGLE_MAPS_API_KEY, setGOOGLE_MAPS_API_KEY] = useState(null);
-
 
   const mapRef = useRef(null);
 
   useEffect(() => {
-    const apiKey = fetchApiKey();
-    if (apiKey.length > 0) {
-      setGOOGLE_MAPS_API_KEY(apiKey);
-    }
+    const fetchKey = async () => {
+      try {
+        const apiKey = await fetchApiKey(); // Wait for the API key
+        if (apiKey.length > 0) {
+          setGOOGLE_MAPS_API_KEY(apiKey);
+        }
+      } catch (error) {
+        console.error("Error fetching API key:", error);
+      }
+    };
+
+    fetchKey(); // Call the async function
   }, []);
 
-  useEffect(() => {
-    const socketInstance = getSocket();
-    setSocket(socketInstance);
 
-    // return () => {
-    //     closeSocket(); // Disconnect socket on unmount
-    // };
-  }, []);
+  // useEffect(() => {
+  //   const socketInstance = getSocket();
+  //   setSocket(socketInstance);
+
+  //   // return () => {
+  //   //     closeSocket(); // Disconnect socket on unmount
+  //   // };
+  // }, []);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -68,45 +76,45 @@ export default function LocationScreen({ route }) {
     fetchLocations();
   }, [from, to, GOOGLE_MAPS_API_KEY]);
 
-  useEffect(() => {
-    const requestLocationPermission = async () => {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          Alert.alert('Permission Denied', 'Location access is required.');
-          return;
-        }
-        setHasPermission(true);
-        getLocationAndSend();
-      } catch (error) {
-        console.error('Error requesting location permission:', error);
-      }
-    };
-    requestLocationPermission();
-  }, []);
+  // useEffect(() => {
+  //   const requestLocationPermission = async () => {
+  //     try {
+  //       const { status } = await Location.requestForegroundPermissionsAsync();
+  //       if (status !== 'granted') {
+  //         Alert.alert('Permission Denied', 'Location access is required.');
+  //         return;
+  //       }
+  //       setHasPermission(true);
+  //       getLocationAndSend();
+  //     } catch (error) {
+  //       console.error('Error requesting location permission:', error);
+  //     }
+  //   };
+  //   requestLocationPermission();
+  // }, []);
 
-  const getLocationAndSend = async () => {
-    if (!hasPermission) return;
-    try {
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-      });
-      const { latitude, longitude } = location.coords;
-      setCurrentLocation({ latitude, longitude });
-      // Now, we only send the userId, latitude, and longitude.
-      // The server will use these to determine the zone.
-      socket.emit("saveLocation", { userId, latitude, longitude });
-    } catch (error) {
-      console.error("Error getting location:", error);
-    }
-  };
+  // const getLocationAndSend = async () => {
+  //   if (!hasPermission) return;
+  //   try {
+  //     const location = await Location.getCurrentPositionAsync({
+  //       accuracy: Location.Accuracy.High,
+  //     });
+  //     const { latitude, longitude } = location.coords;
+  //     setCurrentLocation({ latitude, longitude });
+  //     // Now, we only send the userId, latitude, and longitude.
+  //     // The server will use these to determine the zone.
+  //     socket.emit("saveLocation", { userId, latitude, longitude });
+  //   } catch (error) {
+  //     console.error("Error getting location:", error);
+  //   }
+  // };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      getLocationAndSend();
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [hasPermission]);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     getLocationAndSend();
+  //   }, 5000);
+  //   return () => clearInterval(interval);
+  // }, [hasPermission]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -126,7 +134,7 @@ export default function LocationScreen({ route }) {
         <Text>Fetching current location...</Text>
       )}
 
-      {pickupCords && dropLocationCords && GOOGLE_MAPS_API_KEY ? (
+      {pickupCords && dropLocationCords ? (
         <MapView
           ref={mapRef}
           style={StyleSheet.absoluteFill}
@@ -153,6 +161,8 @@ export default function LocationScreen({ route }) {
           <MapViewDirections
             origin={pickupCords}
             destination={dropLocationCords}
+            // optimizeWaypoints={true} // Enables optimized routing
+            // waypoints={[{ latitude: 19.0760, longitude: 72.8777 }]} 
             apikey={GOOGLE_MAPS_API_KEY}
             strokeWidth={6}
             strokeColor="hotpink"
@@ -160,8 +170,10 @@ export default function LocationScreen({ route }) {
 
           {showDirections && currentLocation && (
             <MapViewDirections
-              origin={pickupCords}
-              destination={currentLocation}
+              origin={currentLocation}
+              destination={pickupCords}
+              optimizeWaypoints={true} // Enables optimized routing
+              // waypoints={[{ latitude: 19.0760, longitude: 72.8777 }]} 
               apikey={GOOGLE_MAPS_API_KEY}
               strokeWidth={4}
               strokeColor="blue"
