@@ -79,12 +79,12 @@ const GetUserLocation = ({ route, navigation }) => {
       }
     });
 
-    socket.on(`locationUpdate:${userId}`, (data) => {
-      if (data.latitude && data.longitude) {
-        setLatitude(parseFloat(data.latitude));
-        setLongitude(parseFloat(data.longitude));
-      }
-    });
+    // socket.on(`locationUpdate:${userId}`, (data) => {
+    //   if (data.latitude && data.longitude) {
+    //     setLatitude(parseFloat(data.latitude));
+    //     setLongitude(parseFloat(data.longitude));
+    //   }
+    // });
 
     socket.on('error', (message) => Alert.alert('Error', message));
 

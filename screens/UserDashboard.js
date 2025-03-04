@@ -7,23 +7,10 @@ import { getSocket } from './SocketIO';
 import { fetchApiKey } from './GoogleMap';
 import haversine from 'haversine';
 import * as ImagePicker from 'expo-image-picker';
+import { API_END_POINT } from '../app.config';
+import * as FileSystem from 'expo-file-system';
 
 
-// Utility function to get coordinates from a pincode using Google Geocode API
-export const getCoordinatesFromPincode = async (pincode, apiKey) => {
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${pincode}&key=${apiKey}`;
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    if (data.results.length > 0) {
-      const { lat, lng } = data.results[0].geometry.location;
-      return { latitude: lat, longitude: lng };
-    }
-  } catch (error) {
-    console.error("Error fetching coordinates:", error);
-  }
-  return null;
-};
 
 export default function LocationScreen({ route, navigation }) {
   const { userId, from, to } = route.params;
@@ -44,18 +31,48 @@ export default function LocationScreen({ route, navigation }) {
   const [GOOGLE_MAPS_API_KEY, setGOOGLE_MAPS_API_KEY] = useState(null);
 
   useEffect(() => {
-    const fetchKey = async () => {
+    (async () => {
       try {
-        const apiKey = await fetchApiKey(); // Wait for the API key
-        if (apiKey.length > 0) {
-          setGOOGLE_MAPS_API_KEY(apiKey);
+        // Fetch user details to get vehicleId
+        const userResponse = await fetch(`${API_END_POINT}/api/v1/users/userid/${userId}`);
+        const userData = await userResponse.json();
+
+        if (!userResponse.ok) throw new Error(userData.message || 'Failed to fetch user details');
+
+        const vehicleId = userData.vehicle;
+        // console.log('Fetched Vehicle ID:', vehicleId);
+
+        // Fetch vehicle details to get vehicleNumber
+        const vehicleResponse = await fetch(`${API_END_POINT}/api/vehicles/vehicle/${vehicleId}`);
+        const vehicleData = await vehicleResponse.json();
+        // console.log('VehicleData @34', vehicleData)
+
+        if (!vehicleResponse.ok) throw new Error(vehicleData.message || 'Failed to fetch vehicle details');
+
+        if (vehicleData && vehicleData.vehicleNumber) {
+          setVehicleNumber(vehicleData.vehicleNumber);
+          // console.log('Fetched Vehicle Number:', vehicleData.vehicleNumber);
         }
       } catch (error) {
-        console.error("Error fetching API key:", error);
+        console.error('Error fetching vehicle details:', error);
+        Alert.alert('Error', error.message);
       }
-    };
 
-    fetchKey(); // Call the async function
+      // Request location permission
+      const { status: locationStatus } = await Location.requestForegroundPermissionsAsync();
+      if (locationStatus !== 'granted') {
+        Alert.alert('Permission required', 'Permission to access location was denied');
+        return;
+      }
+
+      // Get current location
+      const loc = await Location.getCurrentPositionAsync({});
+      if (loc && loc.coords) {
+        setLocation(loc.coords);
+        console.log('Current Location:', JSON.stringify(loc.coords));
+      }
+
+    })();
   }, []);
 
   useEffect(() => {
@@ -70,9 +87,32 @@ export default function LocationScreen({ route, navigation }) {
         setPickupCords(pickup);
         setDropLocationCords(drop);
       }
-    };
-    fetchLocations();
-  }, [from, to, GOOGLE_MAPS_API_KEY]);
+    }
+});
+  // const pickImage = async () => {
+  //   let result = await ImagePicker.launchImageLibraryAsync({
+  //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
+  //     allowsEditing: true,
+  //     quality: 1,
+  //   });
+
+  //   if (!result.canceled && result.assets?.length > 0) {
+  //     setImage(result.assets[0]);
+  //     console.log('Selected Image:', result.assets[0]);
+  //   }
+  // };
+
+  // const submitGR = async () => {
+  //   if (!vehicleNumber || !image || !location) {
+  //     Alert.alert('Missing Data', 'Please select an image and allow location access.');
+  //     return;
+  //   }
+
+  //   const currentLocationData = {
+  //     latitude: location.latitude,
+  //     longitude: location.longitude,
+  //   };
+  // }
 
   useEffect(() => {
     const requestLocationPermission = async () => {
@@ -440,7 +480,6 @@ export default function LocationScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
   navbar: { flexDirection: 'row', justifyContent: 'space-between', padding: 15, backgroundColor: '#6200ea' },
   navText: { color: 'white', fontSize: 16 },
   navTitle: { color: 'white', fontSize: 18, fontWeight: 'bold' },
@@ -452,4 +491,11 @@ const styles = StyleSheet.create({
   footer: { padding: 15, alignItems: 'center', backgroundColor: '#6200ea' },
   footerText: { color: 'white', fontSize: 16 },
   card: { padding: 15, margin: 10, backgroundColor: '#fff', borderRadius: 10, elevation: 4 },
+  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
+  header: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
+  label: { fontSize: 16, marginBottom: 5 },
+  input: { borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 5 },
+  fileName: { marginTop: 10, fontSize: 14, color: 'gray' },
+  location: { marginTop: 10, fontSize: 14, color: 'gray' },
 });
+
