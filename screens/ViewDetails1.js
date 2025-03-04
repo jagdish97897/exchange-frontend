@@ -9,7 +9,6 @@ const ViewDetails1 = ({ route }) => {
     const { tripId, status,userId } = route.params;
     const [tripDetails, setTripDetails] = useState(null);
     const [loading, setLoading] = useState(true);
-
     const navigation = useNavigation();
 
     const apiEndpoint = `${API_END_POINT}/api/trips/${tripId}`;
@@ -62,7 +61,6 @@ const ViewDetails1 = ({ route }) => {
 
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <Text style={styles.title}>Trip Details</Text>
-
                     <View style={styles.card}>
                         <Text style={styles.detailText}>From: {tripDetails.from}</Text>
                         <Text style={styles.detailText}>To: {tripDetails.to}</Text>
@@ -78,9 +76,10 @@ const ViewDetails1 = ({ route }) => {
                             (
                                 tripDetails.biddingStatus === 'accepted' ?
                                     (
-                                        <TouchableOpacity style={styles.button}  onPress={() => navigation.navigate('UserDashboard', { userId, from:tripDetails.from, to:tripDetails.to})} >
+                                        <TouchableOpacity style={styles.button}  onPress={() => navigation.navigate('UserDashboard', { userId, from:tripDetails.from, to:tripDetails.to, cargoType:tripDetails.cargoDetails.cargoType, quotePrice:tripDetails.cargoDetails.quotePrice })} >
                                             <Text style={styles.buttonText}>View map</Text>
                                         </TouchableOpacity>
+
                                     ) : (
 
                                         <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>

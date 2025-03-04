@@ -65,6 +65,7 @@ const TripScreen1 = ({ route }) => {
             <Text style={styles.tripText}>To: {item.to}</Text>
             <Text style={styles.tripText}>Cargo Type: {item.cargoDetails.cargoType}</Text>
             <Text style={styles.tripText}>Quote Price: ₹{item.cargoDetails.quotePrice}</Text>
+            <Text style={styles.tripText}>bidder:{item.bidder}</Text>
             <Text style={styles.tripText}>
                 Date: {new Date(item.tripDate).toLocaleDateString()}
             </Text>
