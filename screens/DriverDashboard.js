@@ -135,7 +135,7 @@ export default ({ route }) => {
                     ...trip,
                     timer: getRemainingTime(new Date(trip.biddingStartTime)),
                 }));
-                // console.log('tripsWithTimers', tripsWithTimers)
+                // console.log('cargoDetails', tripsWithTimers[0])
                 setTrips(tripsWithTimers);
             }
         } catch (error) {
@@ -171,7 +171,10 @@ export default ({ route }) => {
                 let expiredFound = false; // Flag to detect an expired trip
 
                 const updatedTrips = previousTrips.map((trip) => {
-                    const remainingTime = getRemainingTime(new Date(trip.biddingStartTime));
+                    // console.log('TRIP : %%%%', trip.trip.biddingStartTime)
+                    const remainingTime = getRemainingTime(new Date(trip.trip.biddingStartTime));
+                    // console.log('trip.biddingStartTime', trip.biddingStartTime);
+                    // console.log('new Date(trip.biddingStartTime)', new Date(trip.biddingStartTime))
 
                     if (remainingTime === 'Expired') {
                         expiredFound = true; // Set flag if expired is found
@@ -200,13 +203,16 @@ export default ({ route }) => {
         const now = new Date();
         const expirationTime = new Date(biddingStartTime.getTime() + 30 * 60 * 1000); // 5 minutes from creation
         const difference = expirationTime - now;
+        // console.log('now', now, 'biddingStartTime', biddingStartTime);
 
         if (difference <= 0) {
             return 'Expired';
         }
         const minutes = Math.floor(difference / 60000);
         const seconds = Math.floor((difference % 60000) / 1000);
-        return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+        const rTime = `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+        // console.log('Remai time : ', rTime);
+        return rTime;
     };
 
     const handleReject = (tripId) => {
@@ -251,8 +257,16 @@ export default ({ route }) => {
 
     const handleRefresh = async () => {
         setRefreshing(true);
-        await fetchTrips(true);
-        setRefreshing(false);
+        try {
+            // Fetch latest trips data
+            const response = await fetchTrips(true); // Replace with your actual API call
+            // setTrips(response.data); // Update trips state
+            console.log('Called !!!')
+        } catch (error) {
+            console.error('Error refreshing trips:', error);
+        } finally {
+            setRefreshing(false);
+        }
     };
 
     const handleCloseApp = () => {
@@ -272,44 +286,42 @@ export default ({ route }) => {
         }, [route])
     );
 
-
-
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={{ flex: 1, marginTop: 40 }}>
-                    <SafeAreaView style={styles.container}>
-                        <View style={styles.header}>
-                            <Text style={styles.headerText}>Dashboard</Text>
-                            <Text
-                                onPress={() => navigation.navigate('TripScreen1', { userId })}
-                                style={styles.headerLink}
-                            >
-                                Trips
-                            </Text>
-                        </View>
-
-                        <Text style={styles.title}>Trip History</Text>
-
-                        {loading && trips.length === 0 ? (
-                            <ActivityIndicator size="large" color="#0000ff" />
-                        ) : (
-                            bidAccepted ?
-                                <Text style={styles.bidAcceted}>Thank you ! You have accepted a bid. Continue your journey safely!</Text>
-                                :
-                                <ScrollView
-                                    style={styles.tripList}
-                                    refreshControl={
-                                        <RefreshControl
-                                            refreshing={refreshing}
-                                            onRefresh={handleRefresh}
-                                        />
-                                    }
+                <View style={{ flex: 1 }}>
+                    {/* Scrollable Content */}
+                    <ScrollView
+                        style={{ flex: 1 }}
+                        refreshControl={
+                            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+                        }
+                    >
+                        <SafeAreaView style={styles.container}>
+                            <View style={styles.header}>
+                                <Text style={styles.headerText}>Dashboard</Text>
+                                <Text
+                                    onPress={() => navigation.navigate('TripScreen1', { userId })}
+                                    style={styles.headerLink}
                                 >
-                                    {trips.map((trip) => (
+                                    Trips
+                                </Text>
+                            </View>
+
+                            <Text style={styles.title}>Trip History</Text>
+
+                            {loading && trips.length === 0 ? (
+                                <ActivityIndicator size="large" color="#0000ff" />
+                            ) : (
+                                bidAccepted ? (
+                                    <Text style={styles.bidAcceted}>
+                                        Thank you! You have accepted a bid. Continue your journey safely!
+                                    </Text>
+                                ) : (
+                                    trips.map((trip) => (
                                         <View key={trip._id} style={styles.tripCard}>
                                             <Text style={styles.tripDetail}>
                                                 <Text style={styles.label}>From:</Text> {trip.from}
@@ -323,7 +335,7 @@ export default ({ route }) => {
                                             </Text>
                                             <Text style={styles.tripDetail}>
                                                 <Text style={styles.label}>Payload Cost:</Text>{' '}
-                                                {trip.cargoDetails.reducedQuotePrice}
+                                                {trip?.cargoDetails?.reducedQuotePrice ?? 0}
                                             </Text>
 
                                             <View style={styles.timerContainer}>
@@ -349,27 +361,26 @@ export default ({ route }) => {
                                                 </TouchableOpacity>
                                             </View>
                                         </View>
-                                    ))}
-                                </ScrollView>
-                        )}
-                    </SafeAreaView>
+                                    ))
+                                )
+                            )}
+                        </SafeAreaView>
+                    </ScrollView>
 
+                    {/* Fixed Bottom Navigation */}
                     <View style={styles.bottomNav}>
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('Wallet', { userId })}>
+                        <TouchableOpacity onPress={() => navigation.navigate('Wallet', { userId })}>
                             <AntDesign name="wallet" size={24} color="white" />
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.shopButton}>
                             <Entypo name="shop" size={24} color="white" />
                         </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => navigation.navigate('Profile', { phoneNumber })}
-                        >
+                        <TouchableOpacity onPress={() => navigation.navigate('Profile', { phoneNumber })}>
                             <AntDesign name="user" size={24} color="white" />
                         </TouchableOpacity>
                     </View>
 
-                    {/* Modal for exit options */}
+                    {/* Modal for exit options (also outside ScrollView) */}
                     <Modal
                         animationType="slide"
                         transparent={true}
@@ -390,6 +401,123 @@ export default ({ route }) => {
             </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
     );
+
+
+    // return (
+    //     <KeyboardAvoidingView
+    //         style={{ flex: 1 }}
+    //         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    //     >
+    //         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    //             <View style={{ flex: 1, marginTop: 40 }}>
+    //                 <SafeAreaView style={styles.container}>
+    //                     <View style={styles.header}>
+    //                         <Text style={styles.headerText}>Dashboard</Text>
+    //                         <Text
+    //                             onPress={() => navigation.navigate('TripScreen1', { userId })}
+    //                             style={styles.headerLink}
+    //                         >
+    //                             Trips
+    //                         </Text>
+    //                     </View>
+
+    //                     <Text style={styles.title}>Trip History</Text>
+
+    //                     {loading && trips.length === 0 ? (
+    //                         <ActivityIndicator size="large" color="#0000ff" />
+    //                     ) : (
+    //                         bidAccepted ?
+    //                             <Text style={styles.bidAcceted}>Thank you ! You have accepted a bid. Continue your journey safely!</Text>
+    //                             :
+    //                             <ScrollView
+    //                                 style={styles.tripList}
+    //                                 refreshControl={
+    //                                     <RefreshControl
+    //                                         refreshing={refreshing}
+    //                                         onRefresh={handleRefresh}
+    //                                     />
+    //                                 }
+    //                             >
+    //                                 {trips.map((trip) => (
+    //                                     <View key={trip._id} style={styles.tripCard}>
+    //                                         <Text style={styles.tripDetail}>
+    //                                             <Text style={styles.label}>From:</Text> {trip.from}
+    //                                         </Text>
+    //                                         <Text style={styles.tripDetail}>
+    //                                             <Text style={styles.label}>To:</Text> {trip.to}
+    //                                         </Text>
+    //                                         <Text style={styles.tripDetail}>
+    //                                             <Text style={styles.label}>Date:</Text>{' '}
+    //                                             {new Date(trip.tripDate).toLocaleString()}
+    //                                         </Text>
+    //                                         <Text style={styles.tripDetail}>
+    //                                             <Text style={styles.label}>Payload Cost:</Text>{' '}
+    //                                             {trip.cargoDetails.reducedQuotePrice}
+    //                                         </Text>
+
+    //                                         <View style={styles.timerContainer}>
+    //                                             <Text style={styles.timer}>{trip.timer}</Text>
+    //                                         </View>
+
+    //                                         <View style={styles.actionButtons}>
+    //                                             <TouchableOpacity onPress={() => handleView(trip._id)}>
+    //                                                 <Feather
+    //                                                     name="eye"
+    //                                                     size={24}
+    //                                                     color="blue"
+    //                                                     style={styles.icon}
+    //                                                 />
+    //                                             </TouchableOpacity>
+    //                                             <TouchableOpacity onPress={() => handleReject(trip._id)}>
+    //                                                 <Entypo
+    //                                                     name="circle-with-cross"
+    //                                                     size={24}
+    //                                                     color="orange"
+    //                                                     style={styles.icon}
+    //                                                 />
+    //                                             </TouchableOpacity>
+    //                                         </View>
+    //                                     </View>
+    //                                 ))}
+    //                             </ScrollView>
+    //                     )}
+    //                 </SafeAreaView>
+
+    //                 <View style={styles.bottomNav}>
+    //                     <TouchableOpacity
+    //                         onPress={() => navigation.navigate('Wallet', { userId })}>
+    //                         <AntDesign name="wallet" size={24} color="white" />
+    //                     </TouchableOpacity>
+    //                     <TouchableOpacity style={styles.shopButton}>
+    //                         <Entypo name="shop" size={24} color="white" />
+    //                     </TouchableOpacity>
+    //                     <TouchableOpacity
+    //                         onPress={() => navigation.navigate('Profile', { phoneNumber })}
+    //                     >
+    //                         <AntDesign name="user" size={24} color="white" />
+    //                     </TouchableOpacity>
+    //                 </View>
+
+    //                 <Modal
+    //                     animationType="slide"
+    //                     transparent={true}
+    //                     visible={showExitOptions}
+    //                     onRequestClose={() => setShowExitOptions(false)}
+    //                 >
+    //                     <View style={styles.modalOverlay}>
+    //                         <View style={styles.modalContainer}>
+    //                             <Text style={styles.exitText}>Do you really want to close the app?</Text>
+    //                             <View style={styles.buttonGroup}>
+    //                                 <Button title="Close App" onPress={handleCloseApp} color="#FF5C5C" />
+    //                                 <Button title="Not Close" onPress={() => setShowExitOptions(false)} color="#5CCF5C" />
+    //                             </View>
+    //                         </View>
+    //                     </View>
+    //                 </Modal>
+    //             </View>
+    //         </TouchableWithoutFeedback>
+    //     </KeyboardAvoidingView>
+    // );
 };
 
 const styles = StyleSheet.create({
@@ -478,7 +606,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         backgroundColor: '#e3f2fd',
-        paddingVertical: 10,
+        paddingVertical: 40,
         paddingHorizontal: 20,
     },
     headerText: {

@@ -11,7 +11,7 @@ const ViewDetails = ({ route }) => {
     const [tripDetails, setTripDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [editModalVisible, setEditModalVisible] = useState(false);
-    const [editedTrip, setEditedTrip] = useState(null); 
+    const [editedTrip, setEditedTrip] = useState(null);
     const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
     const navigation = useNavigation();
@@ -70,11 +70,20 @@ const ViewDetails = ({ route }) => {
     };
 
     const handleNavigate = async () => {
-        const response = await axios.post(`${API_END_POINT}/api/trips/${tripId}/startBidding`, {});
+        setLoading(true);
+        try {
+            const response = await axios.post(`${API_END_POINT}/api/trips/${tripId}/startBidding`, {});
 
-        if (response.status === 200) {
-            navigation.navigate('TripSummary', { tripId })
+            if (response.status === 200) {
+                navigation.navigate('TripSummary', { tripId })
+            }
+        } catch (error) {
+            Alert.alert('Error', 'An error occurred while start Bidding');
+            console.log('Error', error);
+        } finally {
+            setLoading(false)
         }
+
     };
 
     console.log('tripId', tripId);
@@ -90,14 +99,6 @@ const ViewDetails = ({ route }) => {
             ]
         );
     };
-
-    if (loading) {
-        return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#007BFF" />
-            </View>
-        );
-    }
 
     if (!tripDetails) {
         return (
@@ -142,7 +143,7 @@ const ViewDetails = ({ route }) => {
                             (
                                 tripDetails.biddingStatus === 'accepted' ?
                                     (
-                                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DriverLocation', { userId:tripDetails.bidder, from:tripDetails.from, to:tripDetails.to})}>
+                                        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('DriverLocation', { userId: tripDetails.bidder, from: tripDetails.from, to: tripDetails.to })}>
                                             <Text style={styles.buttonText}>View Driver Location</Text>
                                         </TouchableOpacity>
                                     ) : (
@@ -160,8 +161,15 @@ const ViewDetails = ({ route }) => {
                             (
                                 tripDetails.biddingStatus === 'notStarted' ?
                                     (
-                                        <TouchableOpacity style={styles.button} onPress={handleStartBidding}>
-                                            <Text style={styles.buttonText}>Start Bidding</Text>
+                                        <TouchableOpacity
+                                            style={styles.button}
+                                            onPress={handleStartBidding}
+                                            disabled={loading}>
+                                            {loading ? (
+                                                <ActivityIndicator size="small" color="#FFF" />
+                                            ) : (
+                                                <Text style={styles.buttonText}>Start Bidding</Text>
+                                            )}
                                         </TouchableOpacity>
                                     ) : (
                                         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('TripSummary', { tripId })
@@ -178,120 +186,129 @@ const ViewDetails = ({ route }) => {
                 </ScrollView>
             </SafeAreaView>
 
-            {/* Modal for editing trip details */}
-            <Modal visible={editModalVisible} animationType="slide" transparent={true}>
+            <Modal visible={!!editedTrip && editModalVisible} animationType="slide" transparent={true}>
                 <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Edit Trip Details</Text>
-                        <ScrollView>
-                            <TextInput
-                                style={styles.input}
-                                value={editedTrip.from}
-                                onChangeText={(text) => setEditedTrip({ ...editedTrip, from: text })}
-                                placeholder="From"
-                                keyboardType="numeric"
-                                maxLength={6}
-                            />
-                            <TextInput
-                                style={styles.input}
-                                value={editedTrip.to}
-                                onChangeText={(text) => setEditedTrip({ ...editedTrip, to: text })}
-                                placeholder="To"
-                                keyboardType="numeric"
-                                maxLength={6}
-                            />
-                            <TextInput
-                                style={styles.input}
-                                value={editedTrip.cargoDetails?.cargoType || ''}
-                                onChangeText={(text) =>
-                                    setEditedTrip({
-                                        ...editedTrip,
-                                        cargoDetails: { ...editedTrip.cargoDetails, cargoType: text },
-                                    })
-                                }
-                                placeholder="Cargo Type"
-                            />
-                            <TextInput
-                                style={styles.input}
-                                value={editedTrip.cargoDetails?.quotePrice?.toString() || ''}
-                                onChangeText={(text) =>
-                                    setEditedTrip({
-                                        ...editedTrip,
-                                        cargoDetails: { ...editedTrip.cargoDetails, quotePrice: parseFloat(text) || 0 },
-                                    })
-                                }
-                                placeholder="Quote Price"
-                                keyboardType="numeric"
-                            />
-                            <TextInput
-                                style={styles.input}
-                                value={editedTrip.cargoDetails?.payloadWeight?.toString() || ''}
-                                onChangeText={(text) =>
-                                    setEditedTrip({
-                                        ...editedTrip,
-                                        cargoDetails: { ...editedTrip.cargoDetails, payloadWeight: parseFloat(text) || 0 },
-                                    })
-                                }
-                                placeholder="Payload weight"
-                                keyboardType="numeric"
-                            />
-                            <TextInput
-                                style={styles.input}
-                                value={editedTrip.cargoDetails?.payloadHeight?.toString() || ''}
-                                onChangeText={(text) =>
-                                    setEditedTrip({
-                                        ...editedTrip,
-                                        cargoDetails: { ...editedTrip.cargoDetails, payloadHeight: parseFloat(text) || 0 },
-                                    })
-                                }
-                                placeholder="Payload height"
-                                keyboardType="numeric"
-                            />
-                            <TextInput
-                                style={styles.input}
-                                value={editedTrip.cargoDetails?.payloadLength?.toString() || ''}
-                                onChangeText={(text) =>
-                                    setEditedTrip({
-                                        ...editedTrip,
-                                        cargoDetails: { ...editedTrip.cargoDetails, payloadLenght: parseFloat(text) || 0 },
-                                    })
-                                }
-                                placeholder="Payload length"
-                                keyboardType="numeric"
-                            />
-                            <TextInput
-                                style={styles.input}
-                                value={editedTrip.cargoDetails?.payloadWidth?.toString() || ''}
-                                onChangeText={(text) =>
-                                    setEditedTrip({
-                                        ...editedTrip,
-                                        cargoDetails: { ...editedTrip.cargoDetails, payloadWidth: parseFloat(text) || 0 },
-                                    })
-                                }
-                                placeholder="Payload width"
-                                keyboardType="numeric"
-                            />
-                            <TextInput
-                                style={styles.input}
-                                value={editedTrip.specialInstruction.toString() || ''}
-                                onChangeText={(text) =>
-                                    setEditedTrip({ ...editedTrip, specialInstruction: text })
-                                }
-                                placeholder="Special instruction"
-                            />
-                        </ScrollView>
-                        <View style={styles.modalActions}>
-                            <TouchableOpacity
-                                style={[styles.modalButton, styles.cancelButton]}
-                                onPress={() => setEditModalVisible(false)}
-                            >
-                                <Text style={styles.modalButtonText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.modalButton} onPress={handleSaveChanges}>
-                                <Text style={styles.modalButtonText}>Save</Text>
-                            </TouchableOpacity>
+                    {editedTrip && (
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Edit Trip Details</Text>
+                            <ScrollView>
+                                <TextInput
+                                    style={styles.input}
+                                    value={editedTrip.from || ''}
+                                    onChangeText={(text) => setEditedTrip({ ...editedTrip, from: text })}
+                                    placeholder="From"
+                                    keyboardType="numeric"
+                                    maxLength={6}
+                                />
+                                <TextInput
+                                    style={styles.input}
+                                    value={editedTrip.to || ''}
+                                    onChangeText={(text) => setEditedTrip({ ...editedTrip, to: text })}
+                                    placeholder="To"
+                                    keyboardType="numeric"
+                                    maxLength={6}
+                                />
+                                <TextInput
+                                    style={styles.input}
+                                    value={editedTrip.cargoDetails?.cargoType || ''}
+                                    onChangeText={(text) =>
+                                        setEditedTrip({
+                                            ...editedTrip,
+                                            cargoDetails: { ...editedTrip.cargoDetails, cargoType: text },
+                                        })
+                                    }
+                                    placeholder="Cargo Type"
+                                />
+                                <TextInput
+                                    style={styles.input}
+                                    value={editedTrip.cargoDetails?.quotePrice?.toString() || ''}
+                                    onChangeText={(text) =>
+                                        setEditedTrip({
+                                            ...editedTrip,
+                                            cargoDetails: { ...editedTrip.cargoDetails, quotePrice: parseFloat(text) || 0 },
+                                        })
+                                    }
+                                    placeholder="Quote Price"
+                                    keyboardType="numeric"
+                                />
+                                <TextInput
+                                    style={styles.input}
+                                    value={editedTrip.cargoDetails?.payloadWeight?.toString() || ''}
+                                    onChangeText={(text) =>
+                                        setEditedTrip({
+                                            ...editedTrip,
+                                            cargoDetails: { ...editedTrip.cargoDetails, payloadWeight: parseFloat(text) || 0 },
+                                        })
+                                    }
+                                    placeholder="Payload weight"
+                                    keyboardType="numeric"
+                                />
+                                <TextInput
+                                    style={styles.input}
+                                    value={editedTrip.cargoDetails?.payloadHeight?.toString() || ''}
+                                    onChangeText={(text) =>
+                                        setEditedTrip({
+                                            ...editedTrip,
+                                            cargoDetails: { ...editedTrip.cargoDetails, payloadHeight: parseFloat(text) || 0 },
+                                        })
+                                    }
+                                    placeholder="Payload height"
+                                    keyboardType="numeric"
+                                />
+                                <TextInput
+                                    style={styles.input}
+                                    value={editedTrip.cargoDetails?.payloadLength?.toString() || ''}
+                                    onChangeText={(text) =>
+                                        setEditedTrip({
+                                            ...editedTrip,
+                                            cargoDetails: { ...editedTrip.cargoDetails, payloadLength: parseFloat(text) || 0 },
+                                        })
+                                    }
+                                    placeholder="Payload length"
+                                    keyboardType="numeric"
+                                />
+                                <TextInput
+                                    style={styles.input}
+                                    value={editedTrip.cargoDetails?.payloadWidth?.toString() || ''}
+                                    onChangeText={(text) =>
+                                        setEditedTrip({
+                                            ...editedTrip,
+                                            cargoDetails: { ...editedTrip.cargoDetails, payloadWidth: parseFloat(text) || 0 },
+                                        })
+                                    }
+                                    placeholder="Payload width"
+                                    keyboardType="numeric"
+                                />
+                                <TextInput
+                                    style={styles.input}
+                                    value={editedTrip.specialInstruction?.toString() || ''}
+                                    onChangeText={(text) =>
+                                        setEditedTrip({ ...editedTrip, specialInstruction: text })
+                                    }
+                                    placeholder="Special instruction"
+                                />
+                            </ScrollView>
+                            <View style={styles.modalActions}>
+                                <TouchableOpacity
+                                    style={[styles.modalButton, styles.cancelButton]}
+                                    onPress={() => setEditModalVisible(false)}
+                                >
+                                    <Text style={styles.modalButtonText}>Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.modalButton}
+                                    onPress={handleSaveChanges}
+                                    disabled={loading}
+                                >
+                                    {loading ? (
+                                        <ActivityIndicator size="small" color="#FFF" />
+                                    ) : (
+                                        <Text style={styles.modalButtonText}>Save</Text>
+                                    )}
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
+                    )}
                 </View>
             </Modal>
         </LinearGradient>
