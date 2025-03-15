@@ -132,8 +132,8 @@ export default ({ route }) => {
             } else if (isMounted && response.data.trips?.length) {
                 // Add a timer for each trip
                 const tripsWithTimers = response.data.trips.map((trip) => ({
-                    ...trip,
-                    timer: getRemainingTime(new Date(trip.biddingStartTime)),
+                    ...trip.tripsData,
+                    timer: getRemainingTime(new Date(trip.tripsData.biddingStartTime)),
                 }));
                 // console.log('cargoDetails', tripsWithTimers[0])
                 setTrips(tripsWithTimers);
@@ -171,8 +171,8 @@ export default ({ route }) => {
                 let expiredFound = false; // Flag to detect an expired trip
 
                 const updatedTrips = previousTrips.map((trip) => {
-                    // console.log('TRIP : %%%%', trip.trip.biddingStartTime)
-                    const remainingTime = getRemainingTime(new Date(trip.trip.biddingStartTime));
+                    // console.log('TRIP : %%%%', trip.biddingStartTime)
+                    const remainingTime = getRemainingTime(new Date(trip.biddingStartTime));
                     // console.log('trip.biddingStartTime', trip.biddingStartTime);
                     // console.log('new Date(trip.biddingStartTime)', new Date(trip.biddingStartTime))
 

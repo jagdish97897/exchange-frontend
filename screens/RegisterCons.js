@@ -1,23 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { LinearGradient } from 'expo-linear-gradient';
-import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacity, Keyboard, Alert, ActivityIndicator } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacity, Keyboard, Alert } from 'react-native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { API_END_POINT } from '../app.config';
-import { getCurrentDate } from './CargoDetails';
-import { useNavigation } from '@react-navigation/native';
-import DatePicker from 'react-native-date-picker';
 import { MaterialIcons } from '@expo/vector-icons';
-import { validateEmail } from './AddVehicleScreen';
+import DatePicker from 'react-native-date-picker';
+import { getCurrentDate } from './CargoDetails';
 
+export default ({ navigation }) => {
 
-export default () => {
-    const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+    const [emailError, setEmailError] = useState('');
     const [loading, setLoading] = useState(false);
-
-    const navigation = useNavigation();
 
     const [formData, setFormData] = useState({
         fullName: '',
@@ -30,13 +26,22 @@ export default () => {
         aadharNumber: '',
         panNumber: '',
         dob: new Date(),
-        gender: '',
         profileImage: null,
+        gender: '',
     });
 
-    const handleChange = (name, value) => {
-        setFormData({ ...formData, [name]: value });
+    const handleChange = (field, value) => {
+        if (field === 'email') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                setEmailError('Invalid email format');
+            } else {
+                setEmailError('');
+            }
+        }
+        setFormData({ ...formData, [field]: value });
     };
+
 
     const pickImage = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -60,14 +65,7 @@ export default () => {
 
     const handleRegister = async () => {
         setLoading(true);
-
-        if (!validateEmail(formData.email)) {
-            Alert.alert('Error', 'Please enter a valid email address.');
-            return;
-        }
-
         const form = new FormData();
-
         for (const key in formData) {
             if (key === 'profileImage' && formData[key]) {
                 const filename = formData.profileImage.split('/').pop();
@@ -75,17 +73,19 @@ export default () => {
                 form.append('profileImage', {
                     uri: formData.profileImage,
                     name: filename,
-                    type: `image/${fileType}`,
+                    type: `image/${fileType}`, // remove any extra space
                 });
             }
-            if (key === 'dob' && formData[key]) {
-                form.append('dob', JSON.stringify(formData[key]));
-            } else {
+            else if (key === 'dob') {
+                form.append('dob', JSON.stringify(formData.dob));
+            }
+            else {
                 form.append(key, formData[key]);
             }
         }
 
         try {
+            // console.log('form', form);
             const response = await fetch(`${API_END_POINT}/api/v1/users/signup`, {
                 method: 'POST',
                 body: form,
@@ -95,6 +95,7 @@ export default () => {
             });
 
             const result = await response.json();
+            console.log('finish')
 
             if (response.ok) {
                 Alert.alert('Success', 'Registration successful');
@@ -103,37 +104,23 @@ export default () => {
                 Alert.alert('Error', result.message || 'Registration failed');
             }
         } catch (error) {
-            Alert.alert('Error', `Error: ${error.message}`);
+            console.log(`Error: ${error}`);
+            Alert.alert('Error', `Error: ${error}`);
         } finally {
-            // Remove loading indicator
             setLoading(false);
         }
     };
 
-    useEffect(() => {
-        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-            setKeyboardVisible(true);
-        });
-        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-            setKeyboardVisible(false);
-        });
-
-        return () => {
-            keyboardDidShowListener.remove();
-            keyboardDidHideListener.remove();
-        };
-    }, []);
-
-
     const today = new Date();
     const eighteenYearsAgo = new Date(today.setFullYear(today.getFullYear() - 18));
 
+
     return (
-        <LinearGradient colors={['#06264D', "#FFF"]} style={{ flex: 1 }}>
-            <SafeAreaView style={{ flex: 1, padding: 20 }}>
+
+        <View style={styles.container}>
+            <View style={styles.whiteContainer}>
                 <KeyboardAwareScrollView
                     resetScrollToCoords={{ x: 0, y: 0 }}
-                    contentContainerStyle={styles.container}
                     scrollEnabled={true}
                     enableAutomaticScroll={true}
                     enableOnAndroid={true}
@@ -141,11 +128,10 @@ export default () => {
                     showsVerticalScrollIndicator={false}
                     showsHorizontalScrollIndicator={false}
                 >
-                    <Image
-                        source={require("../assets/images/logo-removebg-preview 1.png")}
-                        style={styles.logo}
-                    />
-                    <Text style={styles.registerText}>Register</Text>
+                    <Text style={styles.title}>Start Your Journey</Text>
+                    <Text style={styles.subtitle}>
+                        Signup to access seamless transportation solutions for your goods.
+                    </Text>
 
                     <TextInput
                         placeholder='Full Name'
@@ -154,7 +140,6 @@ export default () => {
                         onChangeText={(text) => handleChange('fullName', text)}
                         value={formData.fullName}
                     />
-
                     <TextInput
                         placeholder='Phone Number'
                         style={styles.input}
@@ -165,13 +150,15 @@ export default () => {
                         maxLength={10}
                     />
                     <TextInput
-                        placeholder='Email'
+                        placeholder="Email"
                         style={styles.input}
                         placeholderTextColor="#000"
-                        onChangeText={(text) => handleChange('email', text.toLowerCase())}
+                        onChangeText={(text) => handleChange('email', text)}
                         value={formData.email}
                         keyboardType="email-address"
                     />
+                    {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+
                     <View style={styles.pickerContainer}>
                         <Picker
                             selectedValue={formData.type}
@@ -181,8 +168,48 @@ export default () => {
                             <Picker.Item label="Select Type" value="" />
                             <Picker.Item label="Consumer" value="consumer" />
                             <Picker.Item label="Transporter" value="transporter" />
+                            <Picker.Item label="Owner" value="owner" />
+                            <Picker.Item label="Broker" value="broker" />
                         </Picker>
                     </View>
+
+                    {formData.type !== '' && formData.type !== 'consumer' &&
+                        <>
+                            <TouchableOpacity
+                                style={[styles.dateInput]}
+                                onPress={() => setIsDatePickerOpen(true)}
+                            >
+                                <Text style={styles.dateText}>{formData.dob > eighteenYearsAgo ? 'Dob' : getCurrentDate(formData.dob)}</Text>
+                                <MaterialIcons name="calendar-month" size={20} color="#888" />
+                            </TouchableOpacity>
+                            <DatePicker
+                                modal
+                                open={isDatePickerOpen}
+                                date={formData.dob}
+                                onConfirm={(date) => {
+                                    setIsDatePickerOpen(false);
+                                    handleChange('dob', date);
+                                }}
+                                mode="date"
+                                onCancel={() => {
+                                    setIsDatePickerOpen(false);
+                                }}
+                                maximumDate={eighteenYearsAgo}
+                            />
+                            <View style={styles.pickerContainer}>
+                                <Picker
+                                    selectedValue={formData.gender}
+                                    style={styles.picker}
+                                    onValueChange={(itemValue) => handleChange('gender', itemValue)}
+                                >
+                                    <Picker.Item label="Gender" value="" />
+                                    <Picker.Item label="Male" value="male" />
+                                    <Picker.Item label="Female" value="female" />
+                                    <Picker.Item label="Other" value="other" />
+                                </Picker>
+                            </View>
+                        </>
+                    }
 
                     {formData.type === 'consumer' && (
                         <>
@@ -190,7 +217,7 @@ export default () => {
                                 placeholder='GSTIN'
                                 style={styles.input}
                                 placeholderTextColor="#000"
-                                onChangeText={(text) => handleChange('gstin', text.toUpperCase())}
+                                onChangeText={(text) => handleChange('gstin', text)}
                                 value={formData.gstin.toUpperCase()}
                                 maxLength={15}
                             />
@@ -233,7 +260,7 @@ export default () => {
                                 placeholder='Website'
                                 style={styles.input}
                                 placeholderTextColor="#000"
-                                onChangeText={(text) => handleChange('website', text.toLowerCase())}
+                                onChangeText={(text) => handleChange('website', text)}
                                 value={formData.website}
                             />
                             <TextInput
@@ -243,47 +270,49 @@ export default () => {
                                 onChangeText={(text) => handleChange('aadharNumber', text)}
                                 value={formData.aadharNumber}
                                 maxLength={16}
+                                keyboardType="phone-pad"
                             />
                             <TextInput
                                 placeholder='PAN Number'
+                                style={styles.input}
+                                placeholderTextColor="#000"
+                                onChangeText={(text) => handleChange('panNumber', text)}
+                                value={formData.panNumber.toUpperCase()}
+                                maxLength={10}
+                            />
+                            <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+                                <Text style={styles.uploadButtonText}>Pick Profile Image</Text>
+                            </TouchableOpacity>
+                            {formData.profileImage && (
+                                <Image
+                                    source={{ uri: formData.profileImage }}
+                                    style={styles.previewImage}
+                                />
+                            )}
+
+                        </>
+                    )}
+
+                    {(formData.type === 'owner' || formData.type === 'broker') && (
+                        <>
+                            <TextInput
+                                placeholder='Aadhar Number'
+                                style={styles.input}
+                                placeholderTextColor="#000"
+                                onChangeText={(text) => handleChange('aadharNumber', text)}
+                                value={formData.aadharNumber}
+                                maxLength={16}
+                                keyboardType="phone-pad"
+                            />
+                            <TextInput
+                                placeholder='Pan Number'
                                 style={styles.input}
                                 placeholderTextColor="#000"
                                 onChangeText={(text) => handleChange('panNumber', text.toUpperCase())}
                                 value={formData.panNumber.toUpperCase()}
                                 maxLength={10}
                             />
-                            <TouchableOpacity
-                                style={[styles.dateInput]}
-                                onPress={() => setIsDatePickerOpen(true)}
-                            >
-                                <Text style={styles.dateText}>{formData.dob > eighteenYearsAgo ? 'Dob' : getCurrentDate(formData.dob)}</Text>
-                                <MaterialIcons name="calendar-month" size={20} color="#888" />
-                            </TouchableOpacity>
-                            <DatePicker
-                                modal
-                                open={isDatePickerOpen}
-                                date={formData.dob}
-                                onConfirm={(date) => {
-                                    setIsDatePickerOpen(false);
-                                    handleChange('dob', date);
-                                }}
-                                mode="date"
-                                onCancel={() => {
-                                    setIsDatePickerOpen(false);
-                                }}
-                                maximumDate={eighteenYearsAgo}
-                            />
-                            <View style={styles.pickerContainer}>
-                                <Picker
-                                    selectedValue={formData.gender}
-                                    style={styles.picker}
-                                    onValueChange={(itemValue) => handleChange('gender', itemValue)}
-                                >
-                                    <Picker.Item label="Gender" value="" />
-                                    <Picker.Item label="Male" value="male" />
-                                    <Picker.Item label="Female" value="female" />
-                                </Picker>
-                            </View>
+
                             <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
                                 <Text style={styles.uploadButtonText}>Pick Profile Image</Text>
                             </TouchableOpacity>
@@ -305,124 +334,114 @@ export default () => {
                         <Text style={styles.buttonText}>Register</Text>
                     </TouchableOpacity>}
                 </KeyboardAwareScrollView>
-                {!keyboardVisible && (
-                    <View style={styles.footer}>
-                        <Image
-                            source={require("../assets/images/mantra.jpg")}
-                            style={styles.smallImage}
-                        />
-                        <View style={styles.footerTextContainer}>
-                            <Text style={styles.footerText}>Made in</Text>
-                            <Image
-                                source={require("../assets/images/image 10.png")}
-                                style={styles.smallImage}
-                            />
-                        </View>
-                        <Image
-                            source={require("../assets/images/make-in-India-logo.jpg")}
-                            style={styles.smallImage}
-                        />
-                    </View>
-                )}
-            </SafeAreaView>
-        </LinearGradient>
+            </View>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flexGrow: 1,
+        flex: 1,
+        backgroundColor: '#002F87',
+        justifyContent: 'center',
+    },
+    whiteContainer: {
+        backgroundColor: '#FFF',
+        borderTopWidth: wp('15%'),
+        borderBottomWidth: wp('15%'),
+        borderColor: '#002F87',
+        borderTopLeftRadius: wp('50%'),
+        borderTopRightRadius: wp('50%'),
+        borderBottomRightRadius: wp('50%'),
+        borderBottomLeftRadius: wp('50%'),
+        padding: wp('8%'),
+        paddingTop: wp('22%'),
+        paddingBottom: wp('22%'),
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    logo: {
-        width: 150,
-        height: 150,
-        resizeMode: 'contain',
-        marginBottom: 20,
-    },
-    registerText: {
-        fontSize: 24,
+    title: {
+        fontSize: wp('6%'),
         fontWeight: 'bold',
-        color: '#000',
-        marginBottom: 20,
+        color: '#002F87',
+        marginBottom: hp('1%'),
+        textAlign: 'center',
+    },
+    subtitle: {
+        fontSize: wp('4%'),
+        color: '#666',
+        marginBottom: hp('2%'),
+        textAlign: 'center',
     },
     input: {
-        width: '100%',
-        height: 50,
-        backgroundColor: '#FFF',
-        borderRadius: 8,
-        marginBottom: 15,
-        paddingHorizontal: 15,
+        width: wp('80%'),
+        height: hp('6%'),
         borderColor: '#ccc',
         borderWidth: 1,
+        borderRadius: wp('2%'),
+        paddingHorizontal: wp('4%'),
+        marginBottom: hp('2%'),
+        fontSize: wp('4%'),
+        backgroundColor: '#fff',
+    },
+    button: {
+        backgroundColor: '#002F87',
+        paddingVertical: hp('1.5%'),
+        borderRadius: wp('2%'),
+        alignItems: 'center',
+        width: wp('80%'),
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: wp('4.5%'),
+        fontWeight: 'bold',
+    },
+    signupText: {
+        marginTop: hp('2%'),
+        textAlign: 'center',
+        fontSize: wp('3.5%'),
+        color: '#666',
+    },
+    signupLink: {
+        color: '#004AAD',
+        fontWeight: 'bold',
     },
     pickerContainer: {
-        width: '100%',
-        height: 50,
-        backgroundColor: '#FFF',
-        borderRadius: 8,
-        marginBottom: 15,
+        width: wp('80%'),
+        borderRadius: wp('2%'),
         borderColor: '#ccc',
         borderWidth: 1,
-        justifyContent: 'center',
+        backgroundColor: '#FFF',
+        marginBottom: hp('2%'),
     },
     picker: {
         width: '100%',
-        height: '100%',
-    },
-    button: {
-        width: '100%',
-        height: 50,
-        backgroundColor: '#06264D',
-        borderRadius: 8,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: '#FFF',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    footer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        marginTop: 20
-    },
-    smallImage: {
-        width: 40,
-        height: 40
-    },
-    footerTextContainer: {
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    footerText: {
-        color: '#000',
-        paddingLeft: 2
+        height: hp('6%'),
     },
     uploadButton: {
-        backgroundColor: '#06264D',
-        padding: 10,
-        borderRadius: 5,
-        marginVertical: 10,
+        backgroundColor: '#004AAD',
+        padding: wp('3%'),
+        borderRadius: wp('2%'),
+        marginBottom: hp('2%'),
     },
     uploadButtonText: {
-        color: '#FFF',
-        textAlign: 'center',
+        color: '#fff',
+        fontSize: wp('4%'),
         fontWeight: 'bold',
     },
     previewImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        marginVertical: 10,
-        alignSelf: 'center',
+        width: wp('30%'),
+        height: wp('30%'),
+        borderRadius: wp('2%'),
+        marginTop: hp('1%'),
+        alignSelf: 'center',  // Center horizontally
+        marginBottom: hp('3%'),
     },
     dateInput: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'center', // Align items vertically
+        justifyContent: 'space-between', // Push icon to the right
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 5,
@@ -430,9 +449,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         marginBottom: 15,
     },
-    dateText: {
-        flex: 1,
-        color: '#000',
-        fontSize: 15,
-    },
+    errorText: {
+        color: 'red',  // Display error in red
+        fontSize: 12,   // Slightly smaller than normal text
+        marginTop: 0,   // Add space above the error message
+        marginLeft: 5,  // Slightly indent it from the left
+        marginBottom: 2,
+    }
 });

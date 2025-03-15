@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { LinearGradient } from 'expo-linear-gradient';
-import { SafeAreaView, Text, TextInput, StyleSheet, View, Image, TouchableOpacity, Keyboard, Alert } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import React, { useState } from 'react';
+import { Text, TextInput, StyleSheet, View, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import axios from 'axios';
 import { saveToken } from '../Token.js';
 import { useAuth } from '../context/AuthContext.js';
@@ -11,26 +10,11 @@ import { API_END_POINT } from '../app.config';
 
 export default ({ navigation }) => {
     const { login } = useAuth();
-    const [keyboardVisible, setKeyboardVisible] = useState(false);
     const [phoneNumber, setPhoneNumber] = useState('');
     const [otp, setOtp] = useState('');
     const [isOtpSent, setIsOtpSent] = useState(false);
     const [serverOtp, setServerOtp] = useState('');
     const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-            setKeyboardVisible(true);
-        });
-        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-            setKeyboardVisible(false);
-        });
-
-        return () => {
-            keyboardDidShowListener.remove();
-            keyboardDidHideListener.remove();
-        };
-    }, []);
 
     const handlePhoneNumberChange = (text) => {
         // Regular expression to match country codes like +91, 91, or others.
@@ -48,11 +32,7 @@ export default ({ navigation }) => {
         }
         try {
             if (!isOtpSent) {
-                // Send OTP
-                const response = await axios.post(`${API_END_POINT}/api/v1/users/sendOtp`, {
-                    phoneNumber,
-                    type: ['consumer', 'transporter']
-                });
+                const response = await axios.post(`${API_END_POINT}/api/v1/users/sendOtp`, { phoneNumber });
 
                 if (response.status === 200) {
                     setIsOtpSent(true);
@@ -64,7 +44,6 @@ export default ({ navigation }) => {
                     throw new Error('Failed to send OTP.');
                 }
             } else {
-                // Verify OTP
                 const response = await axios.post(`${API_END_POINT}/api/v1/users/verifyOtp`, {
                     otp,
                     phoneNumber,
@@ -72,16 +51,43 @@ export default ({ navigation }) => {
 
                 if (response.status === 200) {
                     saveToken('token', response.data.data.token);
-                    // console.log('response data : ', response.data.data.token);
                     Alert.alert('Success', 'Login successful.');
                     login();
 
+                    const userType = response.data.data.type;
+
                     initializeSocket(response.data.data.token);
-                    navigation.navigate('ConsumerDashboard', {
-                        phoneNumber,
-                        token: response.data.data.token,
-                        userId: response.data.data.id
-                    });
+
+                    switch (userType) {
+                        case 'owner':
+                            navigation.navigate('OwnerDashboard', {
+                                phoneNumber,
+                                token: response.data.data.token,
+                                userId: response.data.data.id
+                            });
+                            break;
+                        case 'broker':
+                            navigation.navigate('BrokerDashboard', {
+                                phoneNumber,
+                                token: response.data.data.token,
+                                userId: response.data.data.id
+                            });
+                            break;
+                        case 'driver':
+                            navigation.navigate('DriverDashboard', {
+                                phoneNumber,
+                                token: response.data.data.token,
+                                userId: response.data.data.id
+                            });
+                            break;
+                        case 'consumer':
+                        case 'transporter':
+                            navigation.navigate('ConsumerDashboard', {
+                                phoneNumber,
+                                token: response.data.data.token,
+                                userId: response.data.data.id
+                            });
+                    }
                     setOtp('');
                     setPhoneNumber('');
                     setIsOtpSent(false);
@@ -101,133 +107,120 @@ export default ({ navigation }) => {
     };
 
     return (
-        <LinearGradient colors={['#06264D', '#FFF']} style={{ flex: 1 }}>
-            <SafeAreaView style={{ flex: 1, paddingHorizontal: 20, paddingVertical: 40 }}>
-                <KeyboardAwareScrollView
-                    resetScrollToCoords={{ x: 0, y: 0 }}
-                    contentContainerStyle={styles.container}
-                    scrollEnabled={true}
-                    enableAutomaticScroll={true}
-                    enableOnAndroid={true}
-                    extraScrollHeight={100}
-                    showsVerticalScrollIndicator={false}
-                    showsHorizontalScrollIndicator={false}
-                >
-                    <Image
-                        source={require('../assets/images/logo-removebg-preview 1.png')}
-                        style={styles.logo}
-                    />
-                    <Text style={styles.loginText}>Login</Text>
+        <View style={styles.container}>
+            <View style={styles.whiteContainer}>
 
+                <Text style={styles.title}>Start Your Journey</Text>
+                <Text style={styles.subtitle}>
+                    Log in to access seamless transportation solutions for your goods.
+                </Text>
+
+                <TextInput
+                    placeholder="Enter your phone number"
+                    style={styles.input}
+                    placeholderTextColor="#000"
+                    keyboardType="phone-pad"
+                    value={phoneNumber}
+                    onChangeText={handlePhoneNumberChange}
+                    maxLength={10}
+                    editable={!isOtpSent}  // Disable when OTP is sent
+                />
+
+                {isOtpSent && (
                     <TextInput
-                        placeholder="Enter your phone number"
+                        placeholder="Enter OTP"
                         style={styles.input}
                         placeholderTextColor="#000"
-                        keyboardType="phone-pad"
-                        value={phoneNumber}
-                        onChangeText={handlePhoneNumberChange}
+                        keyboardType="numeric"
+                        value={otp}
+                        onChangeText={setOtp}
+                        maxLength={4}
                     />
+                )}
 
-                    {isOtpSent && (
-                        <TextInput
-                            placeholder="Enter OTP"
-                            style={styles.input}
-                            placeholderTextColor="#000"
-                            keyboardType="numeric"
-                            value={otp}
-                            onChangeText={setOtp}
-                        />
-                    )}
-
+                {loading ?
+                    <ActivityIndicator size="large" color="#0000ff" />
+                    :
                     <TouchableOpacity style={styles.button} onPress={handleLogin}>
                         <Text style={styles.buttonText}>{isOtpSent ? 'Login' : 'Send OTP'}</Text>
-                    </TouchableOpacity>
-                </KeyboardAwareScrollView>
-
-                {!keyboardVisible && (
-                    <View style={styles.footer}>
-                        <Image
-                            source={require('../assets/images/mantra.jpg')}
-                            style={styles.smallImage}
-                        />
-                        <View style={styles.footerTextContainer}>
-                            <Text style={styles.footerText}>Made in</Text>
-                            <Image
-                                source={require('../assets/images/image 10.png')}
-                                style={styles.smallImage}
-                            />
-                        </View>
-                        <Image
-                            source={require('../assets/images/make-in-India-logo.jpg')}
-                            style={styles.smallImage}
-                        />
-                    </View>
-                )}
-            </SafeAreaView>
-        </LinearGradient>
+                    </TouchableOpacity>}
+                <Text style={styles.signupText}>
+                    Don't have an account?{' '}
+                    <Text
+                        style={styles.signupLink}
+                        onPress={() => navigation.navigate('RegisterCons')}>
+                        Sign Up
+                    </Text>
+                </Text>
+            </View>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flexGrow: 1,
-        alignItems: 'center',
+        flex: 1,
+        backgroundColor: '#002F87', // Dark Blue Background
         justifyContent: 'center',
-        paddingBottom: 30, // Added padding to the bottom
     },
-    logo: {
-        width: 180, // Reduced width for better fit
-        height: 160, // Reduced height for better fit
-        alignSelf: 'center',
-        marginBottom: 30, // Added margin below the logo
+    whiteContainer: {
+        backgroundColor: '#FFF',
+        borderTopWidth: wp('15%'),
+        borderBottomWidth: wp('15%'),
+        borderColor: '#002F87',
+        borderTopLeftRadius: wp('50%'),
+        borderTopRightRadius: wp('50%'),
+        borderBottomRightRadius: wp('50%'),
+        borderBottomLeftRadius: wp('50%'),
+        padding: wp('8%'),
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    title: {
+        fontSize: wp('6%'),
+        fontWeight: 'bold',
+        color: '#002F87',
+        marginBottom: hp('1%'),
+        textAlign: 'center',
+    },
+    subtitle: {
+        fontSize: wp('4%'),
+        color: '#666',
+        marginBottom: hp('2%'),
+        textAlign: 'center',
     },
     input: {
-        width: '100%',
-        height: 50,
-        backgroundColor: '#FFF',
-        borderRadius: 8,
-        marginBottom: 15,
-        paddingHorizontal: 15,
+        width: wp('80%'),
+        height: hp('6%'),
         borderColor: '#ccc',
         borderWidth: 1,
-        fontSize: 16, // Increased font size for readability
+        borderRadius: wp('2%'),
+        paddingHorizontal: wp('4%'),
+        marginBottom: hp('2%'),
+        fontSize: wp('4%'),
+        backgroundColor: '#fff',
     },
     button: {
-        width: '100%',
-        height: 50,
-        backgroundColor: '#06264D',
-        borderRadius: 8,
-        justifyContent: 'center',
+        backgroundColor: '#002F87',
+        paddingVertical: hp('1.5%'),
+        borderRadius: wp('2%'),
         alignItems: 'center',
-        marginTop: 20, // Added margin top for better spacing
+        width: wp('80%'),
     },
     buttonText: {
-        color: '#FFF',
-        fontSize: 16,
+        color: '#fff',
+        fontSize: wp('4.5%'),
         fontWeight: 'bold',
     },
-    loginText: {
-        fontSize: 32,
+    signupText: {
+        marginTop: hp('2%'),
+        textAlign: 'center',
+        fontSize: wp('3.5%'),
+        color: '#666',
+    },
+    signupLink: {
+        color: '#004AAD',
         fontWeight: 'bold',
-        color: '#000',
-        marginBottom: 20, // Added margin below the login text
-    },
-    footer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        marginTop: 20
-    },
-    smallImage: {
-        width: 40,
-        height: 40
-    },
-    footerTextContainer: {
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    footerText: {
-        color: '#000',
-        paddingLeft: 2
     },
 });
