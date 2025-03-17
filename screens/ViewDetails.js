@@ -28,6 +28,7 @@ const ViewDetails = ({ route }) => {
             const response = await axios.get(apiEndpoint);
             if (response.status === 200) {
                 setTripDetails(response.data.trip);
+                console.log('response.data.trip', response.data.trip);
                 setEditedTrip(response.data.trip);
             }
         } catch (error) {
@@ -122,8 +123,8 @@ const ViewDetails = ({ route }) => {
                     <View style={styles.card}>
                         <Text style={styles.detailText}>From: {tripDetails.from}</Text>
                         <Text style={styles.detailText}>To: {tripDetails.to}</Text>
-                        <Text style={styles.detailText}>Cargo Type: {tripDetails.cargoDetails.cargoType}</Text>
-                        <Text style={styles.detailText}>Quote Price: ₹{tripDetails.cargoDetails.quotePrice}</Text>
+                        <Text style={styles.detailText}>Cargo Type: {tripDetails?.cargoDetails?.cargoType ?? ''}</Text>
+                        <Text style={styles.detailText}>Quote Price: ₹{tripDetails?.cargoDetails?.quotePrice ?? ''}</Text>
                         <Text style={styles.detailText}>
                             Trip Date: {new Date(tripDetails.tripDate).toLocaleDateString()}
                         </Text>

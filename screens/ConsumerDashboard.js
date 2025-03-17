@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, TextInput, Image, Modal, Button, Dimensions, Keyboard, ScrollView, Alert } from "react-native";
+import { SafeAreaView, View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, TextInput, Image, Modal, Button, Dimensions, Keyboard, ScrollView, Alert, Animated } from "react-native";
 import Autocomplete from "react-google-autocomplete";
 import { AntDesign, Feather, Entypo } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
@@ -129,12 +129,6 @@ export default ({ route }) => {
   const [showExitOptions, setShowExitOptions] = useState(false);
   const { expoPushToken } = useNotification();
 
-  // console.log('expoPushToken', expoPushToken);
-
-  // const projectId =
-  //   Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-
-  // console.log('Expo Project ID:', projectId);
 
   const handleFromChange = (text) => {
     setFrom(text);
@@ -142,6 +136,14 @@ export default ({ route }) => {
       toInputRef.current?.focus(); // Focus "to" field when "from" has 6 digits
     }
   };
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: menuVisible ? 1 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [menuVisible]);
 
 
   useEffect(() => {
@@ -195,6 +197,8 @@ export default ({ route }) => {
     })();
   }, []);
 
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     try {
       if (from.length === 6 && to.length === 6) {
@@ -207,94 +211,11 @@ export default ({ route }) => {
     }
   }, [from, to, navigation]);
 
-
   const navigation = useNavigation();
-
-  const handleDocumentsClick = () => {
-    // Navigate to the Documents page
-    navigation.navigate('Documents');
-  };
-
-  const [modalVisible, setModalVisible] = useState(false);
-
-  const openModal = () => {
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-  };
-
-  const handleAccountTypeClick = () => {
-    // Navigate to the Account Type page
-    navigation.navigate('AccountType');
-  };
-
-  const handleDeleteAccountClick = () => {
-    // Navigate to the Delete Account page
-    navigation.navigate('DeleteAccount');
-  };
-
-  const handleLogoutClick = () => {
-    // Navigate to the Logout page
-    navigation.navigate('Logout');
-  };
-
-  const navigateBack = () => {
-    // Add navigation logic to go back to the previous page
-  };
 
   const toggleMenu = (e) => {
     e.stopPropagation();
     setMenuVisible(!menuVisible);
-  };
-
-  const navigateToSettings = () => {
-    navigation.navigate('Settings')
-  };
-
-  const navigateToHelp = () => {
-    // Add navigation logic to go to help page
-  };
-
-  const navigateToAbout = () => {
-    navigation.navigate('About')
-  };
-
-  const navigateToLegal = () => {
-    navigation.navigate('Legal')
-  };
-
-  const [name, setName] = useState('');
-  const [mobileNumber, setMobileNumber] = useState('');
-  const [gstin, setGstin] = useState('');
-  const [photo, setPhoto] = useState(null);
-  const [image, setImage] = useState(null);
-
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    // console.log(result);
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
-  };
-  // Function to handle photo selection
-  const handlePhotoSelection = () => {
-    // Logic to select a photo from the device
-    // Update the 'photo' state with the selected photo URI
-  };
-
-  // Function to handle form submission
-  const handleSubmit = () => {
-    // Logic to handle form submission
   };
 
   const handleCloseApp = () => {
@@ -311,177 +232,129 @@ export default ({ route }) => {
 
         return () => backHandler.remove(); // Cleanup listener on unmount
       }
-    }, [route]) // Re-run effect when the route changes
+    }, [route])
   );
 
   return (
     <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
-      <View style={{ flex: 1, marginTop: 40 }}>
-        {/* Fixed Top Component */}
-        <View
-          className="bg-blue-200"
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            height: 50,
-            marginBottom: 0,
-            paddingHorizontal: 30,
-          }}
-        >
+      <View style={{ flex: 1, marginTop: 40, backgroundColor: '#FFF' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 60, marginBottom: 20, paddingHorizontal: 30, }}>
           {/* Left Arrow */}
-          <TouchableOpacity onPress={navigateBack}>
-            <AntDesign name="arrowleft" size={24} color="black" />
-          </TouchableOpacity>
-
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
-            <View className="ml-[160px]">
-              <Feather name="headphones" size={24} color="black" />
-            </View>
-            <View className="ml-[20px]">
-              <Ionicons name="notifications-outline" size={24} color="black" />
-            </View>
-          </View>
-
-          {/* Right Menu */}
           <TouchableOpacity onPress={toggleMenu}>
             <Feather name="menu" size={24} color="black" />
           </TouchableOpacity>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
+            <Text style={styles.title}>Exchange</Text>
+          </View>
+          {/* Right Menu */}
+          <TouchableOpacity onPress={toggleMenu}>
+
+          </TouchableOpacity>
         </View>
 
-        {/* Dropdown Menu */}
         {menuVisible && (
-          <View
+          <Animated.View
             style={{
               position: 'absolute',
-              top: 55,
-              right: 20,
+              top: 75,
+              left: 20,
               backgroundColor: 'white',
-              padding: 10,
-              borderRadius: 5,
+              padding: 15,
+              borderRadius: 10,
               elevation: 5,
               zIndex: 2,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 3 },
+              shadowOpacity: 0.3,
+              shadowRadius: 5,
+              transform: [{ scale: fadeAnim }],
             }}
           >
-            <TouchableOpacity onPress={navigateToSettings} style={{ marginBottom: 10 }}>
-              <Text>Settings</Text>
+            {/* Account */}
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Profile', { phoneNumber })}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingVertical: 10,
+                borderBottomWidth: 1,
+                borderBottomColor: '#ddd',
+              }}
+            >
+              <Ionicons name="person-circle-outline" size={20} color="black" style={{ marginRight: 10 }} />
+              <Text style={{ fontSize: 16, fontWeight: '500' }}>Account</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={navigateToHelp} style={{ marginBottom: 10 }}>
-              <Text>Help</Text>
+
+            {/* Trips */}
+            <TouchableOpacity
+              onPress={() => navigation.navigate('TripScreen', { userId })}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingVertical: 10,
+                borderBottomWidth: 1,
+                borderBottomColor: '#ddd',
+              }}
+            >
+              <Ionicons name="car-outline" size={20} color="black" style={{ marginRight: 10 }} />
+              <Text style={{ fontSize: 16, fontWeight: '500' }}>Trips</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={navigateToAbout} style={{ marginBottom: 10 }}>
-              <Text>About</Text>
+
+            {/* Wallet */}
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Wallet', { userId })}
+              style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10 }}
+            >
+              <Ionicons name="wallet-outline" size={20} color="black" style={{ marginRight: 10 }} />
+              <Text style={{ fontSize: 16, fontWeight: '500' }}>Wallet</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={navigateToLegal}>
-              <Text>Legal</Text>
-            </TouchableOpacity>
-          </View>
+          </Animated.View>
         )}
 
-        {/* Scrollable Middle Section */}
-        <ScrollView style={{ flex: 1, backgroundColor: 'blue' }} contentContainerStyle={{ paddingBottom: 20 }}>
-          <View className="flex-row gap-5 bg-blue-300 top-0">
-            <Text className="text-lg pb-2 font-bold pl-[70px]">Dashboard</Text>
-            <Text
-              onPress={() => {
-                navigation.navigate('TripScreen', { userId });
-              }}
-              className="text-lg font-bold pl-[80px]"
-            >
-              Trips
-            </Text>
-          </View>
+        <SafeAreaView style={styles.container}>
 
-          <SafeAreaView style={styles.container}>
-            <View className="flex-row bg-blue-100" style={styles.topBox}>
-              <Image
-                source={Ind}
-                style={{
-                  height: 50,
-                  width: 50,
-                  borderRadius: 40,
-                }}
-              />
-              <Text className="pl-8" style={{ fontSize: 30, fontWeight: '700' }}>
-                TWCPL
-              </Text>
-            </View>
+          <View style={styles.selectionContainer}>
 
-            <View style={styles.selectionContainer}>
-              <Text style={styles.title}>Where to ship?</Text>
-              <View style={styles.flexRow}>
-                <View style={styles.arrowIcon}>
-                  <Feather name="arrow-down" size={40} color="white" />
-                </View>
-                <View style={styles.formContainer}>
-                  <Text style={styles.label}>From</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Enter 6-digit code"
-                    placeholderTextColor="#CCC"
-                    keyboardType="number-pad"
-                    maxLength={6}
-                    value={from}
-                    onChangeText={handleFromChange}
-                  />
-
-                  <Text style={styles.label}>To</Text>
-                  <TextInput
-                    ref={toInputRef} // Attach ref to the "to" field
-                    style={styles.input}
-                    placeholder="Enter 6-digit code"
-                    placeholderTextColor="#CCC"
-                    keyboardType="number-pad"
-                    maxLength={6}
-                    value={to}
-                    onChangeText={text => setTo(text)}
-                  />
-                </View>
+            {/* From Location */}
+            <View style={styles.inputGroup}>
+              <View style={styles.row}>
+                <Ionicons name="location" size={24} color="red" />
+                <Text style={styles.label}>From</Text>
               </View>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter 6-digit code"
+                placeholderTextColor="#CCC"
+                keyboardType="number-pad"
+                maxLength={6}
+                value={from}
+                onChangeText={handleFromChange}
+              />
             </View>
 
-            <View style={styles.ctaWrapper}>
-              <TouchableOpacity style={styles.cta}>
-                <Entypo name="wallet" size={24} color="black" />
-                <Text>Wallet</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.cta}>
-                <Feather name="shield" size={24} color="black" />
-                <Text>Insurance</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.cta}>
-                <Feather name="headphones" size={24} color="black" />
-                <Text>Help & FAQ</Text>
-              </TouchableOpacity>
+            {/* Arrow Icon */}
+            <Ionicons name="arrow-down" size={30} color="white" style={styles.arrow} />
+            {/* To Location */}
+            <View style={styles.inputGroup}>
+              <View style={styles.row}>
+                <Ionicons name="location" size={24} color="green" />
+                <Text style={styles.label}>To</Text>
+              </View>
+              <TextInput
+                ref={toInputRef}
+                style={styles.input}
+                placeholder="Enter 6-digit code"
+                placeholderTextColor="#CCC"
+                keyboardType="number-pad"
+                maxLength={6}
+                value={to}
+                onChangeText={setTo}
+              />
             </View>
-          </SafeAreaView>
 
-          <View clasName="flex-1">
-            <Text className="pl-[100px] bg-blue-300 h-[30px] text-xl">Company Newsletter</Text>
           </View>
-        </ScrollView>
 
-        {/* Fixed Bottom Navigation */}
-        <View
-          style={{
-            backgroundColor: 'black',
-            flexDirection: 'row',
-            justifyContent: 'space-around',
-            alignItems: 'center',
-            paddingBottom: 20,
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Wallet', { userId })}>
-            <AntDesign name="wallet" size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity style={{ backgroundColor: 'blue', borderRadius: 24, padding: 10 }}>
-            <Entypo name="shop" size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Profile', { phoneNumber })}>
-            <AntDesign name="user" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
+        </SafeAreaView>
         {/* Modal for exit options */}
         <Modal
           animationType="slide"
@@ -511,6 +384,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
+
   modalContainer: {
     backgroundColor: '#FFF',
     padding: 20,
@@ -538,16 +412,24 @@ const styles = StyleSheet.create({
     padding: width * 0.1, // 10% of screen width for padding
   },
   selectionContainer: {
-    borderWidth: 2,
-    borderColor: '#80eae0',
-    backgroundColor: '#93aed2',
-    borderRadius: width * 0.075, // Adjusted radius for responsiveness
-    width: '90%',
-    position: 'absolute',
-    top: height * 0.15, // 15% of screen height
-    left: '5%',
-    height: height * 0.38, // 30% of screen height
-    padding: width * 0.05, // 5% of screen width
+    backgroundColor: "#0047AB",
+    padding: 20,
+    borderRadius: 10,
+    width: "90%",
+    alignSelf: "center",
+  },
+  inputGroup: {
+    marginBottom: 15,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  label: {
+    color: "white",
+    fontSize: 16,
+    marginLeft: 8,
   },
   ctaWrapper: {
     flexDirection: 'row',
@@ -581,8 +463,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    color: '#FFF',
-    marginBottom: 20,
+    color: '#000',
+    fontWeight: "bold"
   },
   flexRow: {
     flexDirection: 'row',
@@ -603,13 +485,14 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   input: {
-    height: 50,
-    backgroundColor: 'white',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#80eae0',
-    paddingHorizontal: 15,
-    marginBottom: 20,
+    backgroundColor: "white",
+    borderRadius: 5,
+    padding: 10,
+    fontSize: 16,
+  },
+  arrow: {
+    alignSelf: "center",
+    marginVertical: 5,
   },
   cta: {
     backgroundColor: '#ADD8E6',

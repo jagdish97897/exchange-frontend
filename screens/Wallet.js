@@ -14,6 +14,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
 import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 import { API_END_POINT } from '../app.config';
+import Toast from 'react-native-toast-message';
+
 
 const Wallet = () => {
   const route = useRoute();
@@ -27,13 +29,26 @@ const Wallet = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  // useEffect(() => {
+  //   if (!userId) {
+  //     navigation.replace('LoginCons');
+  //   } else {
+  //     checkAndCreateWallet();
+  //   }
+  // }, [userId]);
+
   useEffect(() => {
     if (userId) {
       checkAndCreateWallet();
     } else {
-      Alert.alert('Error', 'User ID is missing. Please provide a valid user ID.');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'User ID is missing. Please provide a valid user ID.',
+      });
     }
   }, [userId]);
+
 
   useFocusEffect(
     useCallback(() => {
@@ -60,7 +75,7 @@ const Wallet = () => {
       if (error.response?.status === 404) {
         await createWallet();
       } else {
-        console.error('Error checking wallet:', error);
+        console.setLoading('Error checking wallet:', error);
         Alert.alert('Error', 'Failed to check wallet status.');
       }
     }
@@ -76,18 +91,35 @@ const Wallet = () => {
         Alert.alert('Error', 'Failed to create wallet.');
       }
     } catch (error) {
-      console.error('Error creating wallet:', error);
+      console.log('Error creating wallet:', error);
       Alert.alert('Error', 'Failed to create wallet.');
     }
   };
+
+  // const fetchWalletData = async () => {
+  //   try {
+  //     setLoading(true);
+  //     await Promise.all([fetchWalletBalance(), fetchTransactions()]);
+  //   } catch (error) {
+  //     console.log('Error fetching wallet data:', error);
+  //     Alert.alert('Error', 'Failed to fetch wallet data.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
 
   const fetchWalletData = async () => {
     try {
       setLoading(true);
       await Promise.all([fetchWalletBalance(), fetchTransactions()]);
     } catch (error) {
-      console.error('Error fetching wallet data:', error);
-      Alert.alert('Error', 'Failed to fetch wallet data.');
+      console.log('Error fetching wallet data:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to fetch wallet data.',
+      });
     } finally {
       setLoading(false);
     }
@@ -98,8 +130,12 @@ const Wallet = () => {
       const response = await axios.get(`${API_END_POINT}/api/wallet/wallet/${userId}/balance`);
       setBalance(response.data.balance || 0);
     } catch (error) {
-      console.error('Error fetching balance:', error);
-      Alert.alert('Error', 'Failed to fetch wallet balance.');
+      console.log('Error fetching balance:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to fetch wallet balance.',
+      });
     }
   };
 
@@ -120,26 +156,14 @@ const Wallet = () => {
       setTotalCreditPoints(creditPoints);
       setTotalDebitPoints(debitPoints);
     } catch (error) {
-      console.error('Error fetching transactions:', error);
-      Alert.alert('Error', 'Failed to fetch transaction history.');
+      console.log('Error fetching transactions:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to fetch transaction history.',
+      });
     }
   };
-
-  // const renderTransaction = ({ item }) => (
-  //   <View style={styles.transactionItem}>
-  //     <Ionicons
-  //       name={item.type === 'credit' ? 'arrow-down-circle' : 'arrow-up-circle'}
-  //       size={24}
-  //       color={item.type === 'credit' ? 'green' : 'red'}
-  //     />
-  //     <View style={styles.transactionDetails}>
-  //       <Text style={styles.date}>{new Date(item.date).toLocaleString()}</Text>
-  //       <Text style={styles.amount}>
-  //         {item.type === 'credit' ? `+ Points ${item.amount}` : `- Points ${item.amount}`}
-  //       </Text>
-  //     </View>
-  //   </View>
-  // );
 
   const renderTransaction = ({ item }) => (
     <View style={styles.transactionItem}>
@@ -165,46 +189,6 @@ const Wallet = () => {
     );
   }
 
-  // return (
-  //   <LinearGradient colors={['#06264D', '#FFF']} style={styles.gradientBackground}>
-  //     <View style={styles.container}>
-  //       <View style={styles.balanceContainer}>
-  //         <Text style={styles.balanceText}>Available Wallet Amount</Text>
-  //         <Text style={styles.balanceAmount}>{totalPoints}</Text>
-  //       </View>
-
-  //       <View style={styles.actionContainer}>
-  //         <TouchableOpacity
-  //           style={styles.actionButton}
-  //           onPress={() => navigation.navigate('AddWalletAmount', { userId })}
-
-  //         >
-  //           <Ionicons name="cash-outline" size={32} color="red" />
-  //           <Text>Add Money</Text>
-  //         </TouchableOpacity>
-
-  //         <TouchableOpacity
-  //           style={styles.actionButton}
-  //           onPress={() => navigation.navigate('AddWalletAmount', { userId })}
-  //         >
-  //           <Ionicons name="send-outline" size={32} color="red" />
-  //           <Text>Withdraw</Text>
-  //         </TouchableOpacity>
-  //       </View>
-
-  //       <Text style={styles.historyTitle}>TRANSACTION HISTORY</Text>
-  //       <FlatList
-  //         data={transactions}
-  //         renderItem={renderTransaction}
-  //         keyExtractor={item => item._id}
-  //         contentContainerStyle={styles.transactionList}
-  //         ListEmptyComponent={<Text>No transactions available.</Text>}
-  //       />
-  //     </View>
-  //   </LinearGradient>
-  // );
-  // };
-
   return (
     <LinearGradient colors={['#06264D', '#0C3D72']} style={styles.gradientBackground}>
       <View style={styles.container}>
@@ -228,12 +212,6 @@ const Wallet = () => {
           <Text style={styles.balanceText}>Available Wallet Amount</Text>
           <Text style={styles.balanceAmount}>{balance}</Text>
         </View>
-
-        {/* Wallet Balance */}
-        {/* <View style={styles.balanceContainer}>
-          <Text style={styles.balanceText}>Wallet Balance</Text>
-          <Text style={styles.balanceAmount}>₹{totalPoints}</Text>
-        </View> */}
 
         {/* Action Buttons */}
         <View style={styles.actionContainer}>
@@ -361,107 +339,6 @@ const styles = StyleSheet.create({
     color: '#F4C542',
     fontWeight: 'bold',
   }
-  // const styles = StyleSheet.create({
-  //   gradientBackground: { flex: 1 },
-  //   container: { flex: 1, padding: 20 },
-  //   balanceContainer: { alignItems: 'center', marginVertical: 20 },
-  //   balanceText: { fontSize: 18, color: '#06264D' },
-  //   balanceAmount: { fontSize: 24, fontWeight: 'bold', color: '#06264D' },
-  //   actionContainer: { flexDirection: 'row', justifyContent: 'space-around', marginVertical: 20 },
-  //   actionButton: { alignItems: 'center' },
-  //   historyTitle: { fontSize: 18, fontWeight: 'bold', color: '#06264D', marginVertical: 10 },
-  //   transactionList: { paddingBottom: 20 },
-  //   transactionItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  //   transactionDetails: { marginLeft: 10 },
-  //   date: { fontSize: 14, color: '#555' },
-  //   amount: { fontSize: 16, fontWeight: 'bold' },
-  //   loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  // });
-
-
-  // const styles = StyleSheet.create({
-  //   gradientBackground: {
-  //     flex: 1,
-  //   },
-  //   container: {
-  //     flex: 1,
-  //     paddingHorizontal: 20,
-  //     paddingVertical: 30,
-  //   },
-  //   balanceContainer: {
-  //     alignItems: 'center',
-  //     marginBottom: 20,
-  //     backgroundColor: '#1E4B7E',
-  //     padding: 20,
-  //     borderRadius: 12,
-  //   },
-  //   balanceText: {
-  //     color: '#FFF',
-  //     fontSize: 18,
-  //     marginBottom: 8,
-  //   },
-  //   balanceAmount: {
-  //     color: '#FFF',
-  //     fontSize: 36,
-  //     fontWeight: 'bold',
-  //   },
-  //   actionContainer: {
-  //     flexDirection: 'row',
-  //     justifyContent: 'space-around',
-  //     marginVertical: 20,
-  //   },
-  //   actionButton: {
-  //     alignItems: 'center',
-  //     backgroundColor: '#1E4B7E',
-  //     padding: 15,
-  //     borderRadius: 12,
-  //     width: '40%',
-  //   },
-  //   actionButtonText: {
-  //     color: '#FFF',
-  //     fontSize: 16,
-  //     marginTop: 8,
-  //   },
-  //   historyTitle: {
-  //     fontSize: 18,
-  //     color: '#FFF',
-  //     marginVertical: 15,
-  //     fontWeight: 'bold',
-  //   },
-  //   transactionList: {
-  //     marginTop: 10,
-  //     paddingBottom: 30,
-  //   },
-  //   transactionItem: {
-  //     flexDirection: 'row',
-  //     justifyContent: 'space-between',
-  //     paddingVertical: 12,
-  //     paddingHorizontal: 15,
-  //     backgroundColor: '#1E4B7E',
-  //     marginBottom: 10,
-  //     borderRadius: 8,
-  //   },
-  //   transactionDate: {
-  //     color: '#FFF',
-  //     fontSize: 14,
-  //   },
-  //   transactionDescription: {
-  //     color: '#BBB',
-  //     fontSize: 14,
-  //     flex: 1,
-  //     marginHorizontal: 10,
-  //   },
-  //   transactionAmount: {
-  //     fontSize: 16,
-  //     fontWeight: 'bold',
-  //   },
-  //   emptyText: {
-  //     color: '#FFF',
-  //     fontSize: 16,
-  //     textAlign: 'center',
-  //     marginTop: 20,
-  //   },
-  // });
 
 });
 
