@@ -52,7 +52,6 @@
     "react-native-calendars": "^1.1307.0",
     "react-native-check-box": "^2.1.7",
     "react-native-date-picker": "^5.0.7",
-    "react-native-device-info": "^14.0.4",
     "react-native-dotenv": "^3.4.11",
     "react-native-elements": "^3.4.3",
     "react-native-encrypted-storage": "^4.0.3",
@@ -74,7 +73,6 @@
     "react-native-safe-area-context": "4.8.2",
     "react-native-screens": "~3.29.0",
     "react-native-svg": "14.1.0",
-    "react-native-text-recognition": "^1.0.2",
     "react-native-toast-message": "^2.2.0",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.6",
@@ -86,10 +84,7 @@
     "yoga-layout": "^3.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "@expo/config-plugins": "^7.8.0",
-    "expo-module-scripts": "r4.0.3",
-    "postcss": "^8.4.32"
+    "@babel/core": "^7.20.0"
   },
   "private": true
 }
