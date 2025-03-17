@@ -4,7 +4,7 @@ import { useAuth } from './context/AuthContext.js'; // Import useAuth hook
 
 // Import all the screens
 import Landing from './screens/Landing';
-import FlowSelect from './screens/FlowSelect';
+// import FlowSelect from './screens/FlowSelect';
 import LoginCons from './screens/LoginCons';
 import LoginVsp from './screens/LoginVsp';
 import FlowSelectregistation from './screens/FlowSelectregistation';
@@ -77,7 +77,7 @@ const MainNavigator = () => {
           <Stack.Screen name="Landing" component={Landing} />
 
           {/* <Stack.Screen name="Landing" component={Notification} /> */}
-          <Stack.Screen name="FlowSelect" component={FlowSelect} />
+          {/* <Stack.Screen name="FlowSelect" component={FlowSelect} /> */}
           <Stack.Screen name="FlowSelectregistation" component={FlowSelectregistation} />
           <Stack.Screen name="LoginCons" component={LoginCons} />
           <Stack.Screen name="LoginVsp" component={LoginVsp} />
