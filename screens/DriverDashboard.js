@@ -36,6 +36,8 @@ export default ({ route }) => {
     const [hasPermission, setHasPermission] = useState(false);
 
 
+   
+
     useEffect(() => {
         const requestLocationPermission = async () => {
             try {

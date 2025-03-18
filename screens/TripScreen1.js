@@ -24,7 +24,7 @@ const TripScreen1 = ({ route }) => {
         Cancelled: [],
     });
 
-
+ console.log(userId)
     const navigation = useNavigation();
     // const route = useRoute();
 
@@ -35,6 +35,8 @@ const TripScreen1 = ({ route }) => {
             try {
                 const response = await fetch(apiEndpoint);
                 const data = await response.json();
+
+                console.log("data",data)
 
                 const categorizedTrips = {
                     InProgress: data?.trips?.filter((trip) => trip.status === 'inProgress') ?? [],

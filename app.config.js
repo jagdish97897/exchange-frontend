@@ -37,9 +37,7 @@ export default ({ config
     plugins: [
       "expo-secure-store"
     ],
-    package: "com.tsilteam.Exchange",
-    googleServicesFile: "./google-services (1).json"
-  },
+    package: "com.tsilteam.Exchange"  },
   extra: {
     eas: {
       projectId: "de3fe3a0-f038-40e2-a3c2-60dfe6a9a9c7"
@@ -47,4 +45,4 @@ export default ({ config
   }
 });
 
-export const API_END_POINT = 'http://192.168.1.5:8000';
+export const API_END_POINT = 'http://192.168.1.6:8000';

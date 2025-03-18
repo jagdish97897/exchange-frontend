@@ -13,7 +13,7 @@ const ViewDetails1 = ({ route }) => {
 
     const apiEndpoint = `${API_END_POINT}/api/trips/${tripId}`;
 
-    console.log("viewdetails1", userId)
+    console.log("viewdetails1", tripId, status,userId)
 
     // Fetch trip details
     const fetchTripDetails = async () => {
@@ -76,7 +76,7 @@ const ViewDetails1 = ({ route }) => {
                             (
                                 tripDetails.biddingStatus === 'accepted' ?
                                     (
-                                        <TouchableOpacity style={styles.button}  onPress={() => navigation.navigate('UserDashboard', { userId, from:tripDetails.from, to:tripDetails.to, cargoType:tripDetails.cargoDetails.cargoType, quotePrice:tripDetails.cargoDetails.quotePrice })} >
+                                        <TouchableOpacity style={styles.button}  onPress={() => navigation.navigate('UserDashboard', {tripId, userId, from:tripDetails.from, to:tripDetails.to, cargoType:tripDetails.cargoDetails.cargoType, quotePrice:tripDetails.cargoDetails.quotePrice })} >
                                             <Text style={styles.buttonText}>View map</Text>
                                         </TouchableOpacity>
 
