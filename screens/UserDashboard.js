@@ -11,6 +11,8 @@ import haversine from 'haversine';
 import axios from 'axios';
 import { API_END_POINT } from '../app.config';
 import { getSocket } from './SocketIO';
+import { fetchApiKey } from './GoogleMap';
+
 
 export const getCoordinatesFromPincode = async (pincode, apikey) => {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${pincode}&key=${apiKey}`;
@@ -18,7 +20,7 @@ export const getCoordinatesFromPincode = async (pincode, apikey) => {
     const response = await fetch(url);
     const data = await response.json();
     if (data.results.length > 0) {
-      const { lat, lng } = data.results[0].   geometry.location;
+      const { lat, lng } = data.results[0].geometry.location;
       return { latitude: lat, longitude: lng };
     }
   } catch (error) {

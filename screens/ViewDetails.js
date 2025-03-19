@@ -11,6 +11,8 @@ import * as Sharing from "expo-sharing";
 import { API_END_POINT } from '../app.config';
 import { getSocket } from './SocketIO';
 import { getCoordinatesFromPincode } from './UserDashboard';
+import { fetchApiKey } from './GoogleMap';
+
 
 const ViewDetails = ({ route }) => {
     const { tripId, status } = route.params;
@@ -48,6 +50,13 @@ const ViewDetails = ({ route }) => {
             setLoading(false);
         }
     }, [apiEndpoint]);
+
+    useEffect(() => {
+        const apiKey = fetchApiKey();
+        if (apiKey.length > 0) {
+            setGOOGLE_MAPS_API_KEY(apiKey);
+        }
+    }, []);
 
     // Reload trip details when the screen is focused
     useFocusEffect(
