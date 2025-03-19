@@ -70,14 +70,14 @@ export default function LocationScreen({ route, navigation }) {
     }
 
     setLoading(true);
-    console.log("Fetching trip details from:", apiEndpoint);
+    // console.log("Fetching trip details from:", apiEndpoint);
 
     try {
       const response = await axios.get(apiEndpoint);
-      console.log("Full API Response:", JSON.stringify(response.data, null, 2));
+      // console.log("Full API Response:", JSON.stringify(response.data, null, 2));
 
       if (response.status === 200 && response.data) {
-        console.log("Setting trip details:", response.data);
+        // console.log("Setting trip details:", response.data);
         setTripDetails(response.data); // ✅ Set the full response data
       } else {
         console.warn("No trip details found in response.");
@@ -91,12 +91,20 @@ export default function LocationScreen({ route, navigation }) {
     }
   }, [apiEndpoint, tripId]);
 
-  useEffect(() => {
-    const apiKey = fetchApiKey();
-    if (apiKey.length > 0) {
-      setGOOGLE_MAPS_API_KEY(apiKey);
-    }
-  }, []);
+   useEffect(() => {
+     const fetchKey = async () => {
+       try {
+         const apiKey = await fetchApiKey(); // Wait for the API key
+         if (apiKey.length > 0) {
+           setGOOGLE_MAPS_API_KEY(apiKey);
+         }
+       } catch (error) {
+         console.error("Error fetching API key:", error);
+       }
+     };
+ 
+     fetchKey(); // Call the async function
+   }, []);
 
   useEffect(() => {
     fetchTripDetails();
@@ -108,17 +116,52 @@ export default function LocationScreen({ route, navigation }) {
   // console.log("tripDetails:", tripDetails);
 
 
-  useEffect(() => {
-    const fetchLocations = async () => {
+//   useEffect(() => {
+//     const fetchLocations = async () => {
+//       const pickup = await getCoordinatesFromPincode(from, GOOGLE_MAPS_API_KEY);
+//       const drop = await getCoordinatesFromPincode(to, GOOGLE_MAPS_API_KEY);
+//       console.log('pickup',pickup);
+//       console.log('drop',drop)
+//       if (pickup && drop) {
+//         setPickupCords(pickup);
+//         setDropLocationCords(drop);
+//       }
+//     }
+    
+//     if(!GOOGLE_MAPS_API_KEY){
+//       return ;
+//     } else {
+//       console.log('from pincode',from,'to pincode ',to)
+//   fetchLocations();
+// };
+//   }, [GOOGLE_MAPS_API_KEY,from, to]);
+
+useEffect(() => {
+  const fetchLocations = async () => {
+    if (!from || !to || !GOOGLE_MAPS_API_KEY) {
+      console.log("Invalid data: from, to, or API key missing.");
+      return;
+    }
+
+    try {
       const pickup = await getCoordinatesFromPincode(from, GOOGLE_MAPS_API_KEY);
       const drop = await getCoordinatesFromPincode(to, GOOGLE_MAPS_API_KEY);
+      
+      console.log('pickup', pickup);
+      console.log('drop', drop);
+
       if (pickup && drop) {
         setPickupCords(pickup);
         setDropLocationCords(drop);
       }
-    };
-    fetchLocations();
-  }, [from, to]);
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+    }
+  };
+
+  fetchLocations();
+}, [GOOGLE_MAPS_API_KEY, from, to]); // Dependency array ensures re-run when values change
+
 
   useEffect(() => {
     const requestLocationPermission = async () => {
@@ -148,7 +191,7 @@ export default function LocationScreen({ route, navigation }) {
   }, [currentLocation, pickupCords, dropLocationCords]);
 
   useEffect(() => {
-    console.log("Updated isNearPickup1:", isNearPickup1);
+    // console.log("Updated isNearPickup1:", isNearPickup1);
   }, [isNearPickup1]);
 
 
@@ -165,10 +208,14 @@ export default function LocationScreen({ route, navigation }) {
 
       checkProximity(latitude, longitude);
 
+      // console.log('prevLocation',prevLocation)
+
       // Only send location if it has changed
       if (!prevLocation.current || prevLocation.current.latitude !== latitude || prevLocation.current.longitude !== longitude) {
         prevLocation.current = { latitude, longitude };
-        socket.emit("saveLocation", { userId, latitude, longitude });
+        if(socket){
+                  socket.emit("saveLocation", { userId, latitude, longitude });
+        }
       }
     } catch (error) {
       console.error("Error getting location:", error);
@@ -204,22 +251,22 @@ export default function LocationScreen({ route, navigation }) {
     (async () => {
       try {
         // Fetch user details to get vehicleId
-        const userResponse = await fetch(`http://192.168.1.6:8000/api/v1/users/userid/${userId}`);
+        const userResponse = await fetch(`${API_END_POINT}/api/v1/users/userid/${userId}`);
         const userData = await userResponse.json();
 
         if (!userResponse.ok) throw new Error(userData.message || 'Failed to fetch user details');
 
         const vehicleId = userData.vehicle;
-        console.log('Fetched Vehicle ID:', vehicleId);
+        // console.log('Fetched Vehicle ID:', vehicleId);
 
         // Fetch vehicle details to get vehicleNumber
-        const vehicleResponse = await fetch(`http://192.168.1.6:8000/api/vehicles/vehicle/${vehicleId}`);
+        const vehicleResponse = await fetch(`${API_END_POINT}/api/vehicles/vehicle/${vehicleId}`);
         const vehicleData = await vehicleResponse.json();
 
         if (!vehicleResponse.ok) throw new Error(vehicleData.message || 'Failed to fetch vehicle details');
 
         setVehicleNumber(vehicleData.vehicleNumber);
-        console.log('Fetched Vehicle Number:', vehicleData.vehicleNumber);
+        // console.log('Fetched Vehicle Number:', vehicleData.vehicleNumber);
       } catch (error) {
         console.error('Error fetching vehicle details:', error);
         Alert.alert('Error', error.message);
@@ -235,7 +282,7 @@ export default function LocationScreen({ route, navigation }) {
       // Get current location
       const loc = await Location.getCurrentPositionAsync({});
       setLocation(loc.coords);
-      console.log('Current Location:', JSON.stringify(loc.coords));
+      // console.log('Current Location:', JSON.stringify(loc.coords));
     })();
   }, []);
 
@@ -248,7 +295,7 @@ export default function LocationScreen({ route, navigation }) {
 
     if (!result.canceled && result.assets?.length > 0) {
       setImage(result.assets[0]);
-      console.log('Selected Image:', result.assets[0]);
+      // console.log('Selected Image:', result.assets[0]);
     }
   };
 
@@ -262,7 +309,7 @@ export default function LocationScreen({ route, navigation }) {
 
     if (!result.canceled && result.assets?.length > 0) {
       setBillImage(result.assets[0]);
-      console.log('Selected Image:', result.assets[0]);
+      // console.log('Selected Image:', result.assets[0]);
     }
   };
 
@@ -289,7 +336,7 @@ export default function LocationScreen({ route, navigation }) {
     });
 
     try {
-      const response = await fetch('http://192.168.1.6:8000/api/vehicles/create1', {
+      const response = await fetch(`${API_END_POINT}/api/vehicles/create1`, {
         method: 'POST',
         body: formData,
         headers: {
@@ -310,7 +357,7 @@ export default function LocationScreen({ route, navigation }) {
   };
 
 
-  console.log("Checking proximity before submission: ", isNearPickup1);
+  // console.log("Checking proximity before submission: ", isNearPickup1);
 
 
   const submitBILL = async () => {
@@ -339,7 +386,7 @@ export default function LocationScreen({ route, navigation }) {
     });
 
     try {
-      const response = await fetch('http://192.168.1.6:8000/api/vehicles/create2', {
+      const response = await fetch(`${API_END_POINT}/api/vehicles/create2`, {
         method: 'POST',
         body: formData,
       });

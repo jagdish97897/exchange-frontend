@@ -52,10 +52,18 @@ const ViewDetails = ({ route }) => {
     }, [apiEndpoint]);
 
     useEffect(() => {
-        const apiKey = fetchApiKey();
-        if (apiKey.length > 0) {
+      const fetchKey = async () => {
+        try {
+          const apiKey = await fetchApiKey(); // Wait for the API key
+          if (apiKey.length > 0) {
             setGOOGLE_MAPS_API_KEY(apiKey);
+          }
+        } catch (error) {
+          console.error("Error fetching API key:", error);
         }
+      };
+  
+      fetchKey(); // Call the async function
     }, []);
 
     // Reload trip details when the screen is focused
