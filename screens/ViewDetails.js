@@ -253,7 +253,7 @@ const ViewDetails = ({ route }) => {
                             </View>
                         )}
 
-                        {status === 'inProgress' || status === 'completed' &&
+                        {(status === 'inProgress' || status === 'completed') &&
                             (
                                 tripDetails.biddingStatus === 'accepted' ?
                                     (

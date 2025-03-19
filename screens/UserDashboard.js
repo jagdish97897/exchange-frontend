@@ -14,7 +14,7 @@ import { getSocket } from './SocketIO';
 import { fetchApiKey } from './GoogleMap';
 
 
-export const getCoordinatesFromPincode = async (pincode, apikey) => {
+export const getCoordinatesFromPincode = async (pincode, apiKey) => {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${pincode}&key=${apiKey}`;
   try {
     const response = await fetch(url);
