@@ -1,49 +1,42 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, TouchableWithoutFeedback, StyleSheet, Dimensions, Image, Modal, Button, Alert, TextInput, FlatList, ScrollView } from "react-native";
-import Autocomplete from "react-google-autocomplete";
-import { AntDesign, Feather, Entypo } from '@expo/vector-icons';
-import { Ionicons } from '@expo/vector-icons';
-import LinearGradient from 'react-native-linear-gradient';
+import { SafeAreaView, View, Text, TouchableOpacity, TouchableWithoutFeedback, Modal, Button, Image, ActivityIndicator, StyleSheet, ScrollView, FlatList, Dimensions } from "react-native";
+import { Feather } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import Ind from '../assets/images/image 10.png';
+import { FontAwesome } from '@expo/vector-icons';
 import axios from 'axios';
 import { checkAndRequestLocationPermission } from './ConsumerDashboard';
-import { getSocket, closeSocket } from './SocketIO.js';
+import { getSocket } from './SocketIO.js';
 import { API_END_POINT } from '../app.config';
 import { checkExpoPushTokenChange } from './ConsumerDashboard.js';
 import { useNotification } from '../context/NotificationContext.js';
 
-
-
 const { width, height } = Dimensions.get('window');
-
 
 export default ({ route }) => {
   const { phoneNumber, token, userId } = route.params;
-  // console.log(phoneNumber)
+  const navigation = useNavigation();
   const [menuVisible, setMenuVisible] = useState(false);
   const [ownerId, setOwnerId] = useState('');
-  const [isBrokerModalVisible, setBrokerModalVisible] = useState(false);
-  const [brokerPhoneNumber, setBrokerPhoneNumber] = useState("");
-  const [otp, setOtp] = useState("");
-  const [isOtpSent, setOtpSent] = useState(false);
-  const [isOtpVerified, setOtpVerified] = useState(false);
-  const [serverOtp, setServerOtp] = useState("");
-  const [vehicleNumber, setVehicleNumber] = useState("");
-  const [vehicles, setVehicles] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [socket, setSocket] = useState(null);
+  const [trips, setTrips] = useState({ created: [], inProgress: [], completed: [], cancelled: [] });
+  const [loading, setLoading] = useState(true);
+  const [currentLocation, setCurrentLocation] = useState({ latitude: '', longitude: '' });
+  const [showExitOptions, setShowExitOptions] = useState(false);
   const { expoPushToken } = useNotification();
+  const [selectedType, setSelectedType] = useState("inProgress"); // Default selection
 
-  const [currentLocation, setCurrentLocation] = useState({
-    latitude: '',
-    longitude: '',
-  });
+  const tripTypes = ["created", "inProgress", "completed", "canceled"];
 
+  // Define section colors
+  const sectionColors = {
+    created: '#f0f8ff',
+    inProgress: '#e6f7ff',
+    completed: '#e6ffe6',
+    cancelled: '#ffe6e6'
+  };
 
   useEffect(() => {
     const socketInstance = getSocket();
-
     setSocket(socketInstance);
 
     if (socket) {
@@ -109,628 +102,185 @@ export default ({ route }) => {
     }, [token])
   );
 
-
-  const sendOtp = async () => {
-    try {
-      if (brokerPhoneNumber.trim() === "") {
-        Alert.alert("Error", "Please enter a valid phone number.");
-        return;
-      }
-      // Mock OTP send logic
-
-      const response = await axios.post(`${API_END_POINT}/api/v1/users/sendOtp`, {
-        phoneNumber: brokerPhoneNumber,
-        type: ['broker']
-      });
-
-      if (response.status === 200) {
-        setOtpSent(true);
-        const otpFromServer = response.data.data.otp;
-        setServerOtp(otpFromServer);
-        console.log('OTP sent:', otpFromServer);
-        Alert.alert("OTP Sent", `OTP sent to phone number ending with ${brokerPhoneNumber.slice(-4)}`);
-      } else {
-        throw new Error('Failed to send OTP.'); // This block might never be reached due to the 200 check above
-      }
-    }
-    catch (error) {
-      if (error.response) {
-        if (error.response.status === 400 || 404) {
-          Alert.alert('Error', error.response.data.message);
-        } else if (error.response.status === 500) {
-          Alert.alert('Error', 'Server is down. Please try again later.');
-        } else {
-          Alert.alert('Error', 'An unknown error occurred.');
-        }
-      } else if (error.request) {
-        console.log(error.request)
-        Alert.alert('Error', 'Unable to connect to the server. Please check your network.');
-      } else {
-        Alert.alert('Error', error.message);
-      }
-    }
-
-  };
-
-  const verifyOtp = async () => {
-    try {
-      // Use the rest operator to handle multiple arguments
-      const response = await axios.post(`${API_END_POINT}/api/v1/users/verifyOtp`, {
-        otp, // Assuming first argument is the OTP
-        phoneNumber: brokerPhoneNumber, // Assuming second argument is the phone number
-      });
-
-      if (response.status === 200) {
-        setOtpVerified(true);
-        Alert.alert("Success", "OTP Verified!");
-      } else {
-        Alert.alert("Error", "Invalid OTP. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error verifying OTP:", error);
-      Alert.alert("Error", "Something went wrong. Please try again.");
-    }
-  };
-
-
-  const submitVehicleNumber = async () => {
-    try {
-      if (vehicleNumber.trim() === "") {
-        Alert.alert("Error", "Please enter a vehicle number.");
-        return;
-      }
-
-      const response = await axios.post(`${API_END_POINT}/api/v1/users/addBroker`, {
-        ownerId, vehicleNumber, brokerPhoneNumber
-      });
-
-      if (response.status === 200) {
-        // Submit logic for vehicle number
-        Alert.alert("Success", `Broker added successfully !`);
-        setBrokerModalVisible(false);
-        setOtpSent(false);
-        setOtpVerified(false);
-        setBrokerPhoneNumber("");
-        setOtp("");
-        setVehicleNumber("");
-        setVehicles([]);
-      } else {
-        Alert.alert("Error", "Invalid OTP. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error verifying OTP:", error);
-      Alert.alert("Error", "Something went wrong. Please try again.");
-    }
-  };
-
-
-  const navigation = useNavigation();
-
-  const handleDocumentsClick = () => {
-    // Navigate to the Documents page
-    navigation.navigate('Documents');
-  };
-
-  const [modalVisible, setModalVisible] = useState(false);
-
-  const openModal = () => {
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-  };
-
-  const handleAccountTypeClick = () => {
-    // Navigate to the Account Type page
-    navigation.navigate('AccountType');
-  };
-
-  const handleDeleteAccountClick = () => {
-    // Navigate to the Delete Account page
-    navigation.navigate('DeleteAccount');
-  };
-
-  const handleLogoutClick = () => {
-    // Navigate to the Logout page
-    navigation.navigate('Logout');
-  };
-
-  const navigateBack = () => {
-    // Add navigation logic to go back to the previous page
-  };
-
-  const toggleMenu = () => {
-    setMenuVisible(!menuVisible);
-  };
-
-  const navigateToSettings = () => {
-    navigation.navigate('Settings')
-  };
-
-  const navigateToHelp = () => {
-    // Add navigation logic to go to help page
-  };
-
-  const navigateToAbout = () => {
-    navigation.navigate('About')
-  };
-
-  const navigateToLegal = () => {
-    navigation.navigate('Legal')
-  };
-
-  const [name, setName] = useState('');
-  const [mobileNumber, setMobileNumber] = useState('');
-  const [gstin, setGstin] = useState('');
-  const [photo, setPhoto] = useState(null);
-  const [image, setImage] = useState(null);
-
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    // console.log(result);
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
-  };
-  // Function to handle photo selection
-  const handlePhotoSelection = () => {
-    // Logic to select a photo from the device
-    // Update the 'photo' state with the selected photo URI
-  };
-
-  // Function to handle form submission
-  const handleSubmit = () => {
-    // Logic to handle form submission
-  };
   useEffect(() => {
-    // Fetch user data from API
     const fetchUserData = async () => {
       try {
         const response = await axios.get(`${API_END_POINT}/api/v1/users/${phoneNumber}`);
-        const { _id } = response.data;
-        setOwnerId(_id); // Set the user ID
+        setOwnerId(response.data._id);
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.log("Error fetching user data:", error);
       }
     };
     fetchUserData();
   }, [phoneNumber]);
 
-  // Function to fetch vehicles from the server
-  const fetchVehicles = async (query) => {
+  const fetchTrips = async () => {
     try {
-      setLoading(true);
+      const response = await axios.get(`${API_END_POINT}/api/trips/owner/${userId}/progressTrip`);
 
-      // Make API call with searchText as a query parameter
-      const response = await axios.get(
-        `${API_END_POINT}/api/vehicles/owner/${ownerId}`,
-        {
-          params: { searchText: query }, // Send searchText as query parameter
-        }
-      );
+      // console.log('API Response:', response.data);
 
-      // Update the vehicles state with the fetched data
-      const vehicles = response.data.vehicles.length ? response.data.vehicles.map(v => v.vehicleNumber) : [];
-      setVehicles(vehicles);
-    } catch (error) {
-      if (error.response) {
-        if (error.response.status === 400) {
-          Alert.alert('Error', error.response.data.message);
-        } else if (error.response.status === 500) {
-          Alert.alert('Error', 'Server is down. Please try again later.');
-        } else {
-          Alert.alert('Error', 'An unknown error occurred.');
-        }
-      } else if (error.request) {
-        console.log(error.request)
-        Alert.alert('Error', 'Unable to connect to the server. Please check your network.');
+      if (response.status === 200 && Array.isArray(response.data)) {
+        const categorizedTrips = {
+          created: response.data.filter((trip) => trip.status === 'created') ?? [],
+          inProgress: response.data.filter((trip) => trip.status === 'inProgress') ?? [],
+          completed: response.data.filter((trip) => trip.status === 'completed') ?? [],
+          cancelled: response.data.filter((trip) => trip.status === 'cancelled') ?? [],
+        };
+        setTrips(categorizedTrips);
       } else {
-        Alert.alert('Error', error.message);
+        console.log('Unexpected API Response:', response.data);
+        setTrips({ created: [], inProgress: [], completed: [], cancelled: [] });
       }
+    } catch (error) {
+      console.log('Error fetching trips:', error);
+      setTrips({ created: [], inProgress: [], completed: [], cancelled: [] });
     } finally {
       setLoading(false);
     }
   };
 
-  // Call API when text input changes
-  const handleInputChange = (text) => {
-    setVehicleNumber(text);
-    fetchVehicles(text); // Fetch vehicles based on user input
+  useEffect(() => {
+    if (userId) fetchTrips();
+  }, [userId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchTrips();
+    }, [token])
+  );
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { latitude, longitude } = await checkAndRequestLocationPermission();
+        setCurrentLocation({ latitude, longitude });
+      } catch (error) {
+        console.log('Error getting location:', error);
+      }
+    })();
+  }, []);
+
+  const handleCloseApp = () => {
+    BackHandler.exitApp();
   };
 
-  // Handle vehicle selection from the list
-  const handleVehicleSelect = (selectedVehicle) => {
-    setVehicleNumber(selectedVehicle); // Set the selected vehicle number
-    setVehicles([]); // Optionally clear the list after selection
-  };
+  const toggleMenu = () => setMenuVisible(!menuVisible);
+
+  const renderTripCard = ({ item }) => (
+    <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ViewDetails', { tripId: item._id, status: item.status })}>
+      <Image source={require('../assets/images/start.png')} style={styles.tripImage} />
+      <View style={styles.tripDetails}>
+        <Text style={styles.tripText}>Trip Id: {item._id}</Text>
+        <View style={styles.routeContainer}>
+          <FontAwesome name="map-marker" size={18} color="green" />
+          <Text style={styles.locationText}>{' '}{item.from}{' '}</Text>
+          <Text style={styles.arrow}>{'➝'}</Text>
+          <FontAwesome name="map-marker" size={18} color="red" />
+          <Text style={styles.locationText}>{' '}{item.to}</Text>
+        </View>
+        <Text style={styles.eta}>{`ETA: ${item.eta ?? 'N/A'}`}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007BFF" />
+      </View>
+    );
+  }
 
   return (
     <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
       <View style={{ flex: 1, marginTop: 40 }}>
-        <View className="bg-blue-100" style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 60, marginBottom: 20, paddingHorizontal: 30 }}>
-          {/* Left Arrow */}
-          <TouchableOpacity onPress={navigateBack}>
-            <AntDesign name="arrowleft" size={24} color="black" />
-          </TouchableOpacity>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' }}>
-            <View className="ml-[160px]">
-              <Feather name="headphones" size={24} color="black" /></View>
-            <View className="ml-[20px]">
-              <Ionicons name="notifications-outline" size={24} color="black" /></View>
-            {/* {image && <Image source={{ uri: image }} style={styles.image} onPress={pickImage}/>} */}
-          </View>
-          {/* Right Menu */}
+        <View style={styles.header}>
           <TouchableOpacity onPress={toggleMenu}>
             <Feather name="menu" size={24} color="black" />
           </TouchableOpacity>
+          <Text style={styles.title}>Exchange</Text>
+          <TouchableOpacity onPress={toggleMenu} />
         </View>
 
-
-
-        {/* Menu Options */}
         {menuVisible && (
-          <View style={{ position: 'absolute', top: 75, right: 20, backgroundColor: 'white', padding: 10, borderRadius: 5, elevation: 5, zIndex: 2 }}>
-            <TouchableOpacity onPress={navigateToSettings} style={{ marginBottom: 10 }}>
-              <Text>Settings</Text>
+          <View style={styles.menu}>
+            <TouchableOpacity onPress={() => navigation.navigate('Profile', { phoneNumber })}>
+              <Text>ACCOUNT</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={navigateToHelp} style={{ marginBottom: 10 }}>
-              <Text>Help</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("AddVehicleScreen", { ownerId, token, currentLocation })}>
+              <Text>ADD VEHICLE</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={navigateToAbout} style={{ marginBottom: 10 }}>
-              <Text>About</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={navigateToLegal}>
-              <Text>Legal</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("GetVehicleScreen", { ownerId })}>
+              <Text>UPDATE VEHICLE</Text>
             </TouchableOpacity>
           </View>
         )}
 
-
-
-        <View className="flex-row gap-5 bg-blue-100">
-          <Text className="text-lg pb-2 font-bold pl-[70px]">Dashboard</Text>
-          <Text onPress={() => { navigation.navigate('Trips') }} className="text-lg font-bold pl-[80px]">Trips</Text>
+        {/* Trip Type Selection */}
+        <View style={styles.filterContainer}>
+          {tripTypes.map((type) => (
+            <TouchableOpacity
+              key={type}
+              style={[styles.filterButton, selectedType === type && styles.selectedButton]}
+              onPress={() => setSelectedType(type)}
+            >
+              <Text style={selectedType === type ? styles.selectedText : styles.filterText}>
+                {type.toUpperCase()}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
+        {/* Trips List */}
         <SafeAreaView style={styles.container}>
-          <View className="flex-row bg-blue-100" style={styles.topBox}>
-            <Image source={Ind} style={{
-              width: 80,
-              height: 50,
-              width: 50,
-              borderRadius: 40,
-            }} />
-            <Text className="pl-8" style={{ fontSize: 30, fontWeight: '700' }}>TWCPL</Text>
-          </View>
-
-          <View style={styles.selectionContainer}>
-            <View style={styles.cardContainer}>
-              <TouchableOpacity
-                style={styles.card}
-                onPress={() => navigation.navigate("AddVehicleScreen", { ownerId, token, currentLocation })}
-              >
-                <Text style={styles.cardText}>Add Vehicle</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.card}
-                onPress={() => navigation.navigate("GetVehicleScreen", { ownerId })}
-              >
-                <Text style={styles.cardText}>View & Update Vehicle</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.card}
-                onPress={() => setBrokerModalVisible(true)}              >
-                <Text style={styles.cardText}>Add Broker</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.ctaWrapper}>
-            <TouchableOpacity style={styles.cta}>
-              <Entypo name="wallet" size={24} color="black" />
-              <Text>Wallet</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cta}>
-              <Feather name="shield" size={24} color="black" />
-              <Text>Insurance</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cta}>
-              <Feather name="headphones" size={24} color="black" />
-              <Text>Help & FAQ</Text>
-            </TouchableOpacity>
-          </View>
+          <FlatList
+            data={trips[selectedType]}
+            renderItem={renderTripCard}
+            keyExtractor={(item) => item._id}
+            contentContainerStyle={{ paddingBottom: 10 }}
+          />
         </SafeAreaView>
 
-        {/* Modal */}
         <Modal
           animationType="slide"
           transparent={true}
-          visible={isBrokerModalVisible}
-          onRequestClose={() => setBrokerModalVisible(false)}
+          visible={showExitOptions}
+          onRequestClose={() => setShowExitOptions(false)}
         >
-          <View style={styles.modalContainer}>
-            <FlatList
-              data={[]}
-              keyExtractor={(item, index) => index.toString()}
-              contentContainerStyle={styles.modalContent}
-              ListHeaderComponent={
-                <>
-                  <TouchableOpacity
-                    style={styles.crossButton}
-                    onPress={() => {
-                      setBrokerModalVisible(false);
-                      setOtpSent(false);
-                      setOtpVerified(false);
-                      setBrokerPhoneNumber("");
-                      setOtp("");
-                      setVehicleNumber("");
-                      setVehicles([]);
-                    }}
-                  >
-                    {/* If using React Native Vector Icons */}
-                    {/* <Icon name="close" size={24} color="#000" /> */}
-
-                    {/* Alternatively, using Text */}
-                    <Text style={styles.crossButtonText}>✕</Text>
-                  </TouchableOpacity>
-                  {!isOtpSent ? (
-                    <>
-                      <Text style={styles.modalTitle}>Enter Phone Number</Text>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="Phone Number"
-                        keyboardType="numeric"
-                        value={brokerPhoneNumber}
-                        onChangeText={setBrokerPhoneNumber}
-                      />
-                      <TouchableOpacity style={styles.button} onPress={sendOtp}>
-                        <Text style={styles.buttonText}>Send OTP</Text>
-                      </TouchableOpacity>
-                    </>
-                  ) : !isOtpVerified ? (
-                    <>
-                      <Text style={styles.modalTitle}>Enter OTP</Text>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="Enter OTP"
-                        keyboardType="numeric"
-                        value={otp}
-                        onChangeText={setOtp}
-                      />
-                      <TouchableOpacity style={styles.button} onPress={verifyOtp}>
-                        <Text style={styles.buttonText}>Verify OTP</Text>
-                      </TouchableOpacity>
-                    </>
-                  ) : (
-                    <>
-                      <Text style={styles.modalTitle}>Enter Vehicle Number</Text>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="Vehicle Number"
-                        value={vehicleNumber}
-                        onChangeText={handleInputChange}
-                      />
-                      {loading && <Text>Loading...</Text>}
-                      <FlatList
-                        data={vehicles}
-                        keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item }) => (
-                          <TouchableOpacity
-                            style={styles.vehicleItem}
-                            onPress={() => handleVehicleSelect(item)}
-                          >
-                            <Text>{item}</Text>
-                          </TouchableOpacity>
-                        )}
-                      // ListEmptyComponent={!loading && <Text>No vehicles found</Text>}
-                      />
-                    </>
-                  )}
-
-                </>
-              }
-              ListFooterComponent={
-                <TouchableOpacity
-                  style={styles.submitButton}
-                  onPress={submitVehicleNumber}
-                >
-                  <Text style={styles.buttonText}>Submit</Text>
-                </TouchableOpacity>
-              }
-              ListEmptyComponent={null} // Disable the empty list component since the ListHeaderComponent is already used
-            />
-
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.exitText}>Do you really want to close the app?</Text>
+              <View style={styles.buttonGroup}>
+                <Button title="Close App" onPress={handleCloseApp} color="#FF5C5C" />
+                <Button title="Not Close" onPress={() => setShowExitOptions(false)} color="#5CCF5C" />
+              </View>
+            </View>
           </View>
         </Modal>
-        <View clasName="flex-1">
-          <Text className="pl-[100px] bg-blue-300 h-[30px] text-xl">Company Newsletter</Text>
-        </View>
 
-        <View style={{ backgroundColor: 'black', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingBottom: 20 }}>
-          <TouchableOpacity>
-            <AntDesign name="home" size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity style={{ backgroundColor: 'blue', borderRadius: 24, padding: 10 }}>
-            <Entypo name="shop" size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Profile', { phoneNumber })}>
-            <AntDesign name="user" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
       </View>
     </TouchableWithoutFeedback>
-  )
-}
+  );
+};
 
-const styles = new StyleSheet.create({
-  cardContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  selectionContainer: {
-    borderWidth: 2,
-    borderColor: '#80eae0',
-    backgroundColor: '#93aed2',
-    borderRadius: 30,
-    width: '90%',
-    position: 'absolute',
-    top: height * 0.15, // Adjusted based on screen height
-    left: '5%',
-    height: height * 0.35, // Dynamic height adjustment
-    padding: 20,
-    flexDirection: 'row',
-    gap: 16,
-    justifyContent: 'center',
-  },
-  card: {
-    width: width * 0.37, // Responsive width
-    height: height * 0.12, // Responsive height
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  cardText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333333',
-  },
-
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF'
-  },
-  topBox: {
-    backgroundColor: '#e7feff',
-    // backgroundColor: 'linear-gradient(to right, #70ACC1, #6F9C9F)',
-    height: 250,
-    padding: 50,
-    paddingTop: 25
-  },
-
-  ctaWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    marginTop: 200
-  },
-  cta: {
-    padding: 15,
-    borderRadius: 10,
-    shadowColor: '#1E40D8',
-    shadowOffset: 0,
-    shadowOpacity: 4,
-    borderColor: '#80eae0',
-    borderWidth: 2,
-    shadowRadius: 10,
-    height: 90,
-    width: 110,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#ADD8E6',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 20,
-    marginTop: 5,
-    marginHorizontal: 5,
-    paddingBottom: 60, // Ensure there’s space for the submit button
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  input: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 20,
-  },
-  button: {
-    backgroundColor: "#4CAF50",
-    borderRadius: 5,
-    padding: 10,
-    alignItems: "center",
-    width: "100%",
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  closeButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  crossButton: {
-    position: "absolute",
-    top: 0,
-    right: 5,
-    zIndex: 10, // Ensure it appears on top of other elements
-  },
-  crossButtonText: {
-    fontSize: 18,
-    color: "#000",
-    backgroundColor: "gray", // Adds a red background
-    borderWidth: 2,         // Adds a border
-    borderColor: "#000",    // Ensures the border is visible (default is transparent)
-    // borderRadius: 50,       // Makes it a circular button for better appearance
-    textAlign: "center",    // Centers the cross mark horizontally
-    lineHeight: 30,         // Matches the height to make it vertically centered
-    width: 30,              // Sets the width of the button
-    height: 30,             // Sets the height of the button
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-  },
-  vehicleItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderWidth: 2,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    marginBottom: 5,
-    backgroundColor: '#f9f9f9',
-  },
-  submitButton: {
-    backgroundColor: '#007BFF',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 10,
-  },
-})
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 10 },
+  header: { flexDirection: "row", justifyContent: "space-between", padding: 15, backgroundColor: "#fff" },
+  title: { fontSize: 18, fontWeight: "bold" },
+  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
+  card: { flexDirection: "row", backgroundColor: "#fff", padding: 10, borderRadius: 10, marginBottom: 10, elevation: 2, backgroundColor: '#0052CC', },
+  tripImage: { width: 50, height: 50, marginRight: 10 },
+  tripDetails: { flex: 1 },
+  tripText: { fontSize: 16, fontWeight: "bold", color: "white" },
+  routeContainer: { flexDirection: "row", alignItems: "center", marginVertical: 5 },
+  locationText: { fontSize: 14, color: "white" },
+  arrow: { fontSize: 14, marginHorizontal: 5 },
+  eta: { fontSize: 14, color: "gray" },
+  menu: { position: 'absolute', top: 75, left: 20, backgroundColor: 'white', padding: 10, borderRadius: 5, elevation: 5, zIndex: 2 },
+  filterContainer: { flexDirection: "row", justifyContent: "space-around", marginVertical: 10 },
+  filterButton: { padding: 7, borderRadius: 5, backgroundColor: "#ddd" },
+  selectedButton: { backgroundColor: "#007BFF" },
+  filterText: { color: "#333" },
+  selectedText: { color: "#fff", fontWeight: "bold" },
+});

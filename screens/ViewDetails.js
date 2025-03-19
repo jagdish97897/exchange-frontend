@@ -1,41 +1,23 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet, Alert, ScrollView, SafeAreaView, TouchableOpacity, Modal, Image, TextInput } from 'react-native';
-import {  useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MapView, { Marker } from 'react-native-maps';
 import Ind from '../assets/images/image 10.png';
-import io from 'socket.io-client';
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { API_END_POINT } from '../app.config';
-
-const socket = io('http://192.168.1.6:8000');
-
-const getCoordinatesFromPincode = async (pincode) => {
-    const apiKey = "AIzaSyAI0jFdBsZoRP00RGq050nfe24aSfj1mwo";
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${pincode}&key=${apiKey}`;
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        if (data.results.length > 0) {
-            const { lat, lng } = data.results[0].geometry.location;
-            return { latitude: lat, longitude: lng };
-        }
-    } catch (error) {
-        console.error("Error fetching coordinates:", error);
-    }
-    return null;
-};
+import { getSocket } from './SocketIO';
+import { getCoordinatesFromPincode } from './UserDashboard';
 
 const ViewDetails = ({ route }) => {
     const { tripId, status } = route.params;
     const [tripDetails, setTripDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [editModalVisible, setEditModalVisible] = useState(false);
-    const [editedTrip, setEditedTrip] = useState(null); 
+    const [editedTrip, setEditedTrip] = useState(null);
     const [userId, setUserId] = useState(null);
     const [pickupCords, setPickupCords] = useState(null);
     const [dropLocationCords, setDropLocationCords] = useState(null);
@@ -43,7 +25,10 @@ const ViewDetails = ({ route }) => {
     const [tripGRImages, setTripGRImages] = useState([]);
     const [tripBillImages, setTripBillImages] = useState([]);
     const navigation = useNavigation();
-    
+    const [GOOGLE_MAPS_API_KEY, setGOOGLE_MAPS_API_KEY] = useState(null);
+    const [socket, setSocket] = useState(null);
+
+
     const apiEndpoint = `${API_END_POINT}/api/trips/${tripId}`;
 
     // Fetch trip details
@@ -52,8 +37,8 @@ const ViewDetails = ({ route }) => {
             setLoading(true);
             const response = await axios.get(apiEndpoint);
             if (response.status === 200) {
-                setTripDetails({...response.data.trip,transactions:response.data.transactions});
-                console.log('response.data.trip', response.data.trip);
+                setTripDetails({ ...response.data.trip, transactions: response.data.transactions });
+                // console.log('response.data.trip', response.data.trip);
                 setEditedTrip(response.data.trip);
             }
         } catch (error) {
@@ -71,12 +56,21 @@ const ViewDetails = ({ route }) => {
         }, [fetchTripDetails])
     );
 
+    useEffect(() => {
+        const socketInstance = getSocket();
+        setSocket(socketInstance);
+
+        // return () => {
+        //     closeSocket(); // Disconnect socket on unmount
+        // };
+    }, []);
+
     // Fetch Coordinates for Pickup & Drop Locations
     useEffect(() => {
         if (tripDetails?.from && tripDetails?.to) {
             const fetchLocations = async () => {
-                const pickup = await getCoordinatesFromPincode(tripDetails.from);
-                const drop = await getCoordinatesFromPincode(tripDetails.to);
+                const pickup = await getCoordinatesFromPincode(tripDetails.from, GOOGLE_MAPS_API_KEY);
+                const drop = await getCoordinatesFromPincode(tripDetails.to, GOOGLE_MAPS_API_KEY);
                 setPickupCords(pickup);
                 setDropLocationCords(drop);
             };
@@ -123,8 +117,8 @@ const ViewDetails = ({ route }) => {
             });
 
             if (response.status === 200) {
-                console.log("trip", response.data.trip)
-                setTripDetails({...response.data.trip,transactions:response.data.transactions});
+                // console.log("trip", response.data.trip)
+                setTripDetails({ ...response.data.trip, transactions: response.data.transactions });
                 Alert.alert('Success', 'Trip details updated successfully!');
                 setEditModalVisible(false);
             } else {
@@ -149,53 +143,53 @@ const ViewDetails = ({ route }) => {
     };
 
 
-useEffect(() => {
-    const fetchTripImages = async () => {
+    useEffect(() => {
+        const fetchTripImages = async () => {
+            try {
+                const response = await axios.get(`${API_END_POINT}/api/trips/gracceptedimage/${tripId}`);
+                console.log('images23', response.data.data[0]?.images)
+                if (response.data.success) {
+                    setTripGRImages(response.data.data[0]?.images || []);
+                }
+            } catch (error) {
+                console.log("Error fetching trip images:", error);
+            }
+        };
+
+        fetchTripImages();
+    }, [tripId]);
+
+    useEffect(() => {
+        const fetchTripImages = async () => {
+            try {
+                const response = await axios.get(`${API_END_POINT}/api/trips/billacceptedimage/${tripId}`);
+                console.log('images', response.data.data[0]?.images)
+                if (response.data.success) {
+                    setTripBillImages(response.data.data[0]?.images || []);
+                }
+            } catch (error) {
+                console.log("Error fetching trip images:", error);
+            }
+        };
+
+        fetchTripImages();
+    }, [tripId]);
+
+    const downloadImage = async (imageUrl) => {
         try {
-            const response = await axios.get(`http://192.168.1.6:8000/api/trips/gracceptedimage/${tripId}`);
-            console.log(response.data.data[0]?.images)
-            if (response.data.success) {
-                setTripGRImages(response.data.data[0]?.images || []);
+            const fileUri = FileSystem.documentDirectory + "downloaded_image.jpg";
+            const { uri } = await FileSystem.downloadAsync(imageUrl, fileUri);
+
+            if (await Sharing.isAvailableAsync()) {
+                await Sharing.shareAsync(uri);
+            } else {
+                Alert.alert("Downloaded", "Image saved to: " + uri);
             }
         } catch (error) {
-            console.log("Error fetching trip images:", error);
+            console.error("Error downloading image:", error);
+            Alert.alert("Download Failed", "Could not download the image.");
         }
     };
-
-    fetchTripImages();
-}, [tripId]);
-
-useEffect(() => {
-    const fetchTripImages = async () => {
-        try {
-            const response = await axios.get(`http://192.168.1.6:8000/api/trips/billacceptedimage/${tripId}`);
-            console.log(response.data.data[0]?.images)
-            if (response.data.success) {
-                setTripBillImages(response.data.data[0]?.images || []);
-            }
-        } catch (error) {
-            console.log("Error fetching trip images:", error);
-        }
-    };
-
-    fetchTripImages();
-}, [tripId]);
-
-const downloadImage = async (imageUrl) => {
-    try {
-      const fileUri = FileSystem.documentDirectory + "downloaded_image.jpg";
-      const { uri } = await FileSystem.downloadAsync(imageUrl, fileUri);
-      
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(uri);
-      } else {
-        Alert.alert("Downloaded", "Image saved to: " + uri);
-      }
-    } catch (error) {
-      console.error("Error downloading image:", error);
-      Alert.alert("Download Failed", "Could not download the image.");
-    }
-  };
 
     const handleStartBidding = () => {
         Alert.alert(
@@ -232,191 +226,188 @@ const downloadImage = async (imageUrl) => {
                         <Text style={styles.editButtonText}>Edit</Text>
                     </TouchableOpacity>}
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
-                   
+
                     <View style={styles.card}>
                         {status == 'created' && (
                             <View style={styles.additionalInfo}>
                                 <Text style={styles.detailText}>From: {tripDetails.from}</Text>
-                        <Text style={styles.detailText}>To: {tripDetails.to}</Text>
-                        <Text style={styles.detailText}>Cargo Type: {tripDetails?.cargoDetails?.cargoType ?? ''}</Text>
-                        <Text style={styles.detailText}>Quote Price: ₹{tripDetails?.cargoDetails?.quotePrice ?? ''}</Text>
-                        <Text style={styles.detailText}>
-                            Trip Date: {new Date(tripDetails.tripDate).toLocaleDateString()}
-                        </Text>
-                        <Text style={styles.detailText}>Special Instructions: {tripDetails.specialInstruction || 'N/A'}</Text>
-                        <Text style={styles.detailText}>Status: {tripDetails.status}</Text>
+                                <Text style={styles.detailText}>To: {tripDetails.to}</Text>
+                                <Text style={styles.detailText}>Cargo Type: {tripDetails?.cargoDetails?.cargoType ?? ''}</Text>
+                                <Text style={styles.detailText}>Quote Price: ₹{tripDetails?.cargoDetails?.quotePrice ?? ''}</Text>
+                                <Text style={styles.detailText}>
+                                    Trip Date: {new Date(tripDetails.tripDate).toLocaleDateString()}
+                                </Text>
+                                <Text style={styles.detailText}>Special Instructions: {tripDetails.specialInstruction || 'N/A'}</Text>
+                                <Text style={styles.detailText}>Status: {tripDetails.status}</Text>
 
-                              
+
                             </View>
                         )}
 
-                        {status === 'inProgress' ?
+                        {status === 'inProgress' || status === 'completed' &&
                             (
                                 tripDetails.biddingStatus === 'accepted' ?
                                     (
-                                        
+
                                         <View>
-                   <Text style={styles.paymentTitle}>Trip ID: {tripId}</Text>
-                 <View style={styles.header}>
-                  <Image
-                    source={Ind}
-                    style={{
-                      height: 50,
-                      width: 50,
-                      borderRadius: 40,
-                    }}
-                  />
-                    
-                    <View>
-                        <Text style={styles.driverName}>{tripDetails.bidder}</Text>
-                        <Text style={styles.date}>{new Date(tripDetails.tripDate).toLocaleDateString()}</Text>
-                    </View>
-                    <View style={styles.phonemessage}>
-                        <Icon name="phone" size={20} color="green" />
-                        <Icon name="comment" size={20} color="blue" />
-                    </View>
-                </View>                  
-                <View style={styles.locationContainer}>
-    <Text style={styles.locationText}>
-        <Icon name="map-marker" size={20} color="red" /> {tripDetails.from}
-    </Text>
-    <Icon name="arrow-right" size={25} color="black" style={styles.arrow} />
-    <Text style={styles.locationText}>
-        <Icon name="map-marker" size={20} color="green" /> {tripDetails.to}
-    </Text>
-</View>
-    
-            <Text style={styles.status}>Status: {status}</Text>
-            
-            {/* Map Display */}
-            <MapView
-                style={styles.map}
-                initialRegion={{
-                    latitude: pickupCords?.latitude || 20.5937,
-                    longitude: pickupCords?.longitude || 78.9629,
-                    latitudeDelta: 0.1,
-                    longitudeDelta: 0.1,
-                }}
-            >
-                {/* Pickup Location Marker */}
-                {pickupCords && (
-                    <Marker coordinate={pickupCords} title="Pickup Location" pinColor="green" />
-                )}
+                                            <Text style={styles.paymentTitle}>Trip ID: {tripId}</Text>
+                                            <View style={styles.header}>
+                                                <Image
+                                                    source={Ind}
+                                                    style={{
+                                                        height: 50,
+                                                        width: 50,
+                                                        borderRadius: 40,
+                                                    }}
+                                                />
 
-                {/* Drop Location Marker */}
-                {dropLocationCords && (
-                    <Marker coordinate={dropLocationCords} title="Drop Location" pinColor="red" />
-                )}
+                                                <View>
+                                                    <Text style={styles.driverName}>{tripDetails.bidder}</Text>
+                                                    <Text style={styles.date}>{new Date(tripDetails.tripDate).toLocaleDateString()}</Text>
+                                                </View>
+                                                <View style={styles.phonemessage}>
+                                                    <Icon name="phone" size={20} color="green" />
+                                                    <Icon name="comment" size={20} color="blue" />
+                                                </View>
+                                            </View>
+                                            <View style={styles.locationContainer}>
+                                                <Text style={styles.locationText}>
+                                                    <Icon name="map-marker" size={20} color="red" /> {tripDetails.from}
+                                                </Text>
+                                                <Icon name="arrow-right" size={25} color="black" style={styles.arrow} />
+                                                <Text style={styles.locationText}>
+                                                    <Icon name="map-marker" size={20} color="green" /> {tripDetails.to}
+                                                </Text>
+                                            </View>
 
-                {/* Driver's Live Location Marker */}
-                {driverLocation && (
-                    <Marker coordinate={driverLocation} title="Driver Location" pinColor="blue" />
-                )}
-            </MapView>
+                                            <Text style={styles.status}>Status: {status}</Text>
 
-            <Text style={styles.paymentTitle}>Payments</Text>
-        {(tripDetails?.transactions || []).map((payment, index) => (
-     <View key={index} style={styles.paymentItem}>
-        <Text>Payment {index + 1} ({payment.paymentPercent}%)</Text>
-        <Text style={{ color: payment.amount ? 'green' : 'red' }}>
-            {payment.amount ? '✅' : '❌'}
-        </Text>
-     </View>
-))}
+                                            {/* Map Display */}
+                                            <MapView
+                                                style={styles.map}
+                                                initialRegion={{
+                                                    latitude: pickupCords?.latitude || 20.5937,
+                                                    longitude: pickupCords?.longitude || 78.9629,
+                                                    latitudeDelta: 0.1,
+                                                    longitudeDelta: 0.1,
+                                                }}
+                                            >
+                                                {/* Pickup Location Marker */}
+                                                {pickupCords && (
+                                                    <Marker coordinate={pickupCords} title="Pickup Location" pinColor="green" />
+                                                )}
 
-   <View className="bg-white p-4 rounded-lg shadow-md">
-      <Text className="text-lg font-bold text-center text-blue-700">
-        Documents
-      </Text>
-      {tripGRImages.length > 0 ? (
-        tripGRImages.map((image, index) => (
-          <TouchableOpacity
-            key={index}
-            className="flex-row items-center justify-between mt-2"
-            onPress={() => downloadImage(image)}
-          >
-            <Text className="text-gray-700 text-base">
-              Goods receipt - {index + 1}
-            </Text>
-            <Image
-              source={require("../assets/images/pdf.png")} // Your PDF icon
-              style={{ width: 50, height: 50 }}
-            />
-          </TouchableOpacity>
-        ))
-      ) : (
-        <Text className="text-center text-gray-500 mt-2">No documents found</Text>
-      )}
-    </View>
+                                                {/* Drop Location Marker */}
+                                                {dropLocationCords && (
+                                                    <Marker coordinate={dropLocationCords} title="Drop Location" pinColor="red" />
+                                                )}
 
-<View className="bg-white p-4 rounded-lg shadow-md">
+                                                {/* Driver's Live Location Marker */}
+                                                {driverLocation && (
+                                                    <Marker coordinate={driverLocation} title="Driver Location" pinColor="blue" />
+                                                )}
+                                            </MapView>
 
-      {tripBillImages.length > 0 ? (
-        tripBillImages.map((image, index) => (
-          <TouchableOpacity
-            key={index}
-            className="flex-row items-center justify-between mt-2"
-            onPress={() => downloadImage(image)}
-          >
-            <Text className="text-gray-700 text-base">
-              Bill receipt - {index + 1}
-            </Text>
-            <Image
-              source={require("../assets/images/pdf.png")} // Your PDF icon
-              style={{ width: 50, height: 50 }}
-            />
-          </TouchableOpacity>
-        ))
-      ) : (
-        <Text className="text-center text-gray-500 mt-2">No documents found</Text>
-      )}
-    </View>
+                                            <Text style={styles.paymentTitle}>Payments</Text>
+                                            {(tripDetails?.transactions || []).map((payment, index) => (
+                                                <View key={index} style={styles.paymentItem}>
+                                                    <Text>Payment {index + 1} ({payment.paymentPercent}%)</Text>
+                                                    <Text style={{ color: payment.amount ? 'green' : 'red' }}>
+                                                        {payment.amount ? '✅' : '❌'}
+                                                    </Text>
+                                                </View>
+                                            ))}
 
-    <View style={{ padding: 20, backgroundColor: "#fff", flex: 1 }}>
-      {/* Pickup & Drop */}
-      <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 20 }}>
-        Pickup & Drop
-      </Text>
-      <Text style={{ fontWeight: "bold", marginTop: 10 }}>Pickup Location</Text>
-      <Text style={{ color: "gray" }}>
-        2972 Westheimer Rd. Santa Ana, Illinois 85486
-      </Text>
-      <Text style={{ fontWeight: "bold", marginTop: 10 }}>Drop-Off Location</Text>
-      <Text style={{ color: "gray" }}>
-        4140 Parker Rd. Allentown, New Mexico 31134
-      </Text>
-      {/* Help Section */}
-      <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 20 }}>
-        Help
-      </Text>
-      <TouchableOpacity style={{ marginTop: 10 }}>
-        <Text style={{ fontWeight: "bold" }}>Report an Issue</Text>
-        <Text style={{ color: "gray" }}>
-          Let us know if you have a safety-related issue
-        </Text>
-      </TouchableOpacity>
+                                            <View className="bg-white p-4 rounded-lg shadow-md">
+                                                <Text className="text-lg font-bold text-center text-blue-700">
+                                                    Documents
+                                                </Text>
+                                                {tripGRImages.length > 0 ? (
+                                                    tripGRImages.map((image, index) => (
+                                                        <TouchableOpacity
+                                                            key={index}
+                                                            className="flex-row items-center justify-between mt-2"
+                                                            onPress={() => downloadImage(image)}
+                                                        >
+                                                            <Text className="text-gray-700 text-base">
+                                                                Goods receipt - {index + 1}
+                                                            </Text>
+                                                            <Image
+                                                                source={require("../assets/images/pdf.png")} // Your PDF icon
+                                                                style={{ width: 50, height: 50 }}
+                                                            />
+                                                        </TouchableOpacity>
+                                                    ))
+                                                ) : (
+                                                    <Text className="text-center text-gray-500 mt-2">No documents found</Text>
+                                                )}
+                                            </View>
 
-      <TouchableOpacity style={{ marginTop: 15 }}>
-        <Text style={{ fontWeight: "bold", color: "red" }}>Cancel Booking</Text>
-        <Text style={{ color: "gray" }}>Cancel this booking</Text>
-      </TouchableOpacity>
-    </View>
-            {/* Location Details */}
-            <Text>Pickup Coordinates: {pickupCords ? `${pickupCords.latitude}, ${pickupCords.longitude}` : "Loading..."}</Text>
-            <Text>Drop Coordinates: {dropLocationCords ? `${dropLocationCords.latitude}, ${dropLocationCords.longitude}` : "Loading..."}</Text>
-            <Text>Driver Location: {driverLocation ? `${driverLocation.latitude}, ${driverLocation.longitude}` : "Fetching..."}</Text>
-        </View>
+                                            <View className="bg-white p-4 rounded-lg shadow-md">
+
+                                                {tripBillImages.length > 0 ? (
+                                                    tripBillImages.map((image, index) => (
+                                                        <TouchableOpacity
+                                                            key={index}
+                                                            className="flex-row items-center justify-between mt-2"
+                                                            onPress={() => downloadImage(image)}
+                                                        >
+                                                            <Text className="text-gray-700 text-base">
+                                                                Bill receipt - {index + 1}
+                                                            </Text>
+                                                            <Image
+                                                                source={require("../assets/images/pdf.png")} // Your PDF icon
+                                                                style={{ width: 50, height: 50 }}
+                                                            />
+                                                        </TouchableOpacity>
+                                                    ))
+                                                ) : (
+                                                    <Text className="text-center text-gray-500 mt-2">No documents found</Text>
+                                                )}
+                                            </View>
+
+                                            <View style={{ padding: 20, backgroundColor: "#fff", flex: 1 }}>
+                                                {/* Pickup & Drop */}
+                                                <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 20 }}>
+                                                    Pickup & Drop
+                                                </Text>
+                                                <Text style={{ fontWeight: "bold", marginTop: 10 }}>Pickup Location</Text>
+                                                <Text style={{ color: "gray" }}>
+                                                    2972 Westheimer Rd. Santa Ana, Illinois 85486
+                                                </Text>
+                                                <Text style={{ fontWeight: "bold", marginTop: 10 }}>Drop-Off Location</Text>
+                                                <Text style={{ color: "gray" }}>
+                                                    4140 Parker Rd. Allentown, New Mexico 31134
+                                                </Text>
+                                                {/* Help Section */}
+                                                <Text style={{ fontSize: 18, fontWeight: "bold", marginTop: 20 }}>
+                                                    Help
+                                                </Text>
+                                                <TouchableOpacity style={{ marginTop: 10 }}>
+                                                    <Text style={{ fontWeight: "bold" }}>Report an Issue</Text>
+                                                    <Text style={{ color: "gray" }}>
+                                                        Let us know if you have a safety-related issue
+                                                    </Text>
+                                                </TouchableOpacity>
+
+                                                <TouchableOpacity style={{ marginTop: 15 }}>
+                                                    <Text style={{ fontWeight: "bold", color: "red" }}>Cancel Booking</Text>
+                                                    <Text style={{ color: "gray" }}>Cancel this booking</Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                            {/* Location Details */}
+                                            <Text>Pickup Coordinates: {pickupCords ? `${pickupCords.latitude}, ${pickupCords.longitude}` : "Loading..."}</Text>
+                                            <Text>Drop Coordinates: {dropLocationCords ? `${dropLocationCords.latitude}, ${dropLocationCords.longitude}` : "Loading..."}</Text>
+                                            <Text>Driver Location: {driverLocation ? `${driverLocation.latitude}, ${driverLocation.longitude}` : "Fetching..."}</Text>
+                                        </View>
 
                                     ) : (
                                         <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
                                             <Text style={styles.buttonText}>Back to manu</Text>
                                         </TouchableOpacity>
                                     )
-                            ) : (
-                                <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
-                                    <Text style={styles.buttonText}>khela khatam</Text>
-                                </TouchableOpacity>
-                            )}
+                            )
+                        }
 
                         {status === 'created' ?
                             (
@@ -586,14 +577,14 @@ const styles = StyleSheet.create({
     date: {
         fontSize: 14,
         color: '#555',
-    },    
+    },
     status: {
         fontSize: 16,
         marginBottom: 10,
         color: 'blue',
         textAlign: 'center',
     },
-    
+
     locationContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -608,7 +599,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
     },
     map: {
-        width: '90%', 
+        width: '90%',
         height: 300,
         alignSelf: 'center',
         marginBottom: 10,
