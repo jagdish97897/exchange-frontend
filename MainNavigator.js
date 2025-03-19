@@ -34,6 +34,7 @@ import WithdrawWalletAmount from './screens/WithdrawWalletAmount.js';
 import ViewDetails1 from './screens/ViewDetails1.js';
 import UserDashboard from './screens/UserDashboard.js';
 import DriverLocation from './screens/DriverLocation.js';
+import TermsAndConditions from './screens/TermsAndConditions.js';
 
 
 const Stack = createNativeStackNavigator();
@@ -70,6 +71,7 @@ const MainNavigator = () => {
           <Stack.Screen name="AddWalletAmount" component={AddWalletAmount} />
           <Stack.Screen name="Wallet" component={Wallet} />
           <Stack.Screen name="WithdrawWalletAmount" component={WithdrawWalletAmount} />
+          <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
         </>
       ) : (
         // Unprotected routes for unauthenticated users
